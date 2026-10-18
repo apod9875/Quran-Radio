@@ -1,0 +1,6 @@
+{
+  "name": "MP3Quran Radio",
+  "description": "24/7 Live Holy Quran Radio streaming mobile and tablet application with 150+ stations, reciters, search, and sleep timer.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
