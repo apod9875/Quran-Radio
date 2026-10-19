@@ -40,18 +40,24 @@
       <div class="header-actions">
         <!-- Install PWA button -->
         <button id="installBtn" class="btn-text-pill btn-install" title="Install App">
-          <span>📲</span>
+          <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/><path d="M12 7v6m-3-3l3 3 3-3"/>
+          </svg>
           <span class="btn-label">تثبيت التطبيق</span>
         </button>
 
         <!-- About & Dedication button -->
         <button id="infoBtn" class="btn-icon" title="About & Dedication">
-          <span>ℹ️</span>
+          <svg class="svg-icon svg-gold-glow" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+          </svg>
         </button>
 
         <!-- Language toggle button -->
         <button id="langToggleBtn" class="btn-text-pill" title="Switch Language">
-          <span>🌐</span>
+          <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
           <span id="langBtnText">English</span>
         </button>
       </div>
@@ -67,9 +73,17 @@
         <!-- Search bar with Live Counter -->
         <div class="search-row">
           <div class="search-box">
-            <span class="search-icon">🔍</span>
+            <span class="search-icon">
+              <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </span>
             <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن قارئ أو إذاعة...">
-            <button id="clearSearchBtn" class="clear-search-btn">✕</button>
+            <button id="clearSearchBtn" class="clear-search-btn">
+              <svg class="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
           </div>
           <div class="search-meta-bar">
             <div id="stationsCountBadge" class="stations-count-chip">جاري تحميل الإذاعات...</div>
@@ -117,16 +131,36 @@
 
           <!-- Main Player Controls -->
           <div class="player-controls-row">
-            <button id="heroPrevBtn" class="btn-ctrl" title="Previous Station">⏮️</button>
-            <button id="heroPlayBtn" class="btn-ctrl btn-main-play" title="Play / Pause">▶️</button>
-            <button id="heroNextBtn" class="btn-ctrl" title="Next Station">⏭️</button>
+            <button id="heroPrevBtn" class="btn-ctrl" title="Previous Station">
+              <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 6a1 1 0 0 1 2 0v12a1 1 0 0 1-2 0V6zm11.5 0.5a1 1 0 0 0-1.5-.86l-8 5.5a1 1 0 0 0 0 1.72l8 5.5a1 1 0 0 0 1.5-.86V6.5z"/>
+              </svg>
+            </button>
+            <button id="heroPlayBtn" class="btn-ctrl btn-main-play" title="Play / Pause">
+              <svg class="svg-icon svg-gold-glow" width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86a1 1 0 0 0-1.5.86z"/>
+              </svg>
+            </button>
+            <button id="heroNextBtn" class="btn-ctrl" title="Next Station">
+              <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18 6a1 1 0 0 1 2 0v12a1 1 0 0 1-2 0V6zM6.5 6.5a1 1 0 0 1 1.5-.86l8 5.5a1 1 0 0 1 0 1.72l-8 5.5a1 1 0 0 1-1.5-.86V6.5z"/>
+              </svg>
+            </button>
           </div>
 
           <!-- Volume Slider -->
           <div class="volume-row">
-            <span>🔈</span>
+            <span>
+              <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z"/>
+              </svg>
+            </span>
             <input type="range" id="heroVolumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="1">
-            <span>🔊</span>
+            <span>
+              <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+              </svg>
+            </span>
           </div>
 
           <!-- Active Sleep Timer Badge -->
@@ -134,9 +168,22 @@
 
           <!-- Secondary Actions: Sleep Timer, Favorite, Share -->
           <div class="player-secondary-actions">
-            <button id="heroTimerBtn" class="btn-ctrl" title="Sleep Timer">🌙</button>
-            <button id="heroFavBtn" class="btn-ctrl" title="Favorite">🤍</button>
-            <button id="heroShareBtn" class="btn-ctrl" title="Share">🔗</button>
+            <button id="heroTimerBtn" class="btn-ctrl" title="Sleep Timer">
+              <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12.3 2a10 10 0 0 0-.19 20 10 10 0 0 0 8.76-5.18 1 1 0 0 0-1.07-1.46 8 8 0 1 1-8.96-12.29 1 1 0 0 0-1.07-1.46A9.9 9.9 0 0 0 12.3 2z"/>
+              </svg>
+            </button>
+            <button id="heroFavBtn" class="btn-ctrl" title="Favorite">
+              <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+            </button>
+            <button id="heroShareBtn" class="btn-ctrl" title="Share">
+              <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+              </svg>
+            </button>
           </div>
 
           <!-- Dedication Footer Badge -->
@@ -150,22 +197,38 @@
   <!-- Mobile Floating Player Bar (Tap to expand full player) -->
   <div class="mobile-player-bar" id="mobilePlayerBar">
     <div style="display:flex; align-items:center; gap: 10px; overflow:hidden; flex:1;">
-      <span style="font-size:1.4rem;">📻</span>
+      <span style="color:var(--gold);">
+        <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M3.24 6.15C2.51 6.43 2 7.17 2 8v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8c0-.83-.51-1.57-1.24-1.85L16.2 4.47l.8-1.74a1 1 0 1 0-1.81-.84l-1.33 2.92L4.76 5.37a2 2 0 0 0-1.52.78zM20 20H4V8h16v12zm-6-6a4 4 0 1 1-8 0 4 4 0 0 1 8 0zm4-3a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+        </svg>
+      </span>
       <div style="overflow:hidden;">
         <div id="mobileBarTitle" style="font-weight:700; color:var(--gold); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:0.9rem;"></div>
         <div id="mobileBarStatus" style="font-size:0.75rem; color:var(--text-muted);">بث مباشر • اضغط للتحكم الكامل</div>
       </div>
     </div>
     <div style="display:flex; align-items:center; gap: 8px;">
-      <button id="mobileBarFavBtn" class="btn-card-action" style="border:none;">🤍</button>
-      <button id="mobileBarPlayBtn" class="btn-card-action btn-play-card" style="background:var(--gold); color:#121815;">▶️</button>
+      <button id="mobileBarFavBtn" class="btn-card-action" style="border:none;">
+        <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+      </button>
+      <button id="mobileBarPlayBtn" class="btn-card-action btn-play-card" style="background:var(--gold); color:#121815;">
+        <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86a1 1 0 0 0-1.5.86z"/>
+        </svg>
+      </button>
     </div>
   </div>
 
   <!-- Mobile Full Player Sheet / Overlay -->
   <div class="mobile-full-player-overlay" id="mobileFullPlayerOverlay">
     <div class="full-player-header">
-      <button class="btn-icon" id="closeFullPlayerBtn">✕</button>
+      <button class="btn-icon" id="closeFullPlayerBtn">
+        <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
       <div style="font-weight:700; color:var(--gold); font-size:1rem;">مشغل البث المباشر</div>
       <div style="width:40px;"></div>
     </div>
@@ -193,21 +256,49 @@
 
       <!-- Controls -->
       <div class="player-controls-row" style="margin-bottom:28px;">
-        <button id="fullPlayerPrevBtn" class="btn-ctrl">⏮️</button>
-        <button id="fullPlayerPlayBtn" class="btn-ctrl btn-main-play">▶️</button>
-        <button id="fullPlayerNextBtn" class="btn-ctrl">⏭️</button>
+        <button id="fullPlayerPrevBtn" class="btn-ctrl">
+          <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6 6a1 1 0 0 1 2 0v12a1 1 0 0 1-2 0V6zm11.5 0.5a1 1 0 0 0-1.5-.86l-8 5.5a1 1 0 0 0 0 1.72l8 5.5a1 1 0 0 0 1.5-.86V6.5z"/>
+          </svg>
+        </button>
+        <button id="fullPlayerPlayBtn" class="btn-ctrl btn-main-play">
+          <svg class="svg-icon svg-gold-glow" width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86a1 1 0 0 0-1.5.86z"/>
+          </svg>
+        </button>
+        <button id="fullPlayerNextBtn" class="btn-ctrl">
+          <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18 6a1 1 0 0 1 2 0v12a1 1 0 0 1-2 0V6zM6.5 6.5a1 1 0 0 1 1.5-.86l8 5.5a1 1 0 0 1 0 1.72l-8 5.5a1 1 0 0 1-1.5-.86V6.5z"/>
+          </svg>
+        </button>
       </div>
 
       <!-- Volume -->
       <div class="volume-row" style="margin-bottom:24px;">
-        <span>🔈</span>
+        <span>
+          <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z"/>
+          </svg>
+        </span>
         <input type="range" id="fullPlayerVolumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="1">
-        <span>🔊</span>
+        <span>
+          <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+          </svg>
+        </span>
       </div>
 
       <div class="player-secondary-actions" style="margin-bottom:24px;">
-        <button id="fullPlayerTimerBtn" class="btn-ctrl" title="Sleep Timer">🌙</button>
-        <button id="fullPlayerFavBtn" class="btn-ctrl" title="Favorite">🤍</button>
+        <button id="fullPlayerTimerBtn" class="btn-ctrl" title="Sleep Timer">
+          <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12.3 2a10 10 0 0 0-.19 20 10 10 0 0 0 8.76-5.18 1 1 0 0 0-1.07-1.46 8 8 0 1 1-8.96-12.29 1 1 0 0 0-1.07-1.46A9.9 9.9 0 0 0 12.3 2z"/>
+          </svg>
+        </button>
+        <button id="fullPlayerFavBtn" class="btn-ctrl" title="Favorite">
+          <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </button>
       </div>
 
       <div class="hero-dedication-tag">صدقة جارية لـ ( عبدالرحيم معبد ) • Mabed</div>
@@ -219,7 +310,11 @@
     <div class="modal-card">
       <div class="modal-header">
         <h3 class="modal-title">معلومات القارئ والإذاعة</h3>
-        <button class="modal-close-btn" id="closeReciterBtn">✕</button>
+        <button class="modal-close-btn" id="closeReciterBtn">
+          <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
       </div>
 
       <div class="reciter-card-header">
@@ -258,11 +353,19 @@
     <div class="modal-card">
       <div class="modal-header">
         <h3 class="modal-title">حول التطبيق والإهداء</h3>
-        <button class="modal-close-btn" id="closeAboutBtn">✕</button>
+        <button class="modal-close-btn" id="closeAboutBtn">
+          <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
       </div>
 
       <div class="dedication-card">
-        <div style="font-size: 2rem; margin-bottom: 6px;">🤲</div>
+        <div style="margin-bottom: 8px; color: var(--gold);">
+          <svg class="svg-icon svg-gold-glow" width="36" height="36" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+        </div>
         <div class="dedication-title">صدقة جارية لـ ( عبدالرحيم معبد )</div>
         <div class="dedication-dua">
           «اللهم اغفر له وارحمه وعافه واعف عنه وأكرم نزله ووسع مدخله واجعله في الفردوس الأعلى من الجنة»
@@ -274,20 +377,28 @@
           <div style="font-size: 0.78rem; color: var(--text-muted);">تطوير وبرمجة</div>
           <div style="font-size: 1.15rem; font-weight: 700; color: var(--gold);">Mabed</div>
         </div>
-        <span style="font-size: 1.6rem;">💻</span>
+        <span style="color:var(--gold);">
+          <svg class="svg-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+          </svg>
+        </span>
       </div>
 
-      <div style="font-size: 0.78rem; color: var(--mint-light); margin-bottom: 14px; background: rgba(82,183,136,0.1); padding: 8px; border-radius: 8px;">
+      <div style="font-size: 0.78rem; color: var(--mint-light); margin-bottom: 14px; background: rgba(82,183,136,0.1); padding: 10px; border-radius: 8px; line-height: 1.6;">
         💾 التخزين المؤقت للاستماع دون انترنت يتم فقط للإذاعات المفضلة (Loved Stations) بسعة حتى 20 جيجابايت للكمبيوتر و 10 جيجابايت للهواتف.
       </div>
 
       <div class="links-row">
         <a href="https://github.com/apod9875/mp3quran-live-radio" target="_blank" rel="noopener" class="btn-link">
-          <span>📦</span>
+          <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
           <span>GitHub: apod9875/mp3quran-live-radio</span>
         </a>
         <a href="https://quran-radio.apod9875.workers.dev/" target="_blank" rel="noopener" class="btn-link">
-          <span>🌐</span>
+          <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
           <span>تطبيق الويب الرسمي: quran-radio.apod9875.workers.dev</span>
         </a>
       </div>
@@ -303,7 +414,11 @@
     <div class="modal-card">
       <div class="modal-header">
         <h3 class="modal-title">مؤقت النوم</h3>
-        <button class="modal-close-btn" id="closeTimerBtn">✕</button>
+        <button class="modal-close-btn" id="closeTimerBtn">
+          <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
       </div>
 
       <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 14px;">
@@ -332,6 +447,7 @@
   </div>
 
   <!-- Scripts -->
+  <script src="js/icons.js"></script>
   <script src="js/reciters.js"></script>
   <script src="js/fallback.js"></script>
   <script src="js/player.js"></script>

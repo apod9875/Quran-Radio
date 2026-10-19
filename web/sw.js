@@ -19,6 +19,8 @@ const STATIC_ASSETS = [
   './',
   './index.html',
   './css/styles.css',
+  './js/icons.js',
+  './js/reciters.js',
   './js/app.js',
   './js/player.js',
   './js/fallback.js',

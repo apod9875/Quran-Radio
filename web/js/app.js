@@ -528,13 +528,17 @@
             </div>
             <div class="station-actions">
               <button class="btn-card-action" data-action="info" title="Reciter Info">
-                ℹ️
+                ${window.SvgIcons ? window.SvgIcons.info(18) : 'ℹ️'}
               </button>
               <button class="btn-card-action fav ${isFav ? 'active' : ''}" data-action="fav" title="Favorite">
-                ${isFav ? '❤️' : '🤍'}
+                ${isFav ? (window.SvgIcons ? window.SvgIcons.heartFilled(18) : '❤️') : (window.SvgIcons ? window.SvgIcons.heartOutline(18) : '🤍')}
               </button>
               <button class="btn-card-action btn-play-card" data-action="play">
-                ${isCurrent && isBuffering ? '⏳' : (isCurrent && isPlaying ? '⏸️' : '▶️')}
+                ${isCurrent && isBuffering 
+                  ? (window.SvgIcons ? window.SvgIcons.spinner(18) : '⏳')
+                  : (isCurrent && isPlaying 
+                    ? (window.SvgIcons ? window.SvgIcons.pause(18) : '⏸️')
+                    : (window.SvgIcons ? window.SvgIcons.play(18) : '▶️'))}
               </button>
             </div>
           </div>
@@ -614,9 +618,12 @@
     _updateFavButton(id) {
       if (this.player.currentStation && this.player.currentStation.id === id) {
         const isFav = this.favorites.has(id);
-        this.dom.heroFavBtn.textContent = isFav ? '❤️' : '🤍';
-        this.dom.mobileBarFavBtn.textContent = isFav ? '❤️' : '🤍';
-        if (this.dom.fullPlayerFavBtn) this.dom.fullPlayerFavBtn.textContent = isFav ? '❤️' : '🤍';
+        const iconHtml = isFav 
+          ? (window.SvgIcons ? window.SvgIcons.heartFilled(20) : '❤️') 
+          : (window.SvgIcons ? window.SvgIcons.heartOutline(20) : '🤍');
+        this.dom.heroFavBtn.innerHTML = iconHtml;
+        this.dom.mobileBarFavBtn.innerHTML = iconHtml;
+        if (this.dom.fullPlayerFavBtn) this.dom.fullPlayerFavBtn.innerHTML = iconHtml;
       }
     }
 
@@ -655,7 +662,7 @@
       if (!station) {
         this.dom.heroTitle.textContent = t.selectPrompt;
         this.dom.heroCategory.textContent = '';
-        this.dom.heroPlayBtn.innerHTML = '▶️';
+        this.dom.heroPlayBtn.innerHTML = window.SvgIcons ? window.SvgIcons.play(30, "svg-gold-glow") : '▶️';
         this.dom.mobileBar.classList.remove('visible');
         return;
       }
@@ -667,28 +674,37 @@
       if (this.dom.fullPlayerCategory) this.dom.fullPlayerCategory.textContent = t[station.category.toLowerCase()] || station.category;
 
       const isFav = this.favorites.has(station.id);
-      this.dom.heroFavBtn.textContent = isFav ? '❤️' : '🤍';
-      this.dom.mobileBarFavBtn.textContent = isFav ? '❤️' : '🤍';
-      if (this.dom.fullPlayerFavBtn) this.dom.fullPlayerFavBtn.textContent = isFav ? '❤️' : '🤍';
+      const favIcon = isFav 
+        ? (window.SvgIcons ? window.SvgIcons.heartFilled(20) : '❤️') 
+        : (window.SvgIcons ? window.SvgIcons.heartOutline(20) : '🤍');
+      this.dom.heroFavBtn.innerHTML = favIcon;
+      this.dom.mobileBarFavBtn.innerHTML = favIcon;
+      if (this.dom.fullPlayerFavBtn) this.dom.fullPlayerFavBtn.innerHTML = favIcon;
 
       if (state === 'buffering') {
+        const spinnerHero = window.SvgIcons ? window.SvgIcons.spinner(30) : '⏳';
+        const spinnerMini = window.SvgIcons ? window.SvgIcons.spinner(20) : '⏳';
         this.dom.heroIndicatorText.textContent = t.connecting;
-        this.dom.heroPlayBtn.innerHTML = '⏳';
-        this.dom.mobileBarPlayBtn.innerHTML = '⏳';
+        this.dom.heroPlayBtn.innerHTML = spinnerHero;
+        this.dom.mobileBarPlayBtn.innerHTML = spinnerMini;
         this.dom.mobileBarStatus.textContent = t.connecting;
-        if (this.dom.fullPlayerPlayBtn) this.dom.fullPlayerPlayBtn.innerHTML = '⏳';
+        if (this.dom.fullPlayerPlayBtn) this.dom.fullPlayerPlayBtn.innerHTML = spinnerHero;
       } else if (state === 'playing') {
+        const pauseHero = window.SvgIcons ? window.SvgIcons.pause(30, "svg-gold-glow") : '⏸️';
+        const pauseMini = window.SvgIcons ? window.SvgIcons.pause(20) : '⏸️';
         this.dom.heroIndicatorText.textContent = t.live;
-        this.dom.heroPlayBtn.innerHTML = '⏸️';
-        this.dom.mobileBarPlayBtn.innerHTML = '⏸️';
+        this.dom.heroPlayBtn.innerHTML = pauseHero;
+        this.dom.mobileBarPlayBtn.innerHTML = pauseMini;
         this.dom.mobileBarStatus.textContent = t.live;
-        if (this.dom.fullPlayerPlayBtn) this.dom.fullPlayerPlayBtn.innerHTML = '⏸️';
+        if (this.dom.fullPlayerPlayBtn) this.dom.fullPlayerPlayBtn.innerHTML = pauseHero;
       } else {
+        const playHero = window.SvgIcons ? window.SvgIcons.play(30, "svg-gold-glow") : '▶️';
+        const playMini = window.SvgIcons ? window.SvgIcons.play(20) : '▶️';
         this.dom.heroIndicatorText.textContent = t.paused;
-        this.dom.heroPlayBtn.innerHTML = '▶️';
-        this.dom.mobileBarPlayBtn.innerHTML = '▶️';
+        this.dom.heroPlayBtn.innerHTML = playHero;
+        this.dom.mobileBarPlayBtn.innerHTML = playMini;
         this.dom.mobileBarStatus.textContent = t.paused;
-        if (this.dom.fullPlayerPlayBtn) this.dom.fullPlayerPlayBtn.innerHTML = '▶️';
+        if (this.dom.fullPlayerPlayBtn) this.dom.fullPlayerPlayBtn.innerHTML = playHero;
       }
 
       this.dom.mobileBar.classList.add('visible');
