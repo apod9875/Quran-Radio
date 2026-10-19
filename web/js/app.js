@@ -189,6 +189,7 @@
         devicesBtn: document.getElementById('devicesBtn'),
         cacheBtn: document.getElementById('cacheBtn'),
         cacheBtnLabel: document.getElementById('cacheBtnLabel'),
+        cacheBtnMobileLabel: document.getElementById('cacheBtnMobileLabel'),
         offlineBanner: document.getElementById('offlineBanner'),
         offlineBannerText: document.getElementById('offlineBannerText'),
 
@@ -478,6 +479,7 @@
       this.dom.langBtnText.textContent = lang === 'ar' ? 'English' : 'عربي';
 
       if (this.dom.cacheBtnLabel) this.dom.cacheBtnLabel.textContent = t.cacheBtnLabel;
+      if (this.dom.cacheBtnMobileLabel) this.dom.cacheBtnMobileLabel.textContent = '10GB';
       if (this.dom.offlineBannerText) this.dom.offlineBannerText.textContent = t.offlineNotice;
 
       const installLabel = this.dom.installBtn.querySelector('.btn-label');
