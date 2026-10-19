@@ -1,0 +1,21 @@
+# Build outputs & temporary archives
+*.zip
+*.tar
+*.gz
+*.aar
+*.apk
+
+# Android & Gradle
+.gradle/
+build/
+app/build/
+.kotlin/
+.build-outputs/
+
+# Environment & local files
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
