@@ -64,16 +64,23 @@
       
       <!-- Catalog & Filtering Column -->
       <section class="catalog-column">
-        <!-- Search bar -->
-        <div class="search-box">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن قارئ أو إذاعة...">
-          <button id="clearSearchBtn" class="clear-search-btn">✕</button>
+        <!-- Search bar with Live Counter -->
+        <div class="search-row">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن قارئ أو إذاعة...">
+            <button id="clearSearchBtn" class="clear-search-btn">✕</button>
+          </div>
+          <div class="search-meta-bar">
+            <div id="stationsCountBadge" class="stations-count-chip">جاري تحميل الإذاعات...</div>
+          </div>
         </div>
 
-        <!-- Categories horizontal bar -->
-        <div class="categories-bar" id="categoriesBar">
-          <!-- Populated by JavaScript -->
+        <!-- Categories horizontal bar with smooth momentum touch-swipe -->
+        <div class="categories-container">
+          <div class="categories-bar" id="categoriesBar">
+            <!-- Populated by JavaScript -->
+          </div>
         </div>
 
         <!-- Station cards container -->
@@ -140,18 +147,109 @@
     </div>
   </main>
 
-  <!-- Mobile Floating Player Bar -->
+  <!-- Mobile Floating Player Bar (Tap to expand full player) -->
   <div class="mobile-player-bar" id="mobilePlayerBar">
     <div style="display:flex; align-items:center; gap: 10px; overflow:hidden; flex:1;">
       <span style="font-size:1.4rem;">📻</span>
       <div style="overflow:hidden;">
         <div id="mobileBarTitle" style="font-weight:700; color:var(--gold); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:0.9rem;"></div>
-        <div id="mobileBarStatus" style="font-size:0.75rem; color:var(--text-muted);">بث مباشر</div>
+        <div id="mobileBarStatus" style="font-size:0.75rem; color:var(--text-muted);">بث مباشر • اضغط للتحكم الكامل</div>
       </div>
     </div>
     <div style="display:flex; align-items:center; gap: 8px;">
       <button id="mobileBarFavBtn" class="btn-card-action" style="border:none;">🤍</button>
       <button id="mobileBarPlayBtn" class="btn-card-action btn-play-card" style="background:var(--gold); color:#121815;">▶️</button>
+    </div>
+  </div>
+
+  <!-- Mobile Full Player Sheet / Overlay -->
+  <div class="mobile-full-player-overlay" id="mobileFullPlayerOverlay">
+    <div class="full-player-header">
+      <button class="btn-icon" id="closeFullPlayerBtn">✕</button>
+      <div style="font-weight:700; color:var(--gold); font-size:1rem;">مشغل البث المباشر</div>
+      <div style="width:40px;"></div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; align-items:center; text-align:center; width:100%; max-width:400px; margin:auto 0;">
+      <div class="live-indicator">
+        <span class="dot"></span>
+        <span>بث مباشر الآن</span>
+      </div>
+
+      <h2 id="fullPlayerTitle" style="color:var(--gold); font-size:1.4rem; font-weight:700; margin-bottom:8px; line-height:1.4;"></h2>
+      <div id="fullPlayerCategory" style="color:var(--text-muted); font-size:0.9rem; margin-bottom:24px;"></div>
+
+      <div class="hero-waveform" style="margin-bottom:28px;">
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+      </div>
+
+      <!-- Controls -->
+      <div class="player-controls-row" style="margin-bottom:28px;">
+        <button id="fullPlayerPrevBtn" class="btn-ctrl">⏮️</button>
+        <button id="fullPlayerPlayBtn" class="btn-ctrl btn-main-play">▶️</button>
+        <button id="fullPlayerNextBtn" class="btn-ctrl">⏭️</button>
+      </div>
+
+      <!-- Volume -->
+      <div class="volume-row" style="margin-bottom:24px;">
+        <span>🔈</span>
+        <input type="range" id="fullPlayerVolumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="1">
+        <span>🔊</span>
+      </div>
+
+      <div class="player-secondary-actions" style="margin-bottom:24px;">
+        <button id="fullPlayerTimerBtn" class="btn-ctrl" title="Sleep Timer">🌙</button>
+        <button id="fullPlayerFavBtn" class="btn-ctrl" title="Favorite">🤍</button>
+      </div>
+
+      <div class="hero-dedication-tag">صدقة جارية لـ ( عبدالرحيم معبد ) • Mabed</div>
+    </div>
+  </div>
+
+  <!-- Reciter Biography Modal -->
+  <div class="modal-overlay" id="reciterModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">معلومات القارئ والإذاعة</h3>
+        <button class="modal-close-btn" id="closeReciterBtn">✕</button>
+      </div>
+
+      <div class="reciter-card-header">
+        <div class="reciter-avatar-large">
+          <img id="reciterAvatarImg" src="icons/icon.png" alt="Reciter avatar">
+        </div>
+        <div class="reciter-full-name" id="reciterNameText"></div>
+        <div class="reciter-title-tag" id="reciterTitleTag"></div>
+      </div>
+
+      <div class="reciter-meta-box">
+        <div class="reciter-meta-item">
+          <span class="reciter-meta-label">البلد:</span>
+          <span id="reciterOriginText"></span>
+        </div>
+        <div class="reciter-meta-item">
+          <span class="reciter-meta-label">الفترة:</span>
+          <span id="reciterEraText"></span>
+        </div>
+        <div class="reciter-meta-item">
+          <span class="reciter-meta-label">الرواية:</span>
+          <span id="reciterRiwayahText"></span>
+        </div>
+      </div>
+
+      <div class="reciter-bio-text" id="reciterBioBody"></div>
+
+      <button class="btn-text-pill" onclick="document.getElementById('reciterModal').classList.remove('active')" style="width:100%; justify-content:center; background:var(--gold); color:#121815; border:none; padding:12px;">
+        إغلاق
+      </button>
     </div>
   </div>
 
@@ -188,9 +286,9 @@
           <span>📦</span>
           <span>GitHub: apod9875/mp3quran-live-radio</span>
         </a>
-        <a href="https://mp3quran-live-radio.apod9875.workers.dev/" target="_blank" rel="noopener" class="btn-link">
+        <a href="https://quran-radio.apod9875.workers.dev/" target="_blank" rel="noopener" class="btn-link">
           <span>🌐</span>
-          <span>تطبيق الويب الرسمي</span>
+          <span>تطبيق الويب الرسمي: quran-radio.apod9875.workers.dev</span>
         </a>
       </div>
 
@@ -200,7 +298,7 @@
     </div>
   </div>
 
-  <!-- Sleep Timer Modal -->
+  <!-- Sleep Timer Modal with Presets + Custom Input -->
   <div class="modal-overlay" id="timerModal">
     <div class="modal-card">
       <div class="modal-header">
@@ -209,7 +307,7 @@
       </div>
 
       <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 14px;">
-        اختر المدة لإيقاف البث تلقائياً أثناء الاستماع:
+        اختر المدة أو أدخل دقائق مخصصة لإيقاف البث تلقائياً أثناء الاستماع:
       </p>
 
       <div class="timer-grid" id="timerGrid">
@@ -221,6 +319,12 @@
         <button class="btn-timer-chip" data-mins="120">120 دقيقة</button>
       </div>
 
+      <!-- Custom minute input -->
+      <div class="custom-timer-row">
+        <input type="number" id="customTimerInput" class="custom-timer-input" placeholder="أدخل الدقائق (مثلاً 25)" min="1" max="600">
+        <button id="applyCustomTimerBtn" class="btn-text-pill" style="background:var(--gold); color:#121815; border:none; padding:8px 16px;">تطبيق المدة</button>
+      </div>
+
       <div id="timerRemainingText" style="color: var(--gold); font-weight: 700; font-size: 0.95rem; margin-bottom: 12px;"></div>
 
       <button class="btn-cancel-timer" id="cancelTimerBtn">إلغاء المؤقت</button>
@@ -228,6 +332,7 @@
   </div>
 
   <!-- Scripts -->
+  <script src="js/reciters.js"></script>
   <script src="js/fallback.js"></script>
   <script src="js/player.js"></script>
   <script src="js/app.js"></script>

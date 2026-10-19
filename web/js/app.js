@@ -22,12 +22,20 @@
       githubRepo: "مستودع الكود على GitHub",
       webApp: "تطبيق الويب الرسمي",
       sleepTimerTitle: "مؤقت النوم",
-      sleepTimerDesc: "اختر المدة لإيقاف البث تلقائياً أثناء الاستماع:",
+      sleepTimerDesc: "اختر المدة أو اكتبها بالدقائق لإيقاف البث تلقائياً:",
       sleepIn: "المتبقي على الإيقاف: ",
       turnOffTimer: "إلغاء المؤقت",
+      setCustomTimer: "تطبيق المدة",
+      customMinutesPlaceholder: "أدخل الدقائق (مثلاً 25)",
       close: "إغلاق",
       minutes: "دقيقة",
       noResults: "لا توجد إذاعات مطابقة لبحثك",
+      reciterDetails: "معلومات القارئ والإذاعة",
+      origin: "البلد والمنشأ",
+      era: "الفترة الزمنية",
+      riwayahLabel: "الرواية / التخصص",
+      bioLabel: "نبذة عن القارئ",
+      stationsCount: "إذاعة متاحة",
       favAddedToast: "❤️ تمت الإضافة للمفضلة والتخزين المؤقت للاستماع دون انترنت",
       favRemovedToast: "🤍 تم الإزالة من المفضلة وإلغاء التخزين المؤقت"
     },
@@ -53,12 +61,20 @@
       githubRepo: "GitHub Repository",
       webApp: "Official Web App",
       sleepTimerTitle: "Sleep Timer",
-      sleepTimerDesc: "Select duration to stop playback automatically:",
+      sleepTimerDesc: "Choose preset or enter custom minutes to stop playback:",
       sleepIn: "Auto-stop in: ",
       turnOffTimer: "Turn Off Timer",
+      setCustomTimer: "Set Timer",
+      customMinutesPlaceholder: "Enter minutes (e.g. 25)",
       close: "Close",
       minutes: "min",
       noResults: "No stations found matching your search",
+      reciterDetails: "Reciter & Station Details",
+      origin: "Country & Origin",
+      era: "Era / Lifespan",
+      riwayahLabel: "Recitation / Specialty",
+      bioLabel: "Biography",
+      stationsCount: "Stations Available",
       favAddedToast: "❤️ Added to favorites & cached for offline playback",
       favRemovedToast: "🤍 Removed from favorites & offline cache"
     }
@@ -86,6 +102,7 @@
       this._cacheDom();
       this._bindEvents();
       this._setupPwaAndCaching();
+      this._setupCategoryTouchDrag();
       this.applyLanguage(this.lang);
       this.fetchStations();
     }
@@ -146,9 +163,11 @@
         installBtn: document.getElementById('installBtn'),
         searchInput: document.getElementById('searchInput'),
         clearSearchBtn: document.getElementById('clearSearchBtn'),
+        stationsCountBadge: document.getElementById('stationsCountBadge'),
         categoriesBar: document.getElementById('categoriesBar'),
         stationsContainer: document.getElementById('stationsContainer'),
         
+        // Hero Player (Desktop)
         heroTitle: document.getElementById('heroTitle'),
         heroCategory: document.getElementById('heroCategory'),
         heroIndicator: document.getElementById('heroIndicator'),
@@ -163,23 +182,72 @@
         heroTimerBadge: document.getElementById('heroTimerBadge'),
         heroDedication: document.getElementById('heroDedication'),
         
+        // Mobile Player Bar
         mobileBar: document.getElementById('mobilePlayerBar'),
         mobileBarTitle: document.getElementById('mobileBarTitle'),
         mobileBarStatus: document.getElementById('mobileBarStatus'),
         mobileBarPlayBtn: document.getElementById('mobileBarPlayBtn'),
         mobileBarFavBtn: document.getElementById('mobileBarFavBtn'),
 
+        // Mobile Full Player Overlay
+        mobileFullPlayer: document.getElementById('mobileFullPlayerOverlay'),
+        closeFullPlayerBtn: document.getElementById('closeFullPlayerBtn'),
+        fullPlayerTitle: document.getElementById('fullPlayerTitle'),
+        fullPlayerCategory: document.getElementById('fullPlayerCategory'),
+        fullPlayerPlayBtn: document.getElementById('fullPlayerPlayBtn'),
+        fullPlayerPrevBtn: document.getElementById('fullPlayerPrevBtn'),
+        fullPlayerNextBtn: document.getElementById('fullPlayerNextBtn'),
+        fullPlayerFavBtn: document.getElementById('fullPlayerFavBtn'),
+        fullPlayerTimerBtn: document.getElementById('fullPlayerTimerBtn'),
+        fullPlayerVolumeSlider: document.getElementById('fullPlayerVolumeSlider'),
+
         toast: document.getElementById('toastNotification'),
 
+        // Modals
         aboutModal: document.getElementById('aboutModal'),
         closeAboutBtn: document.getElementById('closeAboutBtn'),
         doneAboutBtn: document.getElementById('doneAboutBtn'),
         timerModal: document.getElementById('timerModal'),
         closeTimerBtn: document.getElementById('closeTimerBtn'),
         cancelTimerBtn: document.getElementById('cancelTimerBtn'),
+        customTimerInput: document.getElementById('customTimerInput'),
+        applyCustomTimerBtn: document.getElementById('applyCustomTimerBtn'),
         timerGrid: document.getElementById('timerGrid'),
-        timerRemainingText: document.getElementById('timerRemainingText')
+        timerRemainingText: document.getElementById('timerRemainingText'),
+
+        // Reciter Bio Modal
+        reciterModal: document.getElementById('reciterModal'),
+        closeReciterBtn: document.getElementById('closeReciterBtn'),
+        reciterAvatarImg: document.getElementById('reciterAvatarImg'),
+        reciterNameText: document.getElementById('reciterNameText'),
+        reciterTitleTag: document.getElementById('reciterTitleTag'),
+        reciterOriginText: document.getElementById('reciterOriginText'),
+        reciterEraText: document.getElementById('reciterEraText'),
+        reciterRiwayahText: document.getElementById('reciterRiwayahText'),
+        reciterBioBody: document.getElementById('reciterBioBody')
       };
+    }
+
+    _setupCategoryTouchDrag() {
+      const slider = this.dom.categoriesBar;
+      let isDown = false;
+      let startX;
+      let scrollLeft;
+
+      slider.addEventListener('mousedown', (e) => {
+        isDown = true;
+        startX = e.pageX - slider.offsetLeft;
+        scrollLeft = slider.scrollLeft;
+      });
+      slider.addEventListener('mouseleave', () => { isDown = false; });
+      slider.addEventListener('mouseup', () => { isDown = false; });
+      slider.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - slider.offsetLeft;
+        const walk = (x - startX) * 1.5;
+        slider.scrollLeft = scrollLeft - walk;
+      });
     }
 
     showToast(message) {
@@ -199,6 +267,7 @@
         this.fetchStations();
       });
 
+      // UNINTERRUPTED SEARCH: Typing never interrupts audio
       this.dom.searchInput.addEventListener('input', (e) => {
         this.searchQuery = e.target.value.trim().toLowerCase();
         this.dom.clearSearchBtn.style.display = this.searchQuery ? 'block' : 'none';
@@ -212,6 +281,7 @@
         this.renderStations();
       });
 
+      // Desktop Hero Player controls
       this.dom.heroPlayBtn.addEventListener('click', () => this.player.togglePlayPause());
       this.dom.heroPrevBtn.addEventListener('click', () => this.playPrevious());
       this.dom.heroNextBtn.addEventListener('click', () => this.playNext());
@@ -219,11 +289,14 @@
         if (this.player.currentStation) this.toggleFavorite(this.player.currentStation.id);
       });
       this.dom.heroVolumeSlider.addEventListener('input', (e) => {
-        this.player.setVolume(parseFloat(e.target.value));
+        const vol = parseFloat(e.target.value);
+        this.player.setVolume(vol);
+        if (this.dom.fullPlayerVolumeSlider) this.dom.fullPlayerVolumeSlider.value = vol;
       });
       this.dom.heroShareBtn.addEventListener('click', () => this.shareCurrentStation());
       this.dom.heroTimerBtn.addEventListener('click', () => this.openTimerModal());
 
+      // Mobile player bar
       this.dom.mobileBarPlayBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         this.player.togglePlayPause();
@@ -233,9 +306,39 @@
         if (this.player.currentStation) this.toggleFavorite(this.player.currentStation.id);
       });
       this.dom.mobileBar.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        this.openMobileFullPlayer();
       });
 
+      // Mobile Full Player controls
+      if (this.dom.closeFullPlayerBtn) {
+        this.dom.closeFullPlayerBtn.addEventListener('click', () => this.closeMobileFullPlayer());
+      }
+      if (this.dom.fullPlayerPlayBtn) {
+        this.dom.fullPlayerPlayBtn.addEventListener('click', () => this.player.togglePlayPause());
+      }
+      if (this.dom.fullPlayerPrevBtn) {
+        this.dom.fullPlayerPrevBtn.addEventListener('click', () => this.playPrevious());
+      }
+      if (this.dom.fullPlayerNextBtn) {
+        this.dom.fullPlayerNextBtn.addEventListener('click', () => this.playNext());
+      }
+      if (this.dom.fullPlayerFavBtn) {
+        this.dom.fullPlayerFavBtn.addEventListener('click', () => {
+          if (this.player.currentStation) this.toggleFavorite(this.player.currentStation.id);
+        });
+      }
+      if (this.dom.fullPlayerTimerBtn) {
+        this.dom.fullPlayerTimerBtn.addEventListener('click', () => this.openTimerModal());
+      }
+      if (this.dom.fullPlayerVolumeSlider) {
+        this.dom.fullPlayerVolumeSlider.addEventListener('input', (e) => {
+          const vol = parseFloat(e.target.value);
+          this.player.setVolume(vol);
+          if (this.dom.heroVolumeSlider) this.dom.heroVolumeSlider.value = vol;
+        });
+      }
+
+      // Modals
       this.dom.infoBtn.addEventListener('click', () => this.openAboutModal());
       this.dom.closeAboutBtn.addEventListener('click', () => this.closeAboutModal());
       this.dom.doneAboutBtn.addEventListener('click', () => this.closeAboutModal());
@@ -245,6 +348,17 @@
         this.closeTimerModal();
       });
 
+      // Custom Minutes Timer input
+      if (this.dom.applyCustomTimerBtn && this.dom.customTimerInput) {
+        this.dom.applyCustomTimerBtn.addEventListener('click', () => {
+          const mins = parseInt(this.dom.customTimerInput.value, 10);
+          if (mins && mins > 0) {
+            this.player.setSleepTimer(mins);
+            this.closeTimerModal();
+          }
+        });
+      }
+
       this.dom.timerGrid.addEventListener('click', (e) => {
         const btn = e.target.closest('.btn-timer-chip');
         if (btn) {
@@ -253,6 +367,11 @@
           this.closeTimerModal();
         }
       });
+
+      // Reciter Bio Modal close
+      if (this.dom.closeReciterBtn) {
+        this.dom.closeReciterBtn.addEventListener('click', () => this.closeReciterModal());
+      }
 
       this.player.onStateChange((state, station) => {
         this._updatePlayerUi(state, station);
@@ -277,6 +396,8 @@
       this.dom.searchInput.placeholder = t.searchPlaceholder;
       this.dom.installBtn.querySelector('.btn-label').textContent = t.installApp;
       this.dom.heroDedication.textContent = t.dedication;
+      if (this.dom.customTimerInput) this.dom.customTimerInput.placeholder = t.customMinutesPlaceholder;
+      if (this.dom.applyCustomTimerBtn) this.dom.applyCustomTimerBtn.textContent = t.setCustomTimer;
 
       this.renderCategories();
       this.renderStations();
@@ -294,6 +415,7 @@
           this.activeCategory = btn.dataset.id;
           this.renderCategories();
           this.renderStations();
+          btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
         });
       });
     }
@@ -353,6 +475,14 @@
         return matchesCat && matchesQuery;
       });
 
+      // Update Live Stations Count Badge
+      if (this.dom.stationsCountBadge) {
+        const countText = this.lang === 'ar' 
+          ? `عرض ${filtered.length} من أصل ${this.stations.length} إذاعة`
+          : `Showing ${filtered.length} of ${this.stations.length} stations`;
+        this.dom.stationsCountBadge.textContent = countText;
+      }
+
       if (filtered.length === 0) {
         this.dom.stationsContainer.innerHTML = `
           <div style="text-align:center; padding: 40px 20px; color: var(--text-muted);">
@@ -367,32 +497,39 @@
       const isBuffering = this.player.state === 'buffering';
       const currentId = this.player.currentStation ? this.player.currentStation.id : null;
 
-      this.dom.stationsContainer.innerHTML = filtered.map(s => {
+      this.dom.stationsContainer.innerHTML = filtered.map((s, index) => {
         const isCurrent = currentId === s.id;
         const isFav = this.favorites.has(s.id);
         const activeClass = isCurrent ? 'active' : '';
+        const reciter = window.findReciterForStation ? window.findReciterForStation(s.name) : null;
+        const formattedIndex = String(index + 1).padStart(2, '0');
 
         return `
           <div class="station-card ${activeClass}" data-id="${s.id}">
-            <div class="station-info">
-              <div class="station-icon-wrap">
-                ${isCurrent && isPlaying ? `
-                  <div class="mini-wave">
-                    <div class="wave-bar"></div>
-                    <div class="wave-bar"></div>
-                    <div class="wave-bar"></div>
-                    <div class="wave-bar"></div>
-                  </div>
-                ` : `<span>📻</span>`}
+            <div class="station-left">
+              <span class="station-index-badge">#${formattedIndex}</span>
+              <div class="reciter-thumb">
+                <img src="${reciter ? reciter.avatar : 'icons/icon-512.png'}" alt="Reciter avatar" loading="lazy">
               </div>
               <div class="station-details">
                 <div class="station-name">${s.name}</div>
                 <div class="station-meta">
                   <span class="station-badge">${TRANSLATIONS[this.lang][s.category.toLowerCase()] || s.category}</span>
+                  ${isCurrent && isPlaying ? `
+                    <div class="mini-wave">
+                      <div class="wave-bar"></div>
+                      <div class="wave-bar"></div>
+                      <div class="wave-bar"></div>
+                      <div class="wave-bar"></div>
+                    </div>
+                  ` : ''}
                 </div>
               </div>
             </div>
             <div class="station-actions">
+              <button class="btn-card-action" data-action="info" title="Reciter Info">
+                ℹ️
+              </button>
               <button class="btn-card-action fav ${isFav ? 'active' : ''}" data-action="fav" title="Favorite">
                 ${isFav ? '❤️' : '🤍'}
               </button>
@@ -409,6 +546,11 @@
         const station = this.stations.find(s => s.id === id);
 
         card.addEventListener('click', (e) => {
+          if (e.target.closest('[data-action="info"]')) {
+            e.stopPropagation();
+            if (station) this.openReciterModal(station);
+            return;
+          }
           if (e.target.closest('[data-action="fav"]')) {
             e.stopPropagation();
             this.toggleFavorite(id);
@@ -423,6 +565,35 @@
           }
         });
       });
+    }
+
+    openReciterModal(station) {
+      if (!window.findReciterForStation) return;
+      const reciter = window.findReciterForStation(station.name);
+      const t = TRANSLATIONS[this.lang];
+
+      this.dom.reciterNameText.textContent = this.lang === 'ar' ? reciter.name : reciter.englishName;
+      this.dom.reciterTitleTag.textContent = reciter.title;
+      this.dom.reciterOriginText.textContent = reciter.origin;
+      this.dom.reciterEraText.textContent = reciter.era;
+      this.dom.reciterRiwayahText.textContent = reciter.riwayah;
+      this.dom.reciterBioBody.textContent = reciter.bio;
+      this.dom.reciterAvatarImg.src = reciter.avatar;
+
+      this.dom.reciterModal.classList.add('active');
+    }
+
+    closeReciterModal() {
+      this.dom.reciterModal.classList.remove('active');
+    }
+
+    openMobileFullPlayer() {
+      if (!this.player.currentStation) return;
+      this.dom.mobileFullPlayer.classList.add('active');
+    }
+
+    closeMobileFullPlayer() {
+      this.dom.mobileFullPlayer.classList.remove('active');
     }
 
     toggleFavorite(id) {
@@ -445,6 +616,7 @@
         const isFav = this.favorites.has(id);
         this.dom.heroFavBtn.textContent = isFav ? '❤️' : '🤍';
         this.dom.mobileBarFavBtn.textContent = isFav ? '❤️' : '🤍';
+        if (this.dom.fullPlayerFavBtn) this.dom.fullPlayerFavBtn.textContent = isFav ? '❤️' : '🤍';
       }
     }
 
@@ -491,26 +663,32 @@
       this.dom.heroTitle.textContent = station.name;
       this.dom.heroCategory.textContent = t[station.category.toLowerCase()] || station.category;
       this.dom.mobileBarTitle.textContent = station.name;
+      if (this.dom.fullPlayerTitle) this.dom.fullPlayerTitle.textContent = station.name;
+      if (this.dom.fullPlayerCategory) this.dom.fullPlayerCategory.textContent = t[station.category.toLowerCase()] || station.category;
 
       const isFav = this.favorites.has(station.id);
       this.dom.heroFavBtn.textContent = isFav ? '❤️' : '🤍';
       this.dom.mobileBarFavBtn.textContent = isFav ? '❤️' : '🤍';
+      if (this.dom.fullPlayerFavBtn) this.dom.fullPlayerFavBtn.textContent = isFav ? '❤️' : '🤍';
 
       if (state === 'buffering') {
         this.dom.heroIndicatorText.textContent = t.connecting;
         this.dom.heroPlayBtn.innerHTML = '⏳';
         this.dom.mobileBarPlayBtn.innerHTML = '⏳';
         this.dom.mobileBarStatus.textContent = t.connecting;
+        if (this.dom.fullPlayerPlayBtn) this.dom.fullPlayerPlayBtn.innerHTML = '⏳';
       } else if (state === 'playing') {
         this.dom.heroIndicatorText.textContent = t.live;
         this.dom.heroPlayBtn.innerHTML = '⏸️';
         this.dom.mobileBarPlayBtn.innerHTML = '⏸️';
         this.dom.mobileBarStatus.textContent = t.live;
+        if (this.dom.fullPlayerPlayBtn) this.dom.fullPlayerPlayBtn.innerHTML = '⏸️';
       } else {
         this.dom.heroIndicatorText.textContent = t.paused;
         this.dom.heroPlayBtn.innerHTML = '▶️';
         this.dom.mobileBarPlayBtn.innerHTML = '▶️';
         this.dom.mobileBarStatus.textContent = t.paused;
+        if (this.dom.fullPlayerPlayBtn) this.dom.fullPlayerPlayBtn.innerHTML = '▶️';
       }
 
       this.dom.mobileBar.classList.add('visible');

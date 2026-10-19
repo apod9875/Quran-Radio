@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -66,10 +67,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.data.model.RadioStation
+import com.example.data.model.ReciterDirectory
+import com.example.data.model.ReciterProfile
 import com.example.data.model.StationCategory
 import com.example.ui.components.AboutDialog
 import com.example.ui.components.HeroPlayerContent
 import com.example.ui.components.MiniPlayerBar
+import com.example.ui.components.ReciterBioDialog
 import com.example.ui.components.SleepTimerDialog
 import com.example.ui.components.StationCard
 import com.example.ui.theme.GoldPrimary
@@ -95,6 +100,7 @@ fun RadioScreen(
 
     var showSleepTimerDialog by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
+    var selectedReciterProfile by remember { mutableStateOf<ReciterProfile?>(null) }
     val isAr = language == "ar"
 
     BackHandler(enabled = isHeroPlayerExpanded) {
@@ -117,6 +123,14 @@ fun RadioScreen(
         )
     }
 
+    selectedReciterProfile?.let { profile ->
+        ReciterBioDialog(
+            profile = profile,
+            language = language,
+            onDismiss = { selectedReciterProfile = null }
+        )
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         contentWindowInsets = WindowInsets.safeDrawing,
@@ -125,9 +139,10 @@ fun RadioScreen(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Surface(
-                            modifier = Modifier.size(36.dp),
+                            modifier = Modifier.size(38.dp),
                             shape = CircleShape,
-                            color = GoldPrimary.copy(alpha = 0.2f)
+                            color = GoldPrimary.copy(alpha = 0.2f),
+                            border = BorderStroke(1.dp, GoldPrimary.copy(alpha = 0.4f))
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Radio,
@@ -216,10 +231,12 @@ fun RadioScreen(
                             onQueryChange = { viewModel.setSearchQuery(it) },
                             selectedCategory = selectedCategory,
                             onCategorySelect = { viewModel.selectCategory(it) },
+                            filteredCount = filteredStations.size,
+                            totalCount = allStations.size,
                             language = language
                         )
 
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
 
                         StationListSection(
                             isLoading = isLoading,
@@ -228,6 +245,9 @@ fun RadioScreen(
                             language = language,
                             onPlayStation = { viewModel.playStation(it) },
                             onToggleFavorite = { viewModel.toggleFavorite(it) },
+                            onInfoClick = { station ->
+                                selectedReciterProfile = ReciterDirectory.findForStation(station.name)
+                            },
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -272,6 +292,8 @@ fun RadioScreen(
                             onQueryChange = { viewModel.setSearchQuery(it) },
                             selectedCategory = selectedCategory,
                             onCategorySelect = { viewModel.selectCategory(it) },
+                            filteredCount = filteredStations.size,
+                            totalCount = allStations.size,
                             language = language
                         )
 
@@ -284,7 +306,10 @@ fun RadioScreen(
                             language = language,
                             onPlayStation = { viewModel.playStation(it) },
                             onToggleFavorite = { viewModel.toggleFavorite(it) },
-                            bottomPadding = if (currentStation != null) 90.dp else 16.dp,
+                            onInfoClick = { station ->
+                                selectedReciterProfile = ReciterDirectory.findForStation(station.name)
+                            },
+                            bottomPadding = if (currentStation != null) 110.dp else 24.dp,
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -369,6 +394,8 @@ private fun SearchAndCategoriesSection(
     onQueryChange: (String) -> Unit,
     selectedCategory: StationCategory,
     onCategorySelect: (StationCategory) -> Unit,
+    filteredCount: Int,
+    totalCount: Int,
     language: String
 ) {
     val isAr = language == "ar"
@@ -413,7 +440,29 @@ private fun SearchAndCategoriesSection(
             )
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(6.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = GoldPrimary.copy(alpha = 0.12f),
+                border = BorderStroke(1.dp, GoldPrimary.copy(alpha = 0.25f))
+            ) {
+                Text(
+                    text = if (isAr) "عرض $filteredCount من $totalCount إذاعة" else "Showing $filteredCount of $totalCount stations",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = GoldPrimary,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
@@ -444,11 +493,12 @@ private fun SearchAndCategoriesSection(
 @Composable
 private fun StationListSection(
     isLoading: Boolean,
-    stations: List<com.example.data.model.RadioStation>,
+    stations: List<RadioStation>,
     playerState: com.example.player.PlayerState,
     language: String,
-    onPlayStation: (com.example.data.model.RadioStation) -> Unit,
-    onToggleFavorite: (com.example.data.model.RadioStation) -> Unit,
+    onPlayStation: (RadioStation) -> Unit,
+    onToggleFavorite: (RadioStation) -> Unit,
+    onInfoClick: (RadioStation) -> Unit,
     modifier: Modifier = Modifier,
     bottomPadding: androidx.compose.ui.unit.Dp = 16.dp
 ) {
@@ -499,16 +549,18 @@ private fun StationListSection(
             contentPadding = PaddingValues(bottom = bottomPadding),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            items(
+            itemsIndexed(
                 items = stations,
-                key = { it.id }
-            ) { station ->
+                key = { _, item -> item.id }
+            ) { index, station ->
                 StationCard(
                     station = station,
                     playerState = playerState,
                     language = language,
+                    index = index,
                     onPlayClick = { onPlayStation(station) },
-                    onFavoriteClick = { onToggleFavorite(station) }
+                    onFavoriteClick = { onToggleFavorite(station) },
+                    onInfoClick = { onInfoClick(station) }
                 )
             }
         }

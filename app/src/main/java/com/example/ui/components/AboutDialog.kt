@@ -221,7 +221,7 @@ fun AboutDialog(
                     onClick = {
                         val browserIntent = Intent(
                             Intent.ACTION_VIEW,
-                            Uri.parse("https://mp3quran-live-radio.apod9875.workers.dev/")
+                            Uri.parse("https://quran-radio.apod9875.workers.dev/")
                         )
                         context.startActivity(browserIntent)
                     },

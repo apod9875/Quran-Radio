@@ -8,7 +8,8 @@ class AudioStreamPlayer {
     this.sleepTimerInterval = null;
     this.listeners = {
       state: [],
-      timer: []
+      timer: [],
+      volume: []
     };
 
     const savedVol = localStorage.getItem('mp3quran_volume');
@@ -22,8 +23,7 @@ class AudioStreamPlayer {
   async _requestPersistentStorage() {
     if (navigator.storage && navigator.storage.persist) {
       try {
-        const persisted = await navigator.storage.persist();
-        console.log("Persistent storage granted:", persisted);
+        await navigator.storage.persist();
       } catch (e) {
         console.warn("Persistent storage request failed:", e);
       }
@@ -50,7 +50,7 @@ class AudioStreamPlayer {
     });
 
     this.audio.addEventListener('error', (e) => {
-      console.warn('Audio stream error (falling back to cached stream if offline):', e);
+      console.warn('Audio stream error (fallback):', e);
       this._setState('error');
     });
   }
@@ -63,6 +63,10 @@ class AudioStreamPlayer {
     this.listeners.timer.push(callback);
   }
 
+  onVolumeChange(callback) {
+    this.listeners.volume.push(callback);
+  }
+
   _setState(state) {
     this.state = state;
     this._updateMediaSession();
@@ -72,8 +76,10 @@ class AudioStreamPlayer {
   play(station) {
     if (!station || !station.url) return;
 
-    if (this.currentStation && this.currentStation.id === station.id && this.state === 'paused') {
-      this.audio.play().catch(e => console.warn(e));
+    if (this.currentStation && this.currentStation.id === station.id) {
+      if (this.state === 'paused' || this.state === 'error') {
+        this.audio.play().catch(e => console.warn(e));
+      }
       return;
     }
 
@@ -91,7 +97,7 @@ class AudioStreamPlayer {
     if (!this.currentStation) return;
     if (this.state === 'playing') {
       this.audio.pause();
-    } else if (this.state === 'paused' || this.state === 'error') {
+    } else {
       this.audio.play().catch(e => console.warn(e));
     }
   }
@@ -106,6 +112,7 @@ class AudioStreamPlayer {
     this.volume = Math.max(0, Math.min(1, vol));
     this.audio.volume = this.volume;
     localStorage.setItem('mp3quran_volume', this.volume.toString());
+    this.listeners.volume.forEach(cb => cb(this.volume));
   }
 
   setSleepTimer(minutes) {
@@ -118,7 +125,7 @@ class AudioStreamPlayer {
       return;
     }
 
-    this.sleepTimerRemaining = minutes * 60;
+    this.sleepTimerRemaining = Math.round(minutes * 60);
     this._notifyTimer(this.sleepTimerRemaining);
 
     this.sleepTimerInterval = setInterval(() => {
@@ -147,7 +154,8 @@ class AudioStreamPlayer {
       artist: 'صدقة جارية لـ (عبدالرحيم معبد) • Mabed',
       album: 'MP3Quran Live Radio',
       artwork: [
-        { src: 'icons/icon.svg', sizes: '512x512', type: 'image/svg+xml' }
+        { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+        { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' }
       ]
     });
 

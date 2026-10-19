@@ -16,8 +16,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Radio
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Pause
 import androidx.compose.material3.Card
@@ -49,8 +50,10 @@ fun StationCard(
     station: RadioStation,
     playerState: PlayerState,
     language: String,
+    index: Int,
     onPlayClick: () -> Unit,
     onFavoriteClick: () -> Unit,
+    onInfoClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val isCurrentStation = when (playerState) {
@@ -88,27 +91,45 @@ fun StationCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 14.dp),
+                .padding(horizontal = 14.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Golden Ordinal Index Badge
             Surface(
-                modifier = Modifier.size(48.dp),
+                shape = RoundedCornerShape(8.dp),
+                color = if (isCurrentStation) GoldPrimary else GoldPrimary.copy(alpha = 0.15f),
+                border = BorderStroke(1.dp, GoldPrimary.copy(alpha = 0.4f)),
+                modifier = Modifier.padding(end = 10.dp)
+            ) {
+                Text(
+                    text = "#%02d".format(index + 1),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = if (isCurrentStation) Color(0xFF1D1400) else GoldPrimary,
+                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp)
+                )
+            }
+
+            // Reciter Avatar Thumbnail
+            Surface(
+                modifier = Modifier.size(44.dp),
                 shape = CircleShape,
                 color = if (isCurrentStation) {
                     GoldPrimary.copy(alpha = 0.2f)
                 } else {
                     MaterialTheme.colorScheme.surfaceVariant
-                }
+                },
+                border = BorderStroke(1.dp, if (isCurrentStation) GoldPrimary else MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
             ) {
                 Icon(
-                    imageVector = Icons.Default.Radio,
-                    contentDescription = null,
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Reciter",
                     tint = if (isCurrentStation) GoldPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(12.dp)
+                    modifier = Modifier.padding(10.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.width(14.dp))
+            Spacer(modifier = Modifier.width(10.dp))
 
             Column(
                 modifier = Modifier.weight(1f),
@@ -119,11 +140,11 @@ fun StationCard(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = if (isCurrentStation) FontWeight.Bold else FontWeight.Medium,
                     color = if (isCurrentStation) GoldPrimary else MaterialTheme.colorScheme.onSurface,
-                    maxLines = 2,
+                    maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(3.dp))
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -145,8 +166,8 @@ fun StationCard(
                         WaveformVisualizer(
                             isPlaying = true,
                             isBuffering = false,
-                            width = 36.dp,
-                            height = 16.dp,
+                            width = 34.dp,
+                            height = 14.dp,
                             activeColor = GoldPrimary,
                             accentColor = MintAccent
                         )
@@ -154,25 +175,43 @@ fun StationCard(
                 }
             }
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(6.dp))
 
+            // Reciter Info Button
+            IconButton(
+                onClick = onInfoClick,
+                modifier = Modifier
+                    .size(38.dp)
+                    .testTag("info_btn_${station.id}")
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = "Reciter Info",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            // Favorite Button
             IconButton(
                 onClick = onFavoriteClick,
                 modifier = Modifier
-                    .size(44.dp)
+                    .size(38.dp)
                     .testTag("fav_btn_${station.id}")
             ) {
                 Icon(
                     imageVector = if (station.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                     contentDescription = if (station.isFavorite) "Remove from favorites" else "Add to favorites",
-                    tint = if (station.isFavorite) Color(0xFFEF5350) else MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = if (station.isFavorite) Color(0xFFEF5350) else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(22.dp)
                 )
             }
 
+            // Play / Pause Button
             FilledIconButton(
                 onClick = onPlayClick,
                 modifier = Modifier
-                    .size(44.dp)
+                    .size(40.dp)
                     .testTag("play_btn_${station.id}"),
                 colors = IconButtonDefaults.filledIconButtonColors(
                     containerColor = if (isCurrentStation) GoldPrimary else MaterialTheme.colorScheme.surfaceVariant,
@@ -181,19 +220,21 @@ fun StationCard(
             ) {
                 if (isBuffering) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        strokeWidth = 2.5.dp,
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp,
                         color = if (isCurrentStation) Color(0xFF1D1400) else GoldPrimary
                     )
                 } else if (isPlaying) {
                     Icon(
                         imageVector = Icons.Outlined.Pause,
-                        contentDescription = "Pause"
+                        contentDescription = "Pause",
+                        modifier = Modifier.size(20.dp)
                     )
                 } else {
                     Icon(
                         imageVector = Icons.Default.PlayArrow,
-                        contentDescription = "Play"
+                        contentDescription = "Play",
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }
