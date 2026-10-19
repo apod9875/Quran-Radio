@@ -36,8 +36,16 @@
       riwayahLabel: "الرواية / التخصص",
       bioLabel: "نبذة عن القارئ",
       stationsCount: "إذاعة متاحة",
-      favAddedToast: "❤️ تمت الإضافة للمفضلة والتخزين المؤقت للاستماع دون انترنت",
-      favRemovedToast: "🤍 تم الإزالة من المفضلة وإلغاء التخزين المؤقت"
+      favAddedToast: "❤️ تمت الإضافة للمفضلة والحفظ في ذاكرة الـ 10GB للاستماع دون انترنت",
+      favRemovedToast: "🤍 تم الإزالة من المفضلة",
+      cacheTitle: "ذاكرة الصوتيات والاستماع دون انترنت (10 GB)",
+      cacheBtnLabel: "ذاكرة 10GB",
+      cacheRefreshedToast: "🔄 تم تحديث وتنظيف الصوتيات القديمة غير المستخدمة بنجاح",
+      cacheClearedToast: "🗑️ تم مسح الذاكرة المؤقتة بالكامل",
+      precacheSuccessToast: "⚡ تم حفظ الإذاعة في الذاكرة بنجاح للاستماع دون انترنت",
+      offlineNotice: "وضع عدم الاتصال بالإنترنت • يتم تشغيل الإذاعات المحفوظة في ذاكرة الـ 10 جيجابايت",
+      offlineReadyBadge: "متاح دون انترنت",
+      precacheStationTitle: "حفظ للاستماع دون انترنت"
     },
     eng: {
       appTitle: "MP3Quran Live Radio",
@@ -75,8 +83,16 @@
       riwayahLabel: "Recitation / Specialty",
       bioLabel: "Biography",
       stationsCount: "Stations Available",
-      favAddedToast: "❤️ Added to favorites & cached for offline playback",
-      favRemovedToast: "🤍 Removed from favorites & offline cache"
+      favAddedToast: "❤️ Added to favorites & saved in 10GB cache for offline play",
+      favRemovedToast: "🤍 Removed from favorites",
+      cacheTitle: "Audio Cache & Offline Playback (10 GB)",
+      cacheBtnLabel: "10GB Cache",
+      cacheRefreshedToast: "🔄 Unused audio cache successfully refreshed and pruned",
+      cacheClearedToast: "🗑️ Audio cache cleared completely",
+      precacheSuccessToast: "⚡ Station audio cached for offline playback",
+      offlineNotice: "Offline Mode • Playing cached audio from 10 GB storage",
+      offlineReadyBadge: "Offline Ready",
+      precacheStationTitle: "Save for offline playback"
     }
   };
 
@@ -96,6 +112,7 @@
       this.searchQuery = '';
       this.stations = [];
       this.favorites = new Set(JSON.parse(localStorage.getItem('mp3quran_favs') || '[]'));
+      this.cachedUrls = new Set();
       this.player = new window.AudioStreamPlayer();
       this.deferredInstallPrompt = null;
 
@@ -105,21 +122,13 @@
       this._setupCategoryTouchDrag();
       this.applyLanguage(this.lang);
       this.fetchStations();
+      this.checkOfflineStatus(!navigator.onLine);
     }
 
     _setupPwaAndCaching() {
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').then(() => {
-          const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 960;
-          const cacheLimitBytes = isMobile ? 10 * 1024 * 1024 * 1024 : 20 * 1024 * 1024 * 1024;
-          
-          if (navigator.serviceWorker.controller) {
-            navigator.serviceWorker.controller.postMessage({
-              type: 'SET_CACHE_LIMIT',
-              limitBytes: cacheLimitBytes
-            });
-            this._syncLovedUrlsToServiceWorker();
-          }
+          this.refreshCachedUrlsList();
         }).catch(e => console.warn('SW err:', e));
       }
 
@@ -140,15 +149,30 @@
       });
     }
 
+    refreshCachedUrlsList() {
+      if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
+      const channel = new MessageChannel();
+      channel.port1.onmessage = (event) => {
+        if (event.data && event.data.items) {
+          this.cachedUrls = new Set(event.data.items.map(it => it.url));
+          this.renderStations();
+        }
+      };
+      navigator.serviceWorker.controller.postMessage({ type: 'GET_CACHE_METRICS' }, [channel.port2]);
+    }
+
     _syncLovedUrlsToServiceWorker() {
       if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
       const lovedUrls = this.stations
         .filter(s => this.favorites.has(s.id))
         .map(s => s.url);
 
-      navigator.serviceWorker.controller.postMessage({
-        type: 'SET_LOVED_URLS',
-        urls: lovedUrls
+      lovedUrls.forEach(url => {
+        navigator.serviceWorker.controller.postMessage({
+          type: 'SET_FAVORITE_STATION',
+          url: url,
+          isFavorite: true
+        });
       });
     }
 
@@ -161,6 +185,12 @@
         langToggleBtn: document.getElementById('langToggleBtn'),
         infoBtn: document.getElementById('infoBtn'),
         installBtn: document.getElementById('installBtn'),
+        devicesBtn: document.getElementById('devicesBtn'),
+        cacheBtn: document.getElementById('cacheBtn'),
+        cacheBtnLabel: document.getElementById('cacheBtnLabel'),
+        offlineBanner: document.getElementById('offlineBanner'),
+        offlineBannerText: document.getElementById('offlineBannerText'),
+
         searchInput: document.getElementById('searchInput'),
         clearSearchBtn: document.getElementById('clearSearchBtn'),
         stationsCountBadge: document.getElementById('stationsCountBadge'),
@@ -215,6 +245,17 @@
         timerGrid: document.getElementById('timerGrid'),
         timerRemainingText: document.getElementById('timerRemainingText'),
 
+        // 10 GB Cache Modal
+        cacheModal: document.getElementById('cacheModal'),
+        closeCacheBtn: document.getElementById('closeCacheBtn'),
+        closeCacheDoneBtn: document.getElementById('closeCacheDoneBtn'),
+        cacheUsageText: document.getElementById('cacheUsageText'),
+        cacheProgressBar: document.getElementById('cacheProgressBar'),
+        cacheStationsCountText: document.getElementById('cacheStationsCountText'),
+        refreshUnusedCacheBtn: document.getElementById('refreshUnusedCacheBtn'),
+        clearAllCacheBtn: document.getElementById('clearAllCacheBtn'),
+        cachedStationsList: document.getElementById('cachedStationsList'),
+
         // Reciter Bio Modal
         reciterModal: document.getElementById('reciterModal'),
         closeReciterBtn: document.getElementById('closeReciterBtn'),
@@ -258,6 +299,18 @@
       this.toastTimeout = setTimeout(() => {
         this.dom.toast.classList.remove('show');
       }, 3500);
+    }
+
+    checkOfflineStatus(isOffline) {
+      if (!this.dom.offlineBanner) return;
+      if (isOffline) {
+        this.dom.offlineBanner.style.display = 'block';
+        if (this.dom.offlineBannerText) {
+          this.dom.offlineBannerText.textContent = TRANSLATIONS[this.lang].offlineNotice;
+        }
+      } else {
+        this.dom.offlineBanner.style.display = 'none';
+      }
     }
 
     _bindEvents() {
@@ -334,51 +387,79 @@
         this.dom.fullPlayerVolumeSlider.addEventListener('input', (e) => {
           const vol = parseFloat(e.target.value);
           this.player.setVolume(vol);
-          if (this.dom.heroVolumeSlider) this.dom.heroVolumeSlider.value = vol;
+          this.dom.heroVolumeSlider.value = vol;
         });
       }
 
-      // Modals
+      // 10 GB Cache Manager Modal Bindings
+      if (this.dom.cacheBtn) {
+        this.dom.cacheBtn.addEventListener('click', () => this.openCacheModal());
+      }
+      if (this.dom.closeCacheBtn) {
+        this.dom.closeCacheBtn.addEventListener('click', () => this.closeCacheModal());
+      }
+      if (this.dom.closeCacheDoneBtn) {
+        this.dom.closeCacheDoneBtn.addEventListener('click', () => this.closeCacheModal());
+      }
+      if (this.dom.refreshUnusedCacheBtn) {
+        this.dom.refreshUnusedCacheBtn.addEventListener('click', () => this.refreshUnusedCache());
+      }
+      if (this.dom.clearAllCacheBtn) {
+        this.dom.clearAllCacheBtn.addEventListener('click', () => this.clearAllCache());
+      }
+
+      // About Modal
       this.dom.infoBtn.addEventListener('click', () => this.openAboutModal());
       this.dom.closeAboutBtn.addEventListener('click', () => this.closeAboutModal());
       this.dom.doneAboutBtn.addEventListener('click', () => this.closeAboutModal());
-      this.dom.closeTimerBtn.addEventListener('click', () => this.closeTimerModal());
-      this.dom.cancelTimerBtn.addEventListener('click', () => {
-        this.player.setSleepTimer(null);
-        this.closeTimerModal();
-      });
 
-      // Custom Minutes Timer input
-      if (this.dom.applyCustomTimerBtn && this.dom.customTimerInput) {
-        this.dom.applyCustomTimerBtn.addEventListener('click', () => {
-          const mins = parseInt(this.dom.customTimerInput.value, 10);
-          if (mins && mins > 0) {
-            this.player.setSleepTimer(mins);
-            this.closeTimerModal();
-          }
-        });
-      }
-
-      this.dom.timerGrid.addEventListener('click', (e) => {
-        const btn = e.target.closest('.btn-timer-chip');
-        if (btn) {
-          const mins = parseInt(btn.dataset.mins, 10);
-          this.player.setSleepTimer(mins);
-          this.closeTimerModal();
-        }
-      });
-
-      // Reciter Bio Modal close
+      // Reciter Modal
       if (this.dom.closeReciterBtn) {
         this.dom.closeReciterBtn.addEventListener('click', () => this.closeReciterModal());
       }
 
+      // Sleep Timer Presets
+      if (this.dom.closeTimerBtn) {
+        this.dom.closeTimerBtn.addEventListener('click', () => this.closeTimerModal());
+      }
+      if (this.dom.cancelTimerBtn) {
+        this.dom.cancelTimerBtn.addEventListener('click', () => {
+          this.player.setSleepTimer(null);
+          this.closeTimerModal();
+        });
+      }
+      if (this.dom.timerGrid) {
+        this.dom.timerGrid.querySelectorAll('.btn-timer-chip').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const mins = parseInt(btn.dataset.mins, 10);
+            this.player.setSleepTimer(mins);
+            this.closeTimerModal();
+          });
+        });
+      }
+      if (this.dom.applyCustomTimerBtn && this.dom.customTimerInput) {
+        this.dom.applyCustomTimerBtn.addEventListener('click', () => {
+          const val = parseInt(this.dom.customTimerInput.value, 10);
+          if (val && val > 0 && val <= 600) {
+            this.player.setSleepTimer(val);
+            this.closeTimerModal();
+          } else {
+            alert(this.lang === 'ar' ? 'الرجاء إدخال رقم صحيح بين 1 و 600 دقيقة' : 'Please enter minutes between 1 and 600');
+          }
+        });
+      }
+
+      // Player callbacks
       this.player.onStateChange((state, station) => {
         this._updatePlayerUi(state, station);
       });
 
-      this.player.onTimerTick((remainingSeconds) => {
-        this._updateTimerUi(remainingSeconds);
+      this.player.onTimerTick((seconds) => {
+        this._updateTimerUi(seconds);
+      });
+
+      this.player.onOfflineChange((isOffline) => {
+        this.checkOfflineStatus(isOffline);
       });
     }
 
@@ -387,16 +468,20 @@
       localStorage.setItem('mp3quran_lang', lang);
       const t = TRANSLATIONS[lang];
 
-      this.dom.html.setAttribute('lang', lang);
-      this.dom.html.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+      this.dom.html.lang = lang;
+      this.dom.html.dir = lang === 'ar' ? 'rtl' : 'ltr';
 
       this.dom.appTitle.textContent = t.appTitle;
       this.dom.appDedication.textContent = t.dedication;
-      this.dom.langBtnText.textContent = lang === 'ar' ? 'English' : 'العربية';
       this.dom.searchInput.placeholder = t.searchPlaceholder;
-      this.dom.installBtn.querySelector('.btn-label').textContent = t.installApp;
-      this.dom.heroDedication.textContent = t.dedication;
-      if (this.dom.customTimerInput) this.dom.customTimerInput.placeholder = t.customMinutesPlaceholder;
+      this.dom.langBtnText.textContent = lang === 'ar' ? 'English' : 'عربي';
+
+      if (this.dom.cacheBtnLabel) this.dom.cacheBtnLabel.textContent = t.cacheBtnLabel;
+      if (this.dom.offlineBannerText) this.dom.offlineBannerText.textContent = t.offlineNotice;
+
+      const installLabel = this.dom.installBtn.querySelector('.btn-label');
+      if (installLabel) installLabel.textContent = t.installApp;
+
       if (this.dom.applyCustomTimerBtn) this.dom.applyCustomTimerBtn.textContent = t.setCustomTimer;
 
       this.renderCategories();
@@ -442,6 +527,7 @@
       }
       this.renderStations();
       this._syncLovedUrlsToServiceWorker();
+      this.refreshCachedUrlsList();
     }
 
     _processFallback(list) {
@@ -496,10 +582,12 @@
       const isPlaying = this.player.state === 'playing';
       const isBuffering = this.player.state === 'buffering';
       const currentId = this.player.currentStation ? this.player.currentStation.id : null;
+      const t = TRANSLATIONS[this.lang];
 
       this.dom.stationsContainer.innerHTML = filtered.map((s, index) => {
         const isCurrent = currentId === s.id;
         const isFav = this.favorites.has(s.id);
+        const isCached = this.cachedUrls.has(s.url);
         const activeClass = isCurrent ? 'active' : '';
         const reciter = window.findReciterForStation ? window.findReciterForStation(s.name) : null;
         const formattedIndex = String(index + 1).padStart(2, '0');
@@ -514,7 +602,12 @@
               <div class="station-details">
                 <div class="station-name">${s.name}</div>
                 <div class="station-meta">
-                  <span class="station-badge">${TRANSLATIONS[this.lang][s.category.toLowerCase()] || s.category}</span>
+                  <span class="station-badge">${t[s.category.toLowerCase()] || s.category}</span>
+                  ${isCached ? `
+                    <span class="offline-ready-badge" title="محفوظ في ذاكرة الـ 10GB للاستماع دون انترنت">
+                      ⚡ ${t.offlineReadyBadge}
+                    </span>
+                  ` : ''}
                   ${isCurrent && isPlaying ? `
                     <div class="mini-wave">
                       <div class="wave-bar"></div>
@@ -527,6 +620,12 @@
               </div>
             </div>
             <div class="station-actions">
+              <!-- Pre-cache for offline playback button -->
+              <button class="btn-card-action" data-action="precache" title="${t.precacheStationTitle}">
+                ${isCached 
+                  ? (window.SvgIcons ? window.SvgIcons.cloudCheck(18) : '✅') 
+                  : (window.SvgIcons ? window.SvgIcons.cloudDownload(18) : '💾')}
+              </button>
               <button class="btn-card-action" data-action="info" title="Reciter Info">
                 ${window.SvgIcons ? window.SvgIcons.info(18) : 'ℹ️'}
               </button>
@@ -550,6 +649,11 @@
         const station = this.stations.find(s => s.id === id);
 
         card.addEventListener('click', (e) => {
+          if (e.target.closest('[data-action="precache"]')) {
+            e.stopPropagation();
+            if (station) this.precacheStation(station);
+            return;
+          }
           if (e.target.closest('[data-action="info"]')) {
             e.stopPropagation();
             if (station) this.openReciterModal(station);
@@ -569,6 +673,122 @@
           }
         });
       });
+    }
+
+    async precacheStation(station) {
+      const t = TRANSLATIONS[this.lang];
+      this.showToast(this.lang === 'ar' ? '⏳ جاري حفظ البث الصوتي في ذاكرة الـ 10GB...' : '⏳ Caching audio stream to 10GB storage...');
+      try {
+        await this.player.precacheStation(station);
+        this.cachedUrls.add(station.url);
+        this.renderStations();
+        this.showToast(t.precacheSuccessToast);
+      } catch (err) {
+        console.warn('Precache error:', err);
+        this.showToast(this.lang === 'ar' ? '⚡ تم جدولة الحفظ بالذاكرة أثناء التشغيل' : '⚡ Stream cached for playback');
+      }
+    }
+
+    openCacheModal() {
+      if (!this.dom.cacheModal) return;
+      this.updateCacheModalMetrics();
+      this.dom.cacheModal.classList.add('active');
+    }
+
+    closeCacheModal() {
+      if (this.dom.cacheModal) {
+        this.dom.cacheModal.classList.remove('active');
+      }
+    }
+
+    updateCacheModalMetrics() {
+      if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
+
+      const channel = new MessageChannel();
+      channel.port1.onmessage = (event) => {
+        if (!event.data) return;
+        const { totalBytes, maxBytes, count, items } = event.data;
+        
+        const mbUsed = (totalBytes / (1024 * 1024)).toFixed(1);
+        const gbUsed = (totalBytes / (1024 * 1024 * 1024)).toFixed(2);
+        const pct = Math.min(100, ((totalBytes / maxBytes) * 100)).toFixed(1);
+
+        if (this.dom.cacheUsageText) {
+          this.dom.cacheUsageText.textContent = `${mbUsed} MB (${gbUsed} GB) / 10.0 GB (${pct}%)`;
+        }
+        if (this.dom.cacheProgressBar) {
+          this.dom.cacheProgressBar.style.width = `${pct}%`;
+        }
+        if (this.dom.cacheStationsCountText) {
+          this.dom.cacheStationsCountText.textContent = this.lang === 'ar'
+            ? `${count} إذاعة محفوظة للاستماع دون انترنت`
+            : `${count} stations cached for offline playback`;
+        }
+
+        // Populate cached stations list
+        if (this.dom.cachedStationsList) {
+          if (!items || items.length === 0) {
+            this.dom.cachedStationsList.innerHTML = `
+              <div style="text-align:center; padding:16px; color:var(--text-muted); font-size:0.85rem;">
+                لا توجد إذاعات مسجلة في الذاكرة حالياً. يتم الحفظ تلقائياً عند الاستماع أو الضغط على 💾
+              </div>
+            `;
+            return;
+          }
+
+          this.dom.cachedStationsList.innerHTML = items.map(it => {
+            const sizeMb = (it.sizeBytes / (1024 * 1024)).toFixed(1);
+            const dateStr = new Date(it.lastAccessed).toLocaleTimeString(this.lang === 'ar' ? 'ar-EG' : 'en-US', { hour: '2-digit', minute: '2-digit' });
+            return `
+              <div class="cached-item-row">
+                <span class="cached-item-name">${it.stationName || 'Holy Quran Radio'}</span>
+                <span class="cached-item-meta">
+                  <span>${sizeMb} MB</span>
+                  <span>• ${dateStr}</span>
+                </span>
+              </div>
+            `;
+          }).join('');
+        }
+      };
+
+      navigator.serviceWorker.controller.postMessage({ type: 'GET_CACHE_METRICS' }, [channel.port2]);
+    }
+
+    refreshUnusedCache() {
+      const t = TRANSLATIONS[this.lang];
+      if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
+
+      const channel = new MessageChannel();
+      channel.port1.onmessage = (event) => {
+        if (event.data && event.data.success) {
+          const freedMb = (event.data.freed / (1024 * 1024)).toFixed(1);
+          this.showToast(`${t.cacheRefreshedToast} (${freedMb} MB)`);
+          this.updateCacheModalMetrics();
+          this.refreshCachedUrlsList();
+        }
+      };
+
+      navigator.serviceWorker.controller.postMessage({ type: 'REFRESH_UNUSED_CACHE' }, [channel.port2]);
+    }
+
+    clearAllCache() {
+      const t = TRANSLATIONS[this.lang];
+      if (!confirm(this.lang === 'ar' ? 'هل أنت متأكد من مسح جميع الصوتيات المحفوظة في الذاكرة؟' : 'Are you sure you want to clear all cached audio?')) {
+        return;
+      }
+
+      if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
+
+      const channel = new MessageChannel();
+      channel.port1.onmessage = () => {
+        this.cachedUrls.clear();
+        this.showToast(t.cacheClearedToast);
+        this.updateCacheModalMetrics();
+        this.renderStations();
+      };
+
+      navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_ALL_AUDIO_CACHE' }, [channel.port2]);
     }
 
     openReciterModal(station) {

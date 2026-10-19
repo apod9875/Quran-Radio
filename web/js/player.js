@@ -1,15 +1,29 @@
+/**
+ * AudioStreamPlayer with Aggressive 10 GB Offline Audio Caching Support
+ * Features:
+ * - HTML5 Audio Engine with automatic buffering & error recovery
+ * - Offline Playback capability with Service Worker CacheStorage
+ * - Storage Quota Estimation & Persistent Storage Request
+ * - Sleep Timer & MediaSession API
+ * 
+ * صدقة جارية لـ (عبدالرحيم معبد) • Mabed
+ */
+
 class AudioStreamPlayer {
   constructor() {
     this.audio = new Audio();
-    this.audio.preload = 'none';
+    this.audio.preload = 'auto';
     this.currentStation = null;
     this.state = 'idle';
     this.sleepTimerRemaining = null;
     this.sleepTimerInterval = null;
+    this.isOffline = !navigator.onLine;
+
     this.listeners = {
       state: [],
       timer: [],
-      volume: []
+      volume: [],
+      offline: []
     };
 
     const savedVol = localStorage.getItem('mp3quran_volume');
@@ -17,17 +31,33 @@ class AudioStreamPlayer {
     this.audio.volume = this.volume;
 
     this._bindAudioEvents();
+    this._bindNetworkEvents();
     this._requestPersistentStorage();
   }
 
   async _requestPersistentStorage() {
     if (navigator.storage && navigator.storage.persist) {
       try {
-        await navigator.storage.persist();
+        const isPersisted = await navigator.storage.persist();
+        console.log(`[Storage] Persistent storage granted: ${isPersisted}`);
       } catch (e) {
-        console.warn("Persistent storage request failed:", e);
+        console.warn("[Storage] Persistent storage request error:", e);
       }
     }
+  }
+
+  _bindNetworkEvents() {
+    window.addEventListener('online', () => {
+      this.isOffline = false;
+      this.listeners.offline.forEach(cb => cb(false));
+      console.log('[Network] Back online');
+    });
+
+    window.addEventListener('offline', () => {
+      this.isOffline = true;
+      this.listeners.offline.forEach(cb => cb(true));
+      console.log('[Network] Connection lost, switched to Offline Mode');
+    });
   }
 
   _bindAudioEvents() {
@@ -50,8 +80,18 @@ class AudioStreamPlayer {
     });
 
     this.audio.addEventListener('error', (e) => {
-      console.warn('Audio stream error (fallback):', e);
-      this._setState('error');
+      console.warn('Audio stream error event:', e);
+      if (this.isOffline) {
+        this._setState('error');
+      } else {
+        // Quick retry once in case of live connection hiccup
+        setTimeout(() => {
+          if (this.currentStation && this.state === 'buffering') {
+            this.audio.load();
+            this.audio.play().catch(() => this._setState('error'));
+          }
+        }, 1200);
+      }
     });
   }
 
@@ -65,6 +105,10 @@ class AudioStreamPlayer {
 
   onVolumeChange(callback) {
     this.listeners.volume.push(callback);
+  }
+
+  onOfflineChange(callback) {
+    this.listeners.offline.push(callback);
   }
 
   _setState(state) {
@@ -87,10 +131,24 @@ class AudioStreamPlayer {
     this.audio.src = station.url;
     this._setState('buffering');
 
+    // Inform Service Worker of played station for aggressive caching & LRU timestamp
+    this._notifyServiceWorkerOfPlayback(station);
+
     this.audio.play().catch((err) => {
       console.warn('Autoplay error:', err);
       this._setState('paused');
     });
+  }
+
+  _notifyServiceWorkerOfPlayback(station) {
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'RECORD_STATION_ACCESS',
+        url: station.url,
+        stationId: station.id,
+        stationName: station.name
+      });
+    }
   }
 
   togglePlayPause() {
@@ -152,7 +210,7 @@ class AudioStreamPlayer {
     navigator.mediaSession.metadata = new MediaMetadata({
       title: this.currentStation.name,
       artist: 'صدقة جارية لـ (عبدالرحيم معبد) • Mabed',
-      album: 'MP3Quran Live Radio',
+      album: 'MP3Quran Live Radio (Offline Ready)',
       artwork: [
         { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
         { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' }
@@ -162,6 +220,31 @@ class AudioStreamPlayer {
     navigator.mediaSession.setActionHandler('play', () => this.togglePlayPause());
     navigator.mediaSession.setActionHandler('pause', () => this.togglePlayPause());
     navigator.mediaSession.setActionHandler('stop', () => this.stop());
+  }
+
+  // Pre-cache an entire station audio stream for guaranteed offline access
+  async precacheStation(station) {
+    if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) {
+      throw new Error('Service Worker not ready');
+    }
+
+    return new Promise((resolve, reject) => {
+      const channel = new MessageChannel();
+      channel.port1.onmessage = (event) => {
+        if (event.data && event.data.success) {
+          resolve(event.data);
+        } else {
+          reject(new Error(event.data ? event.data.error : 'Caching failed'));
+        }
+      };
+
+      navigator.serviceWorker.controller.postMessage({
+        type: 'CACHE_STATION_AUDIO',
+        url: station.url,
+        stationId: station.id,
+        stationName: station.name
+      }, [channel.port2]);
+    });
   }
 }
 

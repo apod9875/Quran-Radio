@@ -77,7 +77,16 @@ class AudioPlayerManager(private val context: Context) {
                             .build()
                     )
                     setWakeMode(context.applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
-                    setDataSource(station.url)
+                    val cachedFile = AudioCacheManager.getCachedAudioFile(context, station.id)
+                    if (cachedFile != null) {
+                        setDataSource(cachedFile.absolutePath)
+                    } else {
+                        setDataSource(station.url)
+                        // Aggressively cache in background for offline playback up to 10 GB
+                        scope.launch(Dispatchers.IO) {
+                            AudioCacheManager.cacheStationAudio(context, station.id, station.url)
+                        }
+                    }
                     val vol = _volume.value
                     setVolume(vol, vol)
 

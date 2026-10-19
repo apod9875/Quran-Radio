@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>إذاعة القرآن الكريم • MP3Quran Live Radio</title>
 
   <!-- PWA & Mobile Meta Tags -->
@@ -24,6 +24,16 @@
   <!-- Toast Notification -->
   <div id="toastNotification" class="toast-notification"></div>
 
+  <!-- Offline Alert Banner -->
+  <div id="offlineBanner" class="offline-alert-banner" style="display:none;">
+    <div class="offline-banner-content">
+      <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>
+      </svg>
+      <span id="offlineBannerText">وضع عدم الاتصال بالإنترنت • يتم تشغيل الإذاعات المحفوظة في ذاكرة الـ 10 جيجابايت</span>
+    </div>
+  </div>
+
   <!-- App Header -->
   <header class="app-header">
     <div class="header-container">
@@ -38,6 +48,22 @@
       </div>
 
       <div class="header-actions">
+        <!-- 10 GB Offline Audio Cache Button -->
+        <button id="cacheBtn" class="btn-text-pill btn-cache-stat" title="ذاكرة الصوتيات والاستماع دون انترنت (10 GB)">
+          <svg class="svg-icon svg-gold-glow" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 2H5a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V5a3 3 0 0 0-3-3zm-7 16c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm5-11H7V5h10v2z"/>
+          </svg>
+          <span id="cacheBtnLabel">ذاكرة 10GB</span>
+        </button>
+
+        <!-- Supported Devices Matrix Button -->
+        <button id="devicesBtn" class="btn-text-pill" title="الأجهزة والشاشات المدعومة">
+          <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+          <span id="devicesBtnLabel">الأجهزة المدعومة</span>
+        </button>
+
         <!-- Install PWA button -->
         <button id="installBtn" class="btn-text-pill btn-install" title="Install App">
           <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -305,6 +331,43 @@
     </div>
   </div>
 
+  <!-- Supported Devices & Screen Matrix Modal -->
+  <div class="modal-overlay" id="devicesModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">الأجهزة والشاشات المدعومة • Device Compatibility</h3>
+        <button class="modal-close-btn" id="closeDevicesBtn">
+          <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Live Screen Diagnostics Banner -->
+      <div class="device-diagnostics-box">
+        <div class="device-diag-title">
+          <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span>شاشتك الحالية (Live Screen Diagnostics):</span>
+        </div>
+        <div class="device-diag-grid">
+          <div class="device-diag-item">الأبعاد: <span id="diagResolution">0 x 0</span></div>
+          <div class="device-diag-item">التصنيف: <span id="diagCategory">جاري الفحص...</span></div>
+          <div class="device-diag-item">الاتجاه: <span id="diagOrientation">...</span></div>
+          <div class="device-diag-item">اللمس: <span id="diagTouch">...</span></div>
+        </div>
+      </div>
+
+      <!-- Supported Devices Matrix Grid -->
+      <div class="devices-grid" id="devicesContainer">
+        <!-- Rendered by devices.js -->
+      </div>
+
+      <button class="btn-text-pill" id="closeDevicesDoneBtn" style="width:100%; justify-content:center; background:var(--gold); color:#121815; border:none; padding:12px; font-weight:700;">
+        إغلاق
+      </button>
+    </div>
+  </div>
+
   <!-- Reciter Biography Modal -->
   <div class="modal-overlay" id="reciterModal">
     <div class="modal-card">
@@ -446,8 +509,75 @@
     </div>
   </div>
 
+  <!-- 10 GB Audio Cache Manager Modal -->
+  <div class="modal-overlay" id="cacheModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">ذاكرة الصوتيات والاستماع دون انترنت (10 GB)</h3>
+        <button class="modal-close-btn" id="closeCacheBtn">
+          <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Cache Quota & Storage Bar -->
+      <div class="cache-storage-box">
+        <div class="cache-storage-header">
+          <span class="cache-storage-label">المساحة المستهلكة في المتصفح / الجهاز:</span>
+          <span id="cacheUsageText" class="cache-storage-val">0.0 MB / 10.0 GB</span>
+        </div>
+        <div class="cache-progress-track">
+          <div id="cacheProgressBar" class="cache-progress-fill" style="width: 0%;"></div>
+        </div>
+        <div class="cache-storage-footer">
+          <span id="cacheStationsCountText">0 إذاعات محفوظة للاستماع دون انترنت</span>
+          <span class="cache-badge-ok">⚡ 10 GB مخصص للتخزين السريع</span>
+        </div>
+      </div>
+
+      <!-- Explanation Callout -->
+      <div class="cache-info-callout">
+        <div class="cache-info-icon">💡</div>
+        <div class="cache-info-text">
+          يقوم التطبيق بحفظ تدفقات الصوت تلقائياً وبشكل مكثف (Aggressive Caching) حتى <strong>10 جيجابايت</strong> في ذاكرة جهازك أو متصفحك ليتيح لك الاستماع المستمر حتى عند انقطاع الإنترنت أو أثناء السفر.
+        </div>
+      </div>
+
+      <!-- Cache Actions: Refresh Unused Audio & Clear -->
+      <div class="cache-actions-grid">
+        <button id="refreshUnusedCacheBtn" class="btn-cache-action btn-refresh-cache">
+          <svg class="svg-icon svg-gold-glow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+          </svg>
+          <span>تحديث وتنظيف الإذاعات غير المستخدمة</span>
+        </button>
+
+        <button id="clearAllCacheBtn" class="btn-cache-action btn-clear-cache">
+          <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+          <span>مسح كل الذاكرة المؤقتة</span>
+        </button>
+      </div>
+
+      <!-- Cached Stations List -->
+      <div class="cached-stations-section">
+        <div class="cached-section-title">الإذاعات المحفوظة في الذاكرة (Offline Ready):</div>
+        <div id="cachedStationsList" class="cached-stations-list">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <button class="btn-text-pill" id="closeCacheDoneBtn" style="width:100%; justify-content:center; background:var(--gold); color:#121815; border:none; padding:12px; font-weight:700;">
+        إغلاق
+      </button>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="js/icons.js"></script>
+  <script src="js/devices.js"></script>
   <script src="js/reciters.js"></script>
   <script src="js/fallback.js"></script>
   <script src="js/player.js"></script>
