@@ -154,7 +154,6 @@ fun RadioScreen(
                     }
                 },
                 actions = {
-                    // About & Developer Info button
                     IconButton(
                         onClick = { showAboutDialog = true },
                         modifier = Modifier.testTag("about_app_btn")
@@ -166,7 +165,6 @@ fun RadioScreen(
                         )
                     }
 
-                    // Bilingual language switcher
                     OutlinedButton(
                         onClick = {
                             viewModel.setLanguage(if (isAr) "eng" else "ar")
@@ -206,9 +204,7 @@ fun RadioScreen(
             val isDualPane = maxWidth >= 650.dp
 
             if (isDualPane) {
-                // Adaptive Tablet / Desktop dual-pane master-detail layout
                 Row(modifier = Modifier.fillMaxSize()) {
-                    // Left Column: Catalog & Filters
                     Column(
                         modifier = Modifier
                             .weight(1.2f)
@@ -236,7 +232,6 @@ fun RadioScreen(
                         )
                     }
 
-                    // Subtle gold divider
                     Box(
                         modifier = Modifier
                             .width(1.dp)
@@ -244,7 +239,6 @@ fun RadioScreen(
                             .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
                     )
 
-                    // Right Column: Hero Player Panel
                     Surface(
                         modifier = Modifier
                             .weight(1.0f)
@@ -267,7 +261,6 @@ fun RadioScreen(
                     }
                 }
             } else {
-                // Mobile single-column layout
                 Box(modifier = Modifier.fillMaxSize()) {
                     Column(
                         modifier = Modifier
@@ -296,7 +289,6 @@ fun RadioScreen(
                         )
                     }
 
-                    // Floating MiniPlayerBar at bottom on mobile
                     if (currentStation != null) {
                         MiniPlayerBar(
                             station = currentStation!!,
@@ -309,7 +301,6 @@ fun RadioScreen(
                         )
                     }
 
-                    // Mobile Expandable Full-Screen Hero Player Sheet
                     AnimatedVisibility(
                         visible = isHeroPlayerExpanded && currentStation != null,
                         enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
@@ -324,7 +315,6 @@ fun RadioScreen(
                             color = MaterialTheme.colorScheme.background
                         ) {
                             Column(modifier = Modifier.fillMaxSize()) {
-                                // Collapse bar
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -425,7 +415,6 @@ private fun SearchAndCategoriesSection(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Horizontal Category Chips
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)

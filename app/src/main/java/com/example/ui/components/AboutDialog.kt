@@ -32,7 +32,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -79,7 +78,6 @@ fun AboutDialog(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Noble Dedication Card (صدقة جارية)
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(18.dp),
@@ -142,7 +140,6 @@ fun AboutDialog(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Developer Card: Mabed
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
@@ -190,7 +187,6 @@ fun AboutDialog(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // GitHub repo link button
                 OutlinedButton(
                     onClick = {
                         val browserIntent = Intent(
@@ -221,7 +217,6 @@ fun AboutDialog(
 
                 Spacer(modifier = Modifier.height(6.dp))
 
-                // Web App link button
                 OutlinedButton(
                     onClick = {
                         val browserIntent = Intent(

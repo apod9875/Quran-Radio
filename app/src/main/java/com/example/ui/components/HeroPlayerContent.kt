@@ -48,7 +48,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.data.model.RadioStation
 import com.example.player.PlayerState
 import com.example.ui.theme.GoldPrimary
@@ -83,7 +82,6 @@ fun HeroPlayerContent(
         verticalArrangement = Arrangement.Center
     ) {
         if (station == null) {
-            // Idle state placeholder
             Icon(
                 imageVector = Icons.Default.Radio,
                 contentDescription = null,
@@ -100,7 +98,6 @@ fun HeroPlayerContent(
             return
         }
 
-        // Live badge
         Surface(
             shape = RoundedCornerShape(20.dp),
             color = if (isPlaying) Color(0xFFEF5350).copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant,
@@ -132,7 +129,6 @@ fun HeroPlayerContent(
             }
         }
 
-        // Station title
         Text(
             text = station.name,
             style = MaterialTheme.typography.headlineSmall,
@@ -146,7 +142,6 @@ fun HeroPlayerContent(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Category label
         Text(
             text = station.category.getTitle(language),
             style = MaterialTheme.typography.bodyMedium,
@@ -155,7 +150,6 @@ fun HeroPlayerContent(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Animated soundwave
         WaveformVisualizer(
             isPlaying = isPlaying,
             isBuffering = isBuffering,
@@ -168,7 +162,6 @@ fun HeroPlayerContent(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Playback controls row: Prev, Play/Pause, Next
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
@@ -238,7 +231,6 @@ fun HeroPlayerContent(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Volume control slider
         Row(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
@@ -273,7 +265,6 @@ fun HeroPlayerContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Sleep timer indicator if active
         AnimatedVisibility(visible = sleepTimerSeconds != null && sleepTimerSeconds > 0) {
             val mins = (sleepTimerSeconds ?: 0) / 60
             val secs = (sleepTimerSeconds ?: 0) % 60
@@ -303,13 +294,11 @@ fun HeroPlayerContent(
             }
         }
 
-        // Secondary actions: Sleep Timer, Favorite, Share
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Sleep timer
             IconButton(
                 onClick = onOpenSleepTimer,
                 modifier = Modifier.testTag("open_sleep_timer_btn")
@@ -321,7 +310,6 @@ fun HeroPlayerContent(
                 )
             }
 
-            // Favorite toggle
             IconButton(
                 onClick = onFavoriteToggle,
                 modifier = Modifier.testTag("hero_fav_btn")
@@ -333,7 +321,6 @@ fun HeroPlayerContent(
                 )
             }
 
-            // Share stream
             IconButton(
                 onClick = {
                     val sendIntent = Intent().apply {
@@ -358,7 +345,6 @@ fun HeroPlayerContent(
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        // Developer attribution & Dedication badge
         Surface(
             shape = RoundedCornerShape(12.dp),
             color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),

@@ -134,9 +134,7 @@ class AudioPlayerManager(private val context: Context) {
             is PlayerState.Idle, is PlayerState.Error -> {
                 play(station)
             }
-            is PlayerState.Buffering -> {
-                // Already buffering
-            }
+            is PlayerState.Buffering -> {}
         }
     }
 
@@ -176,7 +174,6 @@ class AudioPlayerManager(private val context: Context) {
             }
 
             if (remaining <= 0) {
-                // Sleep timer completed: stop playback
                 stop()
                 _sleepTimerSeconds.value = null
             }

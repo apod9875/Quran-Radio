@@ -91,7 +91,6 @@ fun StationCard(
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Live / Radio status icon
             Surface(
                 modifier = Modifier.size(48.dp),
                 shape = CircleShape,
@@ -111,7 +110,6 @@ fun StationCard(
 
             Spacer(modifier = Modifier.width(14.dp))
 
-            // Station details
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Center
@@ -131,7 +129,6 @@ fun StationCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // Category pill
                     Surface(
                         shape = RoundedCornerShape(6.dp),
                         color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f)
@@ -159,7 +156,6 @@ fun StationCard(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // Favorite button
             IconButton(
                 onClick = onFavoriteClick,
                 modifier = Modifier
@@ -173,7 +169,6 @@ fun StationCard(
                 )
             }
 
-            // Play / Pause / Buffering button
             FilledIconButton(
                 onClick = onPlayClick,
                 modifier = Modifier
