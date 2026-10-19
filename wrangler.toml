@@ -1,0 +1,11 @@
+name = "mp3quran-live-radio"
+compatibility_date = "2026-10-18"
+
+[site]
+bucket = "./web"
+
+[vars]
+ENVIRONMENT = "production"
+DESKTOP_CACHE_LIMIT_GB = 20
+MOBILE_CACHE_LIMIT_GB = 10
+DEDICATION = "صدقة جارية لـ ( عبدالرحيم معبد ) • Mabed"

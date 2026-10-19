@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>إذاعة القرآن الكريم • MP3Quran Live Radio</title>
+
+  <!-- PWA & Mobile Meta Tags -->
+  <meta name="description" content="24/7 Live Holy Quran Radio streaming with loved-station offline audio caching - صدقة جارية لـ (عبدالرحيم معبد) • Mabed">
+  <meta name="theme-color" content="#0E2A22">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Quran Radio">
+
+  <link rel="icon" type="image/png" href="icons/icon.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Toast Notification -->
+  <div id="toastNotification" class="toast-notification"></div>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-wrapper">
+        <div class="brand-icon">
+          <img src="icons/icon.png" alt="Quran Radio Emblem">
+        </div>
+        <div class="brand-text">
+          <h1 id="appTitle">إذاعة القرآن الكريم</h1>
+          <div class="brand-dedication" id="appDedication">صدقة جارية لـ ( عبدالرحيم معبد ) • Mabed</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Install PWA button -->
+        <button id="installBtn" class="btn-text-pill btn-install" title="Install App">
+          <span>📲</span>
+          <span class="btn-label">تثبيت التطبيق</span>
+        </button>
+
+        <!-- About & Dedication button -->
+        <button id="infoBtn" class="btn-icon" title="About & Dedication">
+          <span>ℹ️</span>
+        </button>
+
+        <!-- Language toggle button -->
+        <button id="langToggleBtn" class="btn-text-pill" title="Switch Language">
+          <span>🌐</span>
+          <span id="langBtnText">English</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="main-wrapper">
+    <div class="layout-grid">
+      
+      <!-- Catalog & Filtering Column -->
+      <section class="catalog-column">
+        <!-- Search bar -->
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن قارئ أو إذاعة...">
+          <button id="clearSearchBtn" class="clear-search-btn">✕</button>
+        </div>
+
+        <!-- Categories horizontal bar -->
+        <div class="categories-bar" id="categoriesBar">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <!-- Station cards container -->
+        <div class="stations-list" id="stationsContainer">
+          <!-- Populated by JavaScript -->
+        </div>
+      </section>
+
+      <!-- Hero Audio Player Column (Desktop persistent pane) -->
+      <aside class="hero-player-column">
+        <div class="hero-player-panel" id="heroPlayerPanel">
+          <div class="live-indicator" id="heroIndicator">
+            <span class="dot"></span>
+            <span id="heroIndicatorText">بث مباشر الآن</span>
+          </div>
+
+          <h2 class="hero-station-title" id="heroTitle">اختر إذاعة لبدء الاستماع المبارك</h2>
+          <div class="hero-station-category" id="heroCategory"></div>
+
+          <!-- Waveform Visualizer -->
+          <div class="hero-waveform">
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+          </div>
+
+          <!-- Main Player Controls -->
+          <div class="player-controls-row">
+            <button id="heroPrevBtn" class="btn-ctrl" title="Previous Station">⏮️</button>
+            <button id="heroPlayBtn" class="btn-ctrl btn-main-play" title="Play / Pause">▶️</button>
+            <button id="heroNextBtn" class="btn-ctrl" title="Next Station">⏭️</button>
+          </div>
+
+          <!-- Volume Slider -->
+          <div class="volume-row">
+            <span>🔈</span>
+            <input type="range" id="heroVolumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="1">
+            <span>🔊</span>
+          </div>
+
+          <!-- Active Sleep Timer Badge -->
+          <div class="timer-active-badge" id="heroTimerBadge"></div>
+
+          <!-- Secondary Actions: Sleep Timer, Favorite, Share -->
+          <div class="player-secondary-actions">
+            <button id="heroTimerBtn" class="btn-ctrl" title="Sleep Timer">🌙</button>
+            <button id="heroFavBtn" class="btn-ctrl" title="Favorite">🤍</button>
+            <button id="heroShareBtn" class="btn-ctrl" title="Share">🔗</button>
+          </div>
+
+          <!-- Dedication Footer Badge -->
+          <div class="hero-dedication-tag" id="heroDedication">صدقة جارية لـ ( عبدالرحيم معبد ) • Mabed</div>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- Mobile Floating Player Bar -->
+  <div class="mobile-player-bar" id="mobilePlayerBar">
+    <div style="display:flex; align-items:center; gap: 10px; overflow:hidden; flex:1;">
+      <span style="font-size:1.4rem;">📻</span>
+      <div style="overflow:hidden;">
+        <div id="mobileBarTitle" style="font-weight:700; color:var(--gold); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:0.9rem;"></div>
+        <div id="mobileBarStatus" style="font-size:0.75rem; color:var(--text-muted);">بث مباشر</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap: 8px;">
+      <button id="mobileBarFavBtn" class="btn-card-action" style="border:none;">🤍</button>
+      <button id="mobileBarPlayBtn" class="btn-card-action btn-play-card" style="background:var(--gold); color:#121815;">▶️</button>
+    </div>
+  </div>
+
+  <!-- About & Dedication Modal -->
+  <div class="modal-overlay" id="aboutModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">حول التطبيق والإهداء</h3>
+        <button class="modal-close-btn" id="closeAboutBtn">✕</button>
+      </div>
+
+      <div class="dedication-card">
+        <div style="font-size: 2rem; margin-bottom: 6px;">🤲</div>
+        <div class="dedication-title">صدقة جارية لـ ( عبدالرحيم معبد )</div>
+        <div class="dedication-dua">
+          «اللهم اغفر له وارحمه وعافه واعف عنه وأكرم نزله ووسع مدخله واجعله في الفردوس الأعلى من الجنة»
+        </div>
+      </div>
+
+      <div class="developer-card">
+        <div style="text-align: right;">
+          <div style="font-size: 0.78rem; color: var(--text-muted);">تطوير وبرمجة</div>
+          <div style="font-size: 1.15rem; font-weight: 700; color: var(--gold);">Mabed</div>
+        </div>
+        <span style="font-size: 1.6rem;">💻</span>
+      </div>
+
+      <div style="font-size: 0.78rem; color: var(--mint-light); margin-bottom: 14px; background: rgba(82,183,136,0.1); padding: 8px; border-radius: 8px;">
+        💾 التخزين المؤقت للاستماع دون انترنت يتم فقط للإذاعات المفضلة (Loved Stations) بسعة حتى 20 جيجابايت للكمبيوتر و 10 جيجابايت للهواتف.
+      </div>
+
+      <div class="links-row">
+        <a href="https://github.com/apod9875/mp3quran-live-radio" target="_blank" rel="noopener" class="btn-link">
+          <span>📦</span>
+          <span>GitHub: apod9875/mp3quran-live-radio</span>
+        </a>
+        <a href="https://mp3quran-live-radio.apod9875.workers.dev/" target="_blank" rel="noopener" class="btn-link">
+          <span>🌐</span>
+          <span>تطبيق الويب الرسمي</span>
+        </a>
+      </div>
+
+      <button class="btn-text-pill" id="doneAboutBtn" style="margin-top: 18px; width: 100%; justify-content: center; background: var(--gold); color: #121815; border: none;">
+        إغلاق
+      </button>
+    </div>
+  </div>
+
+  <!-- Sleep Timer Modal -->
+  <div class="modal-overlay" id="timerModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">مؤقت النوم</h3>
+        <button class="modal-close-btn" id="closeTimerBtn">✕</button>
+      </div>
+
+      <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 14px;">
+        اختر المدة لإيقاف البث تلقائياً أثناء الاستماع:
+      </p>
+
+      <div class="timer-grid" id="timerGrid">
+        <button class="btn-timer-chip" data-mins="15">15 دقيقة</button>
+        <button class="btn-timer-chip" data-mins="30">30 دقيقة</button>
+        <button class="btn-timer-chip" data-mins="45">45 دقيقة</button>
+        <button class="btn-timer-chip" data-mins="60">60 دقيقة</button>
+        <button class="btn-timer-chip" data-mins="90">90 دقيقة</button>
+        <button class="btn-timer-chip" data-mins="120">120 دقيقة</button>
+      </div>
+
+      <div id="timerRemainingText" style="color: var(--gold); font-weight: 700; font-size: 0.95rem; margin-bottom: 12px;"></div>
+
+      <button class="btn-cancel-timer" id="cancelTimerBtn">إلغاء المؤقت</button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/fallback.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
