@@ -1,54 +1,88 @@
-# Implementation Plan: Universal Canonical Responsiveness & Supported Devices Matrix
+# Mobile Audio Streaming Compatibility & Honor Device Playback Fix
 
-Deliver universal canonical responsiveness across every device form factor (compact phones 320px–480px, phablets & foldables 480px–768px, tablets 768px–1024px, laptops 1024px–1440px, and ultrawide desktops up to 4K), accompanied by a dedicated interactive **Supported Devices & Screen Compatibility Modal** displaying real-time screen detection and multi-device support verification.
+Fix audio streaming failure on Honor 600 and modern Android mobile browsers by resolving Service Worker live stream interception locking, enabling direct stream passthrough, adding user-gesture audio unlock, and providing multi-source stream error recovery.
 
-## User Decisions & Architectural Alignment
+## User Review & Critical Decisions
 
-- **Layout Paradigm**: Canonical adaptive layouts:
-  - **Phones (<600px)**: Single column, touch-optimized cards, floating bottom player with expandable full-screen sheet.
-  - **Foldables & Tablets (600px–960px)**: Multi-column responsive card grid with supporting side dock / navigation rail.
-  - **Desktops & Ultrawide (>960px)**: Dual-pane layout (Station list + sticky Hero Player) bounded to `max-width: 1440px` with centered alignment.
-- **Supported Devices Modal**: Interactive dialog displaying:
-  - Real-time live screen detector (Current viewport resolution, screen density, category, orientation, and touch capability).
-  - Comprehensive device support breakdown (Phones, Foldables, Tablets, Laptops, Desktops, In-Car & TV browsers) with 100% verified status badges.
+> [!IMPORTANT]
+> The primary cause of audio playback failing on the Honor 600 and mobile browsers has been identified: **the Service Worker was intercepting continuous live radio streams (Icecast streams) and attempting to clone and buffer them into CacheStorage**. Because live radio streams are infinite and chunked, browser engines (especially Chromium on Honor/EMUI/MagicOS) stall or abort the stream, causing the audio player to buffer forever and never produce sound.
 
----
-
-## 1. Web Application (`web/`)
-
-### A. Responsive CSS Architecture (`web/css/styles.css`)
-- Rebuild media queries with standard Material 3 / CSS breakpoints:
-  - `@media (max-width: 480px)`: Ultra-compact phones (safe-area padding, font scaling, 44px touch targets).
-  - `@media (min-width: 481px) and (max-width: 768px)`: Phablets & Foldables (2-column card grid when space permits).
-  - `@media (min-width: 769px) and (max-width: 1024px)`: Tablets (Adaptive side panel or dual column with comfortable margins).
-  - `@media (min-width: 1025px)`: Desktop dual-pane canonical layout.
-  - `@media (min-width: 1600px)`: 2K/4K Ultrawide centering with max-width containment.
-- Fix any potential overflow bugs (`overflow-x: hidden` on root, flexible `min-width: 0` on flex items, word-break prevention).
-
-### B. Supported Devices Modal Markup (`web/index.html`)
-- Add a new "الأجهزة المدعومة" (Supported Devices) button in the header.
-- Add the `#devicesModal` component containing:
-  - Live screen detection dashboard: `[عرض الشاشة الحالي: 390x844 | النوع: هاتف ذكي | الكثافة: 3x]`.
-  - Grid of supported hardware categories with modern SVG icons.
-
-### C. Live Device Detection Engine (`web/js/devices.js` & `web/js/app.js`)
-- Dynamically detect viewport dimensions, DPR (Device Pixel Ratio), device type, and orientation on window resize and display in real time.
-- Wire up open/close triggers for the Devices modal.
+- **Confirmed Issue (Phase 1)**: Audio playback fails to start or stream on mobile web browsers (Chrome / Honor Browser).
+- **Core Architectural Fix**: 
+  1. **Live Stream Passthrough in Service Worker**: Live radio streams (`qurango.net/radio/*`, Icecast/Shoutcast) will bypass Service Worker response cloning so the mobile browser's hardware media decoder can connect directly to the live stream without stall or memory exhaustion.
+  2. **Mobile User Gesture Audio Unlock**: Explicitly prime and unlock the HTML5 `Audio` element within direct user touch event stacks (`touchstart` / `click`), preventing mobile autoplay restrictions.
+  3. **Stream Error Recovery & Mirror Fallbacks**: If a radio stream connection times out or drops on mobile data, automatically failover to backup HTTP/HTTPS stream endpoints or reload cleanly.
+  4. **True Offline Playback**: Isolate the 10 GB cache to discrete offline recitation files and pre-cached stations, ensuring live streams and offline playback coexist without conflict.
 
 ---
 
-## 2. Android Application (`app/`)
+## 1. Overview & Core Concept
 
-### A. Compose WindowSizeClass & Canonical Layout (`app/src/main/java/com/example/ui/screens/RadioScreen.kt`)
-- Use `BoxWithConstraints` to dynamically adapt between Compact (<600dp), Medium (600–840dp), and Expanded (>840dp) screen widths.
-- Ensure proper `WindowInsets.safeDrawing` and navigation bar padding.
-- Add supported devices matrix dialog in Android as well.
+- **What It Does**: Ensures smooth, instant, and reliable 24/7 Quran radio streaming across all mobile devices (Honor, Samsung, Xiaomi, Huawei, iPhone) and desktop browsers without buffering lockups.
+- **Target Audience**: Mobile web listeners using Honor Browser, Google Chrome, Samsung Internet, or Safari on smartphones with varying network bandwidths and strict mobile battery/media policies.
+- **Key Value**: 100% instantaneous playback start, zero silent stalls on mobile, uninterrupted background playback, and rock-solid offline caching.
 
 ---
 
-## 3. Verification & Testing
+## 2. User Experience & Visual Design
 
-1. **Resolution Testing**: Test across 320px (iPhone SE), 375px (iPhone mini), 412px (Pixel/Galaxy), 768px (iPad portrait), 1024px (iPad landscape), 1280px (MacBook), and 1920px (Full HD).
-2. **Live Matrix Verification**: Verify that the Devices Modal updates its live screen resolution and category immediately when resizing the window.
-3. **No Audio Disruption**: Confirm audio plays smoothly during resize, orientation change, or opening the devices modal.
-4. **Compilation**: Run `compile_applet` to confirm flawless build.
+- **Audio Playback UX**:
+  - Tapping any station card starts playback immediately (< 800ms) with audible feedback.
+  - Active wave bar animations only trigger when audio is confirmed playing (not stuck in indefinite buffering).
+  - If a device network glitch occurs, a subtle retry indicator and automatic stream failover occur seamlessly.
+- **Mobile Device Polish**:
+  - Clear visual feedback on Honor and Android devices with safe-area bottom navigation padding.
+  - Visual status chips: "بث مباشر (Live)" vs "متوقف (Paused)" vs "جاري التحميل (Buffering)".
+  - A clean "تشغيل مباشر (Direct Stream)" guarantee that prevents browser stalls.
+
+---
+
+## 3. Key Product Decisions & Trade-Offs
+
+- **Decision 1: Live Stream Service Worker Passthrough**
+  - *Chosen Approach*: Configure `sw.js` to let live radio streams pass directly to the network without `event.respondWith(fetch(event.request))` interception and without `.clone()` buffering.
+  - *Why*: Live radio streams are infinite byte streams. Calling `.clone()` or trying to write an infinite stream into `CacheStorage` exhausts memory and stalls mobile audio decoders.
+  - *Alternatives Considered*: Trying to chunk live streams via Service Worker ReadableStream — rejected because mobile Chromium drops chunked streams after a few seconds.
+
+- **Decision 2: Explicit Audio Context & Element Initialization**
+  - *Chosen Approach*: Pre-warm the HTML5 `Audio` element on the first user interaction, setting `audio.crossOrigin = null` for live streams and executing `.load()` before `.play()`.
+  - *Why*: Honor/EMUI browsers have aggressive media-saving heuristics that require an explicit gesture stack and clean element lifecycle.
+
+- **Decision 3: Stream Protocol & Host Fallbacks**
+  - *Chosen Approach*: Support both primary HTTPS stream URLs and alternate direct CDN mirrors for the stations.
+  - *Why*: Some telecom providers and local mobile networks block certain Icecast ports or have strict SSL renegotiation issues.
+
+---
+
+## 4. Technical Architecture & Data Strategy
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Mobile Web UI                          │
+│     (Station Cards, Hero Player, Mini Dock, Modals)         │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ User Tap (Touch Gesture)
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   AudioStreamPlayer Engine                  │
+│  - Gesture Unlocking & Mobile Pre-Warm                      │
+│  - Loadstart / CanPlay / Error Watchdog                     │
+│  - Stream Protocol & Backup URL Failover                    │
+└──────────────────────────────┬──────────────────────────────┘
+                               │
+            ┌──────────────────┴──────────────────┐
+            │ Live Stream                         │ Discrete Audio
+            ▼                                     ▼
+┌──────────────────────────────┐        ┌─────────────────────────────┐
+│  Direct Browser Media Engine │        │   Service Worker Caching    │
+│  (Hardware Codecs / Icecast) │        │  (10 GB CacheStorage + IDB) │
+│  - qurango.net/radio/*       │        │  - Offline Recitations     │
+│  - Bypass SW clone lock      │        │  - Range Request Synthesis │
+└──────────────────────────────┘        └─────────────────────────────┘
+```
+
+### Components to Update
+1. `web/sw.js`: Exempt live continuous radio streams from response cloning and infinite CacheStorage put; route live audio directly.
+2. `web/js/player.js`: Add mobile gesture priming, proper `audio.load()` and `.play()` error handling with auto-recovery for Honor/Android browsers.
+3. `web/js/fallback.js` & `web/js/app.js`: Ensure robust stream URLs with alternate fallback mirrors.
+4. Android / Web deployment archive generation: Re-package `cloudflare-pages-deployment.zip` and `MP3QuranRadio-Mabed.zip`.

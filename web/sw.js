@@ -6,8 +6,8 @@
  * صدقة جارية لـ (عبدالرحيم معبد) • Mabed
  */
 
-const CACHE_STATIC = 'quran-radio-static-v1.3.0';
-const CACHE_AUDIO = 'quran-radio-audio-10gb-v3';
+const CACHE_STATIC = 'quran-radio-static-v1.4.0';
+const CACHE_AUDIO = 'quran-radio-audio-10gb-v4';
 const MAX_AUDIO_CACHE_BYTES = 10 * 1024 * 1024 * 1024; // 10 GB Max limit
 
 const STATIC_ASSETS = [
@@ -253,7 +253,7 @@ function createPartialResponse(cachedResponse, rangeHeader) {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // 1. Audio streams: Aggressively cache & serve for offline playback
+  // 1. Audio streams handling:
   const isAudio = url.pathname.includes('/radio/') || 
                   url.pathname.endsWith('.mp3') || 
                   url.pathname.endsWith('.aac') || 
@@ -264,56 +264,35 @@ self.addEventListener('fetch', (event) => {
                   url.hostname.includes('mp3quran.net/radio');
 
   if (isAudio) {
+    // When ONLINE: Never block or clone infinite live radio streams through Service Worker!
+    // Mobile browsers (Honor Browser, Chrome on Android, Safari) stall if an infinite Icecast
+    // live stream is passed through Service Worker fetch cloning. Let browser media decoder stream directly!
+    if (navigator.onLine) {
+      // Record access asynchronously for LRU without touching response stream
+      recordAudioAccess(event.request.url, null, null, null, undefined);
+      // Native browser media stream passthrough
+      return;
+    }
+
+    // When OFFLINE: Serve from 10 GB audio cache if available
     event.respondWith(
       (async () => {
         const cache = await caches.open(CACHE_AUDIO);
-        const rangeHeader = event.request.headers.get('range');
-
-        // Check if we already have this audio in the cache
         const cachedResponse = await cache.match(event.request.url);
 
-        // If offline: prioritize serving from cache immediately
-        if (!navigator.onLine) {
-          if (cachedResponse) {
-            recordAudioAccess(event.request.url, null, null, null, undefined);
-            if (rangeHeader) {
-              return createPartialResponse(cachedResponse, rangeHeader);
-            }
-            return cachedResponse;
+        if (cachedResponse) {
+          recordAudioAccess(event.request.url, null, null, null, undefined);
+          const rangeHeader = event.request.headers.get('range');
+          if (rangeHeader) {
+            return createPartialResponse(cachedResponse, rangeHeader);
           }
-          return new Response('Offline audio stream unavailable in cache', {
-            status: 503,
-            statusText: 'Offline Cache Miss'
-          });
+          return cachedResponse;
         }
 
-        // Online: Try network first with fast background caching, or serve cache if fast
-        try {
-          const networkResponse = await fetch(event.request);
-          if (networkResponse && (networkResponse.status === 200 || networkResponse.status === 206)) {
-            // Clone and store into 10 GB audio cache
-            const clone = networkResponse.clone();
-            cache.put(event.request.url, clone).then(async () => {
-              // Estimate size from content-length
-              const cl = networkResponse.headers.get('content-length');
-              const bytes = cl ? parseInt(cl, 10) : 5 * 1024 * 1024; // Default estimate 5MB per stream
-              await recordAudioAccess(event.request.url, null, null, bytes, undefined);
-              // Trigger LRU cleanup if approaching 10GB limit
-              refreshUnusedAudioCache(false);
-            }).catch(() => {});
-          }
-          return networkResponse;
-        } catch (fetchErr) {
-          // Network failed: Fallback to cached audio!
-          if (cachedResponse) {
-            recordAudioAccess(event.request.url, null, null, null, undefined);
-            if (rangeHeader) {
-              return createPartialResponse(cachedResponse, rangeHeader);
-            }
-            return cachedResponse;
-          }
-          throw fetchErr;
-        }
+        return new Response('Offline audio stream unavailable in cache', {
+          status: 503,
+          statusText: 'Offline Cache Miss'
+        });
       })()
     );
     return;

@@ -127,7 +127,8 @@
 
     _setupPwaAndCaching() {
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js').then(() => {
+        navigator.serviceWorker.register('./sw.js').then((reg) => {
+          if (reg) reg.update().catch(() => {});
           this.refreshCachedUrlsList();
         }).catch(e => console.warn('SW err:', e));
       }
