@@ -18,13 +18,13 @@ window.QR_EXTRA_STATIONS = [
   {
     id: 900003,
     format: 'hls',
-    mirrors: ['https://win.holol.com/live/quran/playlist.m3u8'],
+    mirrors: ['https://cdn-globecast.akamaized.net/live/eds/saudi_quran/hls_roku/index.m3u8', 'https://win.holol.com/live/quran/playlist.m3u8'],
     names: { ar: 'البث المباشر من المسجد الحرام', eng: 'Live from Masjid al-Haram' }
   },
   {
     id: 900004,
     format: 'hls',
-    mirrors: ['https://win.holol.com/live/sunnah/playlist.m3u8'],
+    mirrors: ['https://cdn-globecast.akamaized.net/live/eds/saudi_sunnah/hls_roku/index.m3u8', 'https://win.holol.com/live/sunnah/playlist.m3u8'],
     names: { ar: 'البث المباشر من المسجد النبوي', eng: 'Live from Masjid an-Nabawi' }
   }
 ];
