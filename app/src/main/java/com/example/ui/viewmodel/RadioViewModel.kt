@@ -1,6 +1,7 @@
 package com.example.ui.viewmodel
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -12,11 +13,14 @@ import com.example.data.remote.NetworkClient
 import com.example.data.repository.RadioRepository
 import com.example.player.AudioPlayerManager
 import com.example.player.PlayerState
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -26,7 +30,10 @@ class RadioViewModel(
     val playerManager: AudioPlayerManager
 ) : AndroidViewModel(application) {
 
-    private val _language = MutableStateFlow("ar")
+    private val prefs = application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    // Restore the last chosen language (Arabic by default)
+    private val _language = MutableStateFlow(prefs.getString(KEY_LANGUAGE, null) ?: "ar")
     val language: StateFlow<String> = _language.asStateFlow()
 
     private val _searchQuery = MutableStateFlow("")
@@ -68,13 +75,13 @@ class RadioViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     init {
-        loadStations("ar")
+        observeStations()
     }
 
     fun setLanguage(lang: String) {
         if (_language.value != lang) {
             _language.value = lang
-            loadStations(lang)
+            prefs.edit().putString(KEY_LANGUAGE, lang).apply()
         }
     }
 
@@ -140,13 +147,17 @@ class RadioViewModel(
         playerManager.setSleepTimer(minutes)
     }
 
-    private fun loadStations(lang: String) {
+    // flatMapLatest drops the previous language's collection, so a slow response can't overwrite a newer one
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun observeStations() {
         viewModelScope.launch {
-            _isLoading.value = true
-            repository.getStations(lang).collect { stations ->
-                _allStations.value = stations
-                _isLoading.value = false
-            }
+            _language
+                .onEach { _isLoading.value = true }
+                .flatMapLatest { lang -> repository.getStations(lang) }
+                .collect { stations ->
+                    _allStations.value = stations
+                    _isLoading.value = false
+                }
         }
     }
 
@@ -156,6 +167,9 @@ class RadioViewModel(
     }
 
     companion object {
+        private const val PREFS_NAME = "radio_prefs"
+        private const val KEY_LANGUAGE = "language"
+
         fun provideFactory(application: Application): ViewModelProvider.Factory {
             return object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")

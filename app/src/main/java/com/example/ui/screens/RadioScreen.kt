@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -56,33 +57,53 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.model.RadioStation
-import com.example.data.model.ReciterDirectory
-import com.example.data.model.ReciterProfile
 import com.example.data.model.StationCategory
 import com.example.ui.components.AboutDialog
 import com.example.ui.components.HeroPlayerContent
 import com.example.ui.components.MiniPlayerBar
-import com.example.ui.components.ReciterBioDialog
 import com.example.ui.components.SleepTimerDialog
 import com.example.ui.components.StationCard
+import com.example.ui.theme.Dimens
 import com.example.ui.theme.GoldPrimary
+import com.example.ui.theme.isNarrowScreen
 import com.example.ui.viewmodel.RadioViewModel
+
+@Composable
+fun RadioScreen(
+    viewModel: RadioViewModel,
+    modifier: Modifier = Modifier
+) {
+    val language by viewModel.language.collectAsStateWithLifecycle()
+    // Arabic UI is laid out right-to-left, English left-to-right
+    val layoutDirection = if (language == "ar") LayoutDirection.Rtl else LayoutDirection.Ltr
+
+    CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+        RadioScreenContent(viewModel = viewModel, modifier = modifier)
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RadioScreen(
+private fun RadioScreenContent(
     viewModel: RadioViewModel,
     modifier: Modifier = Modifier
 ) {
@@ -100,8 +121,14 @@ fun RadioScreen(
 
     var showSleepTimerDialog by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
-    var selectedReciterProfile by remember { mutableStateOf<ReciterProfile?>(null) }
     val isAr = language == "ar"
+    val isNarrow = isNarrowScreen()
+    val topBarGutter = if (isNarrow) Dimens.ScreenGutterNarrow else Dimens.ScreenGutter
+
+    // Read the favourite flag from the live station list; currentStation is a snapshot taken when playback started
+    val isCurrentFavorite = currentStation?.let { current ->
+        allStations.firstOrNull { it.id == current.id }?.isFavorite ?: current.isFavorite
+    } ?: false
 
     BackHandler(enabled = isHeroPlayerExpanded) {
         viewModel.setHeroPlayerExpanded(false)
@@ -120,14 +147,6 @@ fun RadioScreen(
         AboutDialog(
             language = language,
             onDismiss = { showAboutDialog = false }
-        )
-    }
-
-    selectedReciterProfile?.let { profile ->
-        ReciterBioDialog(
-            profile = profile,
-            language = language,
-            onDismiss = { selectedReciterProfile = null }
         )
     }
 
@@ -157,14 +176,21 @@ fun RadioScreen(
                                 text = if (isAr) "إذاعة القرآن الكريم" else "MP3Quran Live Radio",
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
-                                color = GoldPrimary
+                                color = GoldPrimary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
-                            Text(
-                                text = if (isAr) "صدقة جارية لـ ( عبدالرحيم معبد ) • Mabed" else "Sadaqah Jariyah for Abdulrahim Mabed • Mabed",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = GoldPrimary.copy(alpha = 0.95f),
-                                fontWeight = FontWeight.Medium
-                            )
+                            // Subtitle is dropped on narrow phones to leave room for the title
+                            if (!isNarrow) {
+                                Text(
+                                    text = if (isAr) "صدقة جارية لـ ( عبدالرحيم معبد ) • Mabed" else "Sadaqah Jariyah for Abdulrahim Mabed • Mabed",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = GoldPrimary.copy(alpha = 0.95f),
+                                    fontWeight = FontWeight.Medium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
                         }
                     }
                 },
@@ -186,21 +212,29 @@ fun RadioScreen(
                         },
                         shape = RoundedCornerShape(20.dp),
                         border = BorderStroke(1.dp, GoldPrimary),
+                        contentPadding = PaddingValues(horizontal = 10.dp),
+                        // TopAppBar already insets its actions by 4dp; together they match the screen gutter
                         modifier = Modifier
-                            .padding(end = 8.dp)
+                            .padding(end = topBarGutter - 4.dp)
                             .testTag("language_toggle_btn")
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Language,
-                            contentDescription = "Language",
-                            tint = GoldPrimary,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
+                        if (!isNarrow) {
+                            Icon(
+                                imageVector = Icons.Default.Language,
+                                contentDescription = null,
+                                tint = GoldPrimary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                        }
+                        // Short label of the language the button switches to
                         Text(
-                            text = if (isAr) "English" else "العربية",
+                            text = if (isAr) "EN" else "ع",
                             color = GoldPrimary,
-                            style = MaterialTheme.typography.labelMedium
+                            style = MaterialTheme.typography.labelMedium,
+                            modifier = Modifier.semantics {
+                                contentDescription = if (isAr) "Switch to English" else "التبديل إلى العربية"
+                            }
                         )
                     }
                 },
@@ -215,8 +249,11 @@ fun RadioScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                // Mark the Scaffold insets as handled so nested *BarsPadding modifiers don't pad twice
+                .consumeWindowInsets(innerPadding)
         ) {
             val isDualPane = maxWidth >= 650.dp
+            val gutter = Dimens.gutterFor(maxWidth)
 
             if (isDualPane) {
                 Row(modifier = Modifier.fillMaxSize()) {
@@ -224,7 +261,6 @@ fun RadioScreen(
                         modifier = Modifier
                             .weight(1.2f)
                             .fillMaxHeight()
-                            .padding(horizontal = 16.dp)
                     ) {
                         SearchAndCategoriesSection(
                             searchQuery = searchQuery,
@@ -233,7 +269,8 @@ fun RadioScreen(
                             onCategorySelect = { viewModel.selectCategory(it) },
                             filteredCount = filteredStations.size,
                             totalCount = allStations.size,
-                            language = language
+                            language = language,
+                            gutter = DualPaneGutter
                         )
 
                         Spacer(modifier = Modifier.height(10.dp))
@@ -244,10 +281,9 @@ fun RadioScreen(
                             playerState = playerState,
                             language = language,
                             onPlayStation = { viewModel.playStation(it) },
+                            onTogglePlayPause = { viewModel.togglePlayPause() },
                             onToggleFavorite = { viewModel.toggleFavorite(it) },
-                            onInfoClick = { station ->
-                                selectedReciterProfile = ReciterDirectory.findForStation(station.name)
-                            },
+                            horizontalPadding = DualPaneGutter,
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -269,6 +305,7 @@ fun RadioScreen(
                             station = currentStation,
                             playerState = playerState,
                             language = language,
+                            isFavorite = isCurrentFavorite,
                             volume = volume,
                             sleepTimerSeconds = sleepTimerSeconds,
                             onTogglePlayPause = { viewModel.togglePlayPause() },
@@ -282,11 +319,7 @@ fun RadioScreen(
                 }
             } else {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 14.dp)
-                    ) {
+                    Column(modifier = Modifier.fillMaxSize()) {
                         SearchAndCategoriesSection(
                             searchQuery = searchQuery,
                             onQueryChange = { viewModel.setSearchQuery(it) },
@@ -294,7 +327,8 @@ fun RadioScreen(
                             onCategorySelect = { viewModel.selectCategory(it) },
                             filteredCount = filteredStations.size,
                             totalCount = allStations.size,
-                            language = language
+                            language = language,
+                            gutter = gutter
                         )
 
                         Spacer(modifier = Modifier.height(10.dp))
@@ -305,10 +339,9 @@ fun RadioScreen(
                             playerState = playerState,
                             language = language,
                             onPlayStation = { viewModel.playStation(it) },
+                            onTogglePlayPause = { viewModel.togglePlayPause() },
                             onToggleFavorite = { viewModel.toggleFavorite(it) },
-                            onInfoClick = { station ->
-                                selectedReciterProfile = ReciterDirectory.findForStation(station.name)
-                            },
+                            horizontalPadding = gutter,
                             bottomPadding = if (currentStation != null) 110.dp else 24.dp,
                             modifier = Modifier.weight(1f)
                         )
@@ -319,6 +352,7 @@ fun RadioScreen(
                             station = currentStation!!,
                             playerState = playerState,
                             language = language,
+                            isFavorite = isCurrentFavorite,
                             onBarClick = { viewModel.setHeroPlayerExpanded(true) },
                             onTogglePlayPause = { viewModel.togglePlayPause() },
                             onFavoriteToggle = { viewModel.toggleFavorite(currentStation!!) },
@@ -369,6 +403,7 @@ fun RadioScreen(
                                     station = currentStation,
                                     playerState = playerState,
                                     language = language,
+                                    isFavorite = isCurrentFavorite,
                                     volume = volume,
                                     sleepTimerSeconds = sleepTimerSeconds,
                                     onTogglePlayPause = { viewModel.togglePlayPause() },
@@ -388,6 +423,9 @@ fun RadioScreen(
     }
 }
 
+/** Side gutter of the station pane in the tablet / landscape dual-pane layout. */
+private val DualPaneGutter = 16.dp
+
 @Composable
 private fun SearchAndCategoriesSection(
     searchQuery: String,
@@ -396,7 +434,8 @@ private fun SearchAndCategoriesSection(
     onCategorySelect: (StationCategory) -> Unit,
     filteredCount: Int,
     totalCount: Int,
-    language: String
+    language: String,
+    gutter: Dp
 ) {
     val isAr = language == "ar"
 
@@ -406,6 +445,7 @@ private fun SearchAndCategoriesSection(
             onValueChange = onQueryChange,
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(horizontal = gutter)
                 .testTag("search_station_input"),
             placeholder = {
                 Text(
@@ -443,7 +483,9 @@ private fun SearchAndCategoriesSection(
         Spacer(modifier = Modifier.height(6.dp))
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = gutter),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -464,8 +506,10 @@ private fun SearchAndCategoriesSection(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Gutter as content padding so the chips scroll all the way to the screen edge
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = gutter),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(StationCategory.entries) { category ->
@@ -497,10 +541,11 @@ private fun StationListSection(
     playerState: com.example.player.PlayerState,
     language: String,
     onPlayStation: (RadioStation) -> Unit,
+    onTogglePlayPause: () -> Unit,
     onToggleFavorite: (RadioStation) -> Unit,
-    onInfoClick: (RadioStation) -> Unit,
+    horizontalPadding: Dp,
     modifier: Modifier = Modifier,
-    bottomPadding: androidx.compose.ui.unit.Dp = 16.dp
+    bottomPadding: Dp = 16.dp
 ) {
     val isAr = language == "ar"
 
@@ -546,7 +591,11 @@ private fun StationListSection(
     } else {
         LazyColumn(
             modifier = modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = bottomPadding),
+            contentPadding = PaddingValues(
+                start = horizontalPadding,
+                end = horizontalPadding,
+                bottom = bottomPadding
+            ),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             itemsIndexed(
@@ -559,8 +608,8 @@ private fun StationListSection(
                     language = language,
                     index = index,
                     onPlayClick = { onPlayStation(station) },
-                    onFavoriteClick = { onToggleFavorite(station) },
-                    onInfoClick = { onInfoClick(station) }
+                    onTogglePlayPause = onTogglePlayPause,
+                    onFavoriteClick = { onToggleFavorite(station) }
                 )
             }
         }

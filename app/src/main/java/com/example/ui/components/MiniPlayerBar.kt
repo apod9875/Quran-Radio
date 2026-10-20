@@ -40,12 +40,14 @@ import com.example.data.model.RadioStation
 import com.example.player.PlayerState
 import com.example.ui.theme.GoldPrimary
 import com.example.ui.theme.MintAccent
+import com.example.ui.theme.screenGutter
 
 @Composable
 fun MiniPlayerBar(
     station: RadioStation,
     playerState: PlayerState,
     language: String,
+    isFavorite: Boolean,
     onBarClick: () -> Unit,
     onTogglePlayPause: () -> Unit,
     onFavoriteToggle: () -> Unit,
@@ -58,7 +60,7 @@ fun MiniPlayerBar(
         modifier = modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .padding(horizontal = screenGutter(), vertical = 8.dp)
             .testTag("mini_player_bar")
             .clickable(onClick = onBarClick),
         shape = RoundedCornerShape(20.dp),
@@ -135,9 +137,9 @@ fun MiniPlayerBar(
                     .testTag("mini_player_fav_btn")
             ) {
                 Icon(
-                    imageVector = if (station.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                     contentDescription = "Favorite",
-                    tint = if (station.isFavorite) Color(0xFFEF5350) else MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = if (isFavorite) Color(0xFFEF5350) else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 

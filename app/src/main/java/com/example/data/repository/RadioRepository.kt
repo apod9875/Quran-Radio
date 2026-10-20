@@ -35,7 +35,8 @@ class RadioRepository(
                 Log.w(tag, "Failed to load radios from API for lang=$language, using fallback", e)
                 getFallbackDtos(language)
             }
-            emit(remoteDtos)
+            // LazyColumn keys items by id, so duplicates from the API would crash the list
+            emit(remoteDtos.distinctBy { it.id })
         }.combine(favoriteDao.getAllFavorites()) { dtos, favorites ->
             val favIds = favorites.map { it.id }.toSet()
             val favUrls = favorites.map { it.url }.toSet()

@@ -2,10 +2,14 @@ package com.example.player
 
 import android.content.Context
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.InputStream
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
@@ -82,13 +86,56 @@ object AudioCacheManager {
         freedBytes
     }
 
+    // Single background recorder; only one station clip is recorded at a time
+    private val recordingScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    @Volatile
+    private var recordingJob: Job? = null
+
+    /**
+     * Records a short offline clip for the station in the background, but only if none exists yet.
+     * Any recording already in progress (e.g. for the previous station) is cancelled first.
+     */
+    fun startRecordingIfMissing(context: Context, stationId: Int, streamUrl: String) {
+        cancelRecording()
+        if (hasCachedAudio(context, stationId)) return
+
+        val appContext = context.applicationContext
+        recordingJob = recordingScope.launch {
+            if (cacheStationAudio(appContext, stationId, streamUrl)) {
+                trimToLimit(appContext)
+            }
+        }
+    }
+
+    /** Cancels the in-progress recording, if any. Its temp file is removed when it stops. */
+    fun cancelRecording() {
+        recordingJob?.cancel()
+        recordingJob = null
+    }
+
+    /** Evicts least recently used clips once the cache grows past [MAX_CACHE_BYTES]. */
+    private fun trimToLimit(context: Context) {
+        var total = getUsedCacheBytes(context)
+        if (total <= MAX_CACHE_BYTES) return
+
+        val targetSize = (MAX_CACHE_BYTES * 0.85).toLong()
+        val files = getCacheDir(context).listFiles()?.filter { it.isFile }?.sortedBy { it.lastModified() } ?: return
+        for (file in files) {
+            if (total <= targetSize) break
+            val len = file.length()
+            if (file.delete()) total -= len
+        }
+        Log.d(TAG, "Trimmed audio cache to $total bytes")
+    }
+
     suspend fun cacheStationAudio(context: Context, stationId: Int, streamUrl: String): Boolean = withContext(Dispatchers.IO) {
         val targetFile = getStationCacheFile(context, stationId)
         val tempFile = File(getCacheDir(context), "temp_${stationId}_${System.currentTimeMillis()}.tmp")
+        var connection: HttpURLConnection? = null
 
         try {
             val url = URL(streamUrl)
-            val connection = (url.openConnection() as HttpURLConnection).apply {
+            connection = (url.openConnection() as HttpURLConnection).apply {
                 connectTimeout = 8000
                 readTimeout = 15000
                 setRequestProperty("User-Agent", "MP3QuranRadio/1.0 (Android)")
@@ -96,22 +143,22 @@ object AudioCacheManager {
             connection.connect()
 
             if (connection.responseCode in 200..299) {
-                val input: InputStream = connection.inputStream
-                val output = FileOutputStream(tempFile)
-                val buffer = ByteArray(8192)
-                var bytesRead: Int
-                var totalRead = 0L
                 val maxChunk = 8L * 1024L * 1024L // Cache up to 8MB per offline radio sample
-
-                while (input.read(buffer).also { bytesRead = it } != -1 && totalRead < maxChunk) {
-                    output.write(buffer, 0, bytesRead)
-                    totalRead += bytesRead
+                var totalRead = 0L
+                connection.inputStream.use { input ->
+                    FileOutputStream(tempFile).use { output ->
+                        val buffer = ByteArray(8192)
+                        var bytesRead = 0
+                        // isActive lets a cancelled recording stop at the next chunk
+                        while (isActive && totalRead < maxChunk && input.read(buffer).also { bytesRead = it } != -1) {
+                            output.write(buffer, 0, bytesRead)
+                            totalRead += bytesRead
+                        }
+                        output.flush()
+                    }
                 }
-                output.flush()
-                output.close()
-                input.close()
 
-                if (tempFile.exists() && tempFile.length() > 200_000) {
+                if (isActive && tempFile.exists() && tempFile.length() > 200_000) {
                     if (targetFile.exists()) targetFile.delete()
                     tempFile.renameTo(targetFile)
                     targetFile.setLastModified(System.currentTimeMillis())
@@ -122,6 +169,7 @@ object AudioCacheManager {
         } catch (e: Exception) {
             Log.w(TAG, "Failed caching stream for station $stationId: ${e.message}")
         } finally {
+            connection?.disconnect()
             if (tempFile.exists()) tempFile.delete()
         }
         false

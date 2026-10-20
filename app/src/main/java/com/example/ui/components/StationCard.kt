@@ -2,7 +2,6 @@ package com.example.ui.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,7 +15,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -44,6 +42,7 @@ import com.example.data.model.RadioStation
 import com.example.player.PlayerState
 import com.example.ui.theme.GoldPrimary
 import com.example.ui.theme.MintAccent
+import com.example.ui.theme.isNarrowScreen
 
 @Composable
 fun StationCard(
@@ -52,8 +51,8 @@ fun StationCard(
     language: String,
     index: Int,
     onPlayClick: () -> Unit,
+    onTogglePlayPause: () -> Unit,
     onFavoriteClick: () -> Unit,
-    onInfoClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val isCurrentStation = when (playerState) {
@@ -67,16 +66,22 @@ fun StationCard(
     val isPlaying = playerState is PlayerState.Playing && playerState.station.id == station.id
     val isBuffering = playerState is PlayerState.Buffering && playerState.station.id == station.id
 
+    // Compact sizes for narrow phones (< 360dp)
+    val isNarrow = isNarrowScreen()
+    val avatarSize = if (isNarrow) 36.dp else 44.dp
+    val actionButtonSize = if (isNarrow) 34.dp else 38.dp
+    val playButtonSize = if (isNarrow) 34.dp else 40.dp
+
     val borderColor by animateColorAsState(
         targetValue = if (isCurrentStation) GoldPrimary else MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
         label = "card_border_anim"
     )
 
     Card(
+        onClick = onPlayClick,
         modifier = modifier
             .fillMaxWidth()
-            .testTag("station_card_${station.id}")
-            .clickable(onClick = onPlayClick),
+            .testTag("station_card_${station.id}"),
         shape = RoundedCornerShape(18.dp),
         border = BorderStroke(if (isCurrentStation) 2.dp else 1.dp, borderColor),
         colors = CardDefaults.cardColors(
@@ -112,7 +117,7 @@ fun StationCard(
 
             // Reciter Avatar Thumbnail
             Surface(
-                modifier = Modifier.size(44.dp),
+                modifier = Modifier.size(avatarSize),
                 shape = CircleShape,
                 color = if (isCurrentStation) {
                     GoldPrimary.copy(alpha = 0.2f)
@@ -125,7 +130,7 @@ fun StationCard(
                     imageVector = Icons.Default.Person,
                     contentDescription = "Reciter",
                     tint = if (isCurrentStation) GoldPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(10.dp)
+                    modifier = Modifier.padding(if (isNarrow) 8.dp else 10.dp)
                 )
             }
 
@@ -152,12 +157,16 @@ fun StationCard(
                 ) {
                     Surface(
                         shape = RoundedCornerShape(6.dp),
-                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f)
+                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f),
+                        // Let the label shrink so the waveform is never squeezed out
+                        modifier = Modifier.weight(1f, fill = false)
                     ) {
                         Text(
                             text = station.category.getTitle(language),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
@@ -177,26 +186,11 @@ fun StationCard(
 
             Spacer(modifier = Modifier.width(6.dp))
 
-            // Reciter Info Button
-            IconButton(
-                onClick = onInfoClick,
-                modifier = Modifier
-                    .size(38.dp)
-                    .testTag("info_btn_${station.id}")
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = "Reciter Info",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-
             // Favorite Button
             IconButton(
                 onClick = onFavoriteClick,
                 modifier = Modifier
-                    .size(38.dp)
+                    .size(actionButtonSize)
                     .testTag("fav_btn_${station.id}")
             ) {
                 Icon(
@@ -207,11 +201,11 @@ fun StationCard(
                 )
             }
 
-            // Play / Pause Button
+            // Play / Pause Button: pauses the live station, otherwise starts this one
             FilledIconButton(
-                onClick = onPlayClick,
+                onClick = if (isPlaying || isBuffering) onTogglePlayPause else onPlayClick,
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(playButtonSize)
                     .testTag("play_btn_${station.id}"),
                 colors = IconButtonDefaults.filledIconButtonColors(
                     containerColor = if (isCurrentStation) GoldPrimary else MaterialTheme.colorScheme.surfaceVariant,
