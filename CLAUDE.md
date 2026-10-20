@@ -27,5 +27,8 @@ Live Quran radio and a surah library per reciter (Arabic, with an English switch
 - No storage limit: the app shows only the space its downloads use (never a quota or "free space" figure) and downloads until the browser refuses (`QuotaExceededError` → "storage full" toast, partial file deleted). `navigator.storage.persist()` is asked on the first download.
 - Surah downloads are written by the page itself (`js/quran/downloads.js`, so a long download is not cut by service-worker time limits) into the cache named in `js/core/storage-names.js`; the worker records them (`RECORD_DOWNLOAD`) and serves `/offline-surah/<mushafId>/<nnn>` with Range support (`sw/surah-cache.js`). Automatic clean-up never removes downloaded surahs.
 
+## Icons
+- Every icon (web `web/icons/*.png` and the Android launcher mipmaps) is generated from `web/icons/icon-source.jpg` by `python scripts/make-icons.py` (needs Pillow). Do not edit the PNGs by hand; change the source or the script and run it again.
+
 ## Android (`app/`)
-- Not buildable on the author's machine (no SDK, no Gradle wrapper). Layout padding comes from `ui/theme/Dimens.kt`.
+- Not buildable on the author's machine (no SDK, no Gradle wrapper). Layout padding comes from `ui/theme/Dimens.kt`. The launcher icon is an adaptive icon: `mipmap-*/ic_launcher_foreground.png` on the `#08281C` background color, plus legacy `ic_launcher*.png` for Android 7.x.
