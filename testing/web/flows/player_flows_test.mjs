@@ -170,16 +170,26 @@ describe('finding stations', () => {
 });
 
 describe('language, modals and content', () => {
-  it('is Arabic only: right-to-left, Arabic texts and no language switch', async () => {
+  it('switches between Arabic and English and remembers the choice', async () => {
     const page = await open();
-    assert.equal(await page.locator('#langToggleBtn').count(), 0);
     assert.equal(await page.evaluate(() => document.documentElement.dir), 'rtl');
-    assert.equal(await page.evaluate(() => document.documentElement.lang), 'ar');
-    assert.equal(await page.locator('#appTitle').innerText(), 'إذاعة القرآن الكريم');
+    assert.equal(await page.locator('#langBtnText').innerText(), 'English');
     await card(page, 0).locator('.station-name').click();
     await waitState(page, 'playing');
-    assert.equal(await page.locator('#mobileBarStatus').innerText(), 'بث مباشر الآن');
-    assert.equal(await page.evaluate(() => typeof window.QR_I18N.eng), 'undefined');
+
+    await page.click('#langToggleBtn');
+    await page.waitForFunction(() => document.querySelector('.station-card .station-name')?.textContent.startsWith('Holy Quran'));
+    assert.equal(await page.evaluate(() => document.documentElement.dir), 'ltr');
+    assert.equal(await page.locator('#appTitle').innerText(), 'Quran Radio');
+    assert.equal(await page.locator('#mobileBarStatus').innerText(), 'LIVE 24/7');
+    assert.equal(await state(page), 'playing', 'switching language keeps the audio playing');
+
+    await page.reload();
+    await page.waitForSelector('.station-card');
+    assert.equal(await page.evaluate(() => document.documentElement.lang), 'en');
+    await page.click('#langToggleBtn');
+    await page.waitForFunction(() => document.documentElement.dir === 'rtl');
+    assert.equal(await page.locator('#appTitle').innerText(), 'إذاعة القرآن الكريم');
   });
 
   it('opens the supported devices modal and closes it with Escape', async () => {

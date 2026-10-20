@@ -83,6 +83,7 @@ Object.assign(App.prototype, {
   async _downloadSurah(job) {
     const { reciter, moshaf, surah } = job;
     const remoteUrl = window.QRQuranModel.surahUrl(moshaf, surah);
+    this.player._requestPersistentStorage(); // ask the browser not to evict what the user saves
     const response = await fetch(remoteUrl, { signal: job.controller.signal });
     if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`);
     const total = Number(response.headers.get('Content-Length')) || 0;
@@ -127,7 +128,6 @@ Object.assign(App.prototype, {
 
   async _ensureSpace(bytes, name) {
     const fail = (message) => Object.assign(new Error(message), { userMessage: message });
-    if (this.storageBytes + bytes > window.QR_STORAGE.MAX_AUDIO_CACHE_BYTES) throw fail(this.t.overLimit);
     if (!navigator.storage || !navigator.storage.estimate) return;
     const { quota, usage } = await navigator.storage.estimate();
     if (quota && usage !== undefined && quota - usage < bytes * 1.05) throw fail(this.t.notEnoughSpace.replace('{name}', name));

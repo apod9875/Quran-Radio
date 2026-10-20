@@ -45,7 +45,7 @@ Object.assign(App.prototype, {
     const seen = new Set();
     this.stations = [];
     const extras = (window.QR_EXTRA_STATIONS || []).map((extra) => ({
-      id: extra.id, name: extra.name, url: extra.url, pinned: !!extra.pinned
+      id: extra.id, name: extra.names[this.lang], url: extra.url, pinned: !!extra.pinned
     }));
     [...extras, ...list].forEach((item) => {
       const id = Number(item.id);

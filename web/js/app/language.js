@@ -1,7 +1,11 @@
-/** Interface text: static text comes from data-i18n attributes, dynamic text from this.t (Arabic). */
+/** Interface language (Arabic / English): data-i18n attributes for static text, this.t for the rest. */
 Object.assign(App.prototype, {
   applyText() {
     const t = this.t;
+    this.dom.html.lang = this.lang === 'ar' ? 'ar' : 'en';
+    this.dom.html.dir = this.lang === 'ar' ? 'rtl' : 'ltr';
+    this.dom.langBtnText.textContent = this.lang === 'ar' ? 'English' : 'عربي';
+    this.dom.langBtnShort.textContent = this.lang === 'ar' ? 'EN' : 'ع';
     this._applyStaticText(t);
     this.dom.timerGrid.querySelectorAll('.btn-timer-chip[data-mins]').forEach((chip) => {
       if (chip.dataset.mins !== 'end') chip.textContent = `${chip.dataset.mins} ${t.minutes}`;
@@ -13,6 +17,19 @@ Object.assign(App.prototype, {
     this._updatePlayerUi(this.player.state, this.player.currentStation);
     this._updateTimerUi(this.player.sleepTimerRemaining);
     if (this.player.supportsVolume) this._renderVolume();
+    if (this.player.currentStation) this._renderTrackKind(this.player.currentStation);
+  },
+
+  // Switch Arabic <-> English: texts at once, then radios and reciters reload in the new language.
+  // Whatever is playing keeps playing.
+  toggleLanguage() {
+    this.lang = this.lang === 'ar' ? 'eng' : 'ar';
+    window.QRUtils.writeStorage('qr_lang', this.lang);
+    this.quran = null;
+    this.quranLoading = null;
+    this.applyText();
+    this.fetchStations();
+    if (this.currentView && this.currentView !== 'radio') this.route();
   },
 
   _applyStaticText(t) {

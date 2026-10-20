@@ -1,11 +1,11 @@
 // Real-browser layout checks at phone, tablet and desktop widths, in Arabic (RTL) and English (LTR).
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { launchBrowser, openApp } from '../helpers/browser.mjs';
+import { launchBrowser, openApp, scrollToEnd } from '../helpers/browser.mjs';
 import { startStaticServer } from '../helpers/static-server.mjs';
 
 const WIDTHS = [320, 360, 375, 393, 412, 430, 768, 1280];
-const LANGS = ['ar'];
+const LANGS = ['ar', 'eng'];
 const TOLERANCE = 1.5;
 
 let server;
@@ -105,7 +105,7 @@ for (const width of WIDTHS) {
           near(bar.left, card.left, 'mini player left edge');
           near(bar.right, card.right, 'mini player right edge');
         }
-        await ctx.page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+        await scrollToEnd(ctx.page, '#stationsContainer');
         const lastCard = await ctx.page.evaluate(() => {
           const cards = document.querySelectorAll('.station-card');
           const r = cards[cards.length - 1].getBoundingClientRect();
@@ -165,7 +165,7 @@ for (const width of WIDTHS) {
         await page.waitForSelector('.mobile-player-bar.visible');
         const bar = await box(page, '.mobile-player-bar');
         assert.ok(bar.bottom <= nav.top, `mini player (${bar.bottom}) overlaps the tab bar (${nav.top})`);
-        await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+        await scrollToEnd(page, '#surahList');
         const last = await page.evaluate(() => {
           const r = [...document.querySelectorAll('.surah-row')].pop().getBoundingClientRect();
           return r.bottom;

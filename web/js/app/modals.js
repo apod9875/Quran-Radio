@@ -12,11 +12,14 @@ Object.assign(App.prototype, {
     bind(d.closeDevicesDoneBtn, () => this.closeDevicesModal());
     bind(d.closeTimerBtn, () => this.closeTimerModal());
     bind(d.cacheBtn, () => { window.location.hash = '#/saved'; });
-    bind(d.refreshUnusedCacheBtn, () => this.refreshUnusedCache());
     bind(d.clearAllCacheBtn, () => this.clearAllCache());
 
     const playSavedRow = (e) => {
       const row = e.target.closest('.cached-item-row');
+      if (row && e.target.closest('[data-action="delete-sample"]')) {
+        this.deleteStationSample(Number(row.dataset.stationId));
+        return;
+      }
       const station = row && this.stationsById.get(Number(row.dataset.stationId));
       if (station) this.playOrToggle(station);
     };
@@ -53,16 +56,17 @@ Object.assign(App.prototype, {
     const diag = detector.getScreenDiagnostics();
 
     this.dom.diagResolution.textContent = `${diag.width} x ${diag.height} @${diag.dpr}x`;
-    this.dom.diagCategory.textContent = diag.category;
+    const isArabic = this.lang === 'ar';
+    this.dom.diagCategory.textContent = isArabic ? diag.category : diag.categoryEn;
     this.dom.diagOrientation.textContent = diag.orientation;
     this.dom.diagTouch.textContent = diag.isTouch;
     this.dom.devicesContainer.innerHTML = detector.SUPPORTED_DEVICES.map((device) => `
       <div class="device-item-card">
         <div class="device-item-icon">${device.icon}</div>
         <div class="device-item-content">
-          <div class="device-item-title">${escapeHtml(device.nameAr)}</div>
+          <div class="device-item-title">${escapeHtml(isArabic ? device.nameAr : device.nameEn)}</div>
           <div class="device-item-examples">${escapeHtml(device.examples)}</div>
-          <span class="device-status-badge">${escapeHtml(device.status)}</span>
+          <span class="device-status-badge">${escapeHtml(isArabic ? device.status : device.statusEn)}</span>
         </div>
       </div>`).join('');
     this.dom.devicesModal.classList.add('active');

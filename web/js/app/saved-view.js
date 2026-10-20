@@ -40,14 +40,17 @@ Object.assign(App.prototype, {
   renderSavedSurahs() {
     const { escapeHtml } = window.QRUtils;
     const t = this.t;
+    const groups = this._savedGroups();
+    this.listFor('savedSurahs', this.dom.savedSurahsList, (g) => this._savedGroupHtml(g))
+      .setItems(groups, { emptyHtml: `<div class="cached-empty">${escapeHtml(t.noSavedSurahs)}</div>` });
+  },
+
+  _savedGroupHtml(g) {
+    const { escapeHtml } = window.QRUtils;
+    const t = this.t;
     const icons = window.SvgIcons;
     const megabytes = (bytes) => `<bdi dir="ltr">${(bytes / (1024 * 1024)).toFixed(1)} MB</bdi>`;
-    const groups = this._savedGroups();
-    if (!groups.length) {
-      this.dom.savedSurahsList.innerHTML = `<div class="cached-empty">${escapeHtml(t.noSavedSurahs)}</div>`;
-      return;
-    }
-    this.dom.savedSurahsList.innerHTML = groups.map((g) => `
+    return `
       <div class="saved-group" data-moshaf="${g.moshafId}">
         <div class="saved-group-head">
           <div class="saved-group-text">
@@ -65,7 +68,7 @@ Object.assign(App.prototype, {
             <button type="button" class="btn-card-action" data-action="play" aria-label="${escapeHtml(t.playLabel)}" title="${escapeHtml(t.playLabel)}">${icons.play(16)}</button>
             <button type="button" class="btn-card-action" data-action="delete" aria-label="${escapeHtml(t.deleteDownload)}" title="${escapeHtml(t.deleteDownload)}">${icons.trash(16)}</button>
           </div>`).join('')}
-      </div>`).join('');
+      </div>`;
   },
 
   // Plays the saved surahs of one mushaf from the device, starting at `surah` (or the first)

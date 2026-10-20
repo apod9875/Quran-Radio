@@ -50,15 +50,13 @@ Object.assign(App.prototype, {
       ? t.loadingStations
       : t.stationsCount.replace('{shown}', filtered.length).replace('{total}', this.stations.length);
 
-    if (filtered.length === 0) {
-      this.dom.stationsContainer.innerHTML = this.stations.length === 0 ? '' : `
-        <div class="empty-state">
-          <span class="empty-state-icon">${window.SvgIcons.radio(40)}</span>
-          <p>${window.QRUtils.escapeHtml(this.activeCategory === 'OFFLINE' && !this.searchQuery ? t.noOffline : t.noResults)}</p>
-        </div>`;
-      return;
-    }
-    this.dom.stationsContainer.innerHTML = filtered.map((s, i) => this._cardHtml(s, i)).join('');
+    const emptyHtml = this.stations.length === 0 ? '' : `
+      <div class="empty-state">
+        <span class="empty-state-icon">${window.SvgIcons.radio(40)}</span>
+        <p>${window.QRUtils.escapeHtml(this.activeCategory === 'OFFLINE' && !this.searchQuery ? t.noOffline : t.noResults)}</p>
+      </div>`;
+    this.listFor('stations', this.dom.stationsContainer, (s, i) => this._cardHtml(s, i))
+      .setItems(filtered, { emptyHtml });
   },
 
   // Replace one card in place (used for play-state, favorite and cache changes)

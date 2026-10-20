@@ -29,12 +29,13 @@
     };
   }
 
+  // Index letter: hamza forms share "ا"; Latin letters are upper-case
   function letterOf(raw, name) {
-    return utils.normalizeArabic(String(raw.letter || name).trim().charAt(0)).charAt(0);
+    return utils.normalizeArabic(String(raw.letter || name).trim().charAt(0)).charAt(0).toUpperCase();
   }
 
   // Only reciters with at least one playable (https) mushaf; sorted by letters like the radios
-  function parseReciters(list) {
+  function parseReciters(list, lang = 'ar') {
     const reciters = (list || []).map((raw) => {
       const name = String(raw.name || '').trim();
       const moshafs = (raw.moshaf || []).map(parseMoshaf)
@@ -48,10 +49,10 @@
         searchKey: utils.normalizeArabic(name),
         moshafs,
         riwayat: [...riwayat.entries()].map(([id, label]) => ({ id, name: label })),
-        styles: [...new Set(moshafs.map((m) => m.style).filter((s) => s && s !== 'مرتل'))]
+        styles: [...new Set(moshafs.map((m) => m.style).filter((s) => s && !/^(مرتل|murattal)$/i.test(s)))]
       };
     }).filter((r) => r.name && r.moshafs.length > 0);
-    return utils.sortStations(reciters, 'ar');
+    return utils.sortStations(reciters, lang);
   }
 
   function parseSuwar(list) {

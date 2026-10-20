@@ -34,7 +34,7 @@ async function readStreamClip(url) {
   return { blob: new Blob(chunks, { type }), type };
 }
 
-async function precacheStation({ url, stationId, stationName, isFavorite }) {
+async function precacheStation({ url, stationId, stationName }) {
   try {
     const clip = await readStreamClip(url);
     const key = offlineKey(stationId);
@@ -53,10 +53,8 @@ async function precacheStation({ url, stationId, stationName, isFavorite }) {
       stationName: stationName || 'Holy Quran Radio',
       sizeBytes: clip.blob.size,
       addedAt: Date.now(),
-      lastAccessed: Date.now(),
-      isFavorite: !!isFavorite
+      lastAccessed: Date.now()
     });
-    await refreshUnusedAudioCache(false);
     return { success: true, stationId, size: clip.blob.size };
   } catch (err) {
     return { success: false, error: err && err.message ? err.message : String(err) };
@@ -73,31 +71,16 @@ async function getAudioCacheMetrics() {
     else dbDelete(record.url);
   });
   const totalBytes = items.reduce((sum, item) => sum + (item.sizeBytes || 0), 0);
-  return { totalBytes, maxBytes: MAX_AUDIO_CACHE_BYTES, count: items.length, items };
+  return { totalBytes, count: items.length, items };
 }
 
-// Prune oldest-first. Favorites go last, and only when the 10 GB limit is really exceeded.
-async function refreshUnusedAudioCache(forceAggressive) {
-  const metrics = await getAudioCacheMetrics();
-  const target = MAX_AUDIO_CACHE_BYTES * 0.85;
-  if (!forceAggressive && metrics.totalBytes <= target) return { bytesFreed: 0, itemsRemoved: 0 };
-
+// Only the user removes what they saved: one station sample at a time, or everything
+async function deleteStationSample({ stationId }) {
+  const key = offlineKey(stationId).url;
   const cache = await caches.open(CACHE_AUDIO);
-  // Downloaded surahs are the user's own library: only radio samples are cleaned automatically
-  const items = metrics.items.filter((item) => item.kind !== 'surah').sort((a, b) => a.lastAccessed - b.lastAccessed);
-  let bytesFreed = 0;
-  let itemsRemoved = 0;
-
-  for (const item of items) {
-    const stillOver = metrics.totalBytes - bytesFreed > MAX_AUDIO_CACHE_BYTES;
-    if (item.isFavorite && !stillOver) continue;
-    await cache.delete(item.url);
-    await dbDelete(item.url);
-    bytesFreed += item.sizeBytes || 0;
-    itemsRemoved++;
-    if (!forceAggressive && metrics.totalBytes - bytesFreed <= target) break;
-  }
-  return { bytesFreed, itemsRemoved };
+  await cache.delete(key);
+  await dbDelete(key);
+  return { success: true };
 }
 
 async function clearAudioCache() {

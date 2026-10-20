@@ -38,3 +38,31 @@
     grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.95fr);
   }
 }
+
+/* Infinite lists: the "loading more" cursor at the end of a list */
+.list-cursor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.list-cursor-spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--surface-variant);
+  border-top-color: var(--gold);
+  animation: svgSpin 0.8s linear infinite;
+}
+
+/* Rows far off screen are not laid out until they scroll near */
+.station-card,
+.reciter-card,
+.surah-row {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 70px;
+}

@@ -1,6 +1,7 @@
 /** Event wiring. Lists use one delegated listener each, so re-rendering never re-binds anything. */
 Object.assign(App.prototype, {
   _bindEvents() {
+    this.dom.langToggleBtn.addEventListener('click', () => this.toggleLanguage());
     this._bindSearchEvents();
     this._bindListEvents();
     this._bindPlayerControls();

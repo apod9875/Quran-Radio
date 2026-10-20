@@ -80,17 +80,17 @@ describe('service worker', () => {
     await ctx.page.click('.nav-item[data-nav="radio"]');
   });
 
-  it('keeps the favorite flag of a saved station in sync', async () => {
+  it('keeps saved items independent of favorites and shows no storage limit', async () => {
     await target.locator('[data-action="fav"]').click();
-    const flag = async () => ctx.page.evaluate(async () => {
-      const data = await window.QR_SW.request({ type: 'GET_CACHE_METRICS' });
-      return data.items[0].isFavorite;
-    });
-    await ctx.page.waitForTimeout(300);
-    assert.equal(await flag(), true);
     await target.locator('[data-action="fav"]').click();
-    await ctx.page.waitForTimeout(300);
-    assert.equal(await flag(), false);
+    await ctx.page.click('.nav-item[data-nav="saved"]');
+    await ctx.page.locator('#cachedStationsList .cached-item-row').first().waitFor();
+    assert.equal(await ctx.page.locator('#cachedStationsList .cached-item-row').count(), 1, 'un-favoriting kept the sample');
+    assert.equal(await ctx.page.locator('#refreshUnusedCacheBtn').count(), 0);
+    assert.doesNotMatch(await ctx.page.evaluate(() => document.body.innerText), /10\s?GB|10 جيجا/);
+    await ctx.page.waitForFunction(() => !document.querySelector('#storageFreeText').hidden);
+    assert.match(await ctx.page.locator('#storageFreeText').innerText(), /المساحة المتاحة/);
+    await ctx.page.click('.nav-item[data-nav="radio"]');
   });
 
   it('plays a saved station from the saved page', async () => {
@@ -136,6 +136,21 @@ describe('service worker', () => {
     assert.match(await ctx.page.locator('.toast-notification').innerText(), /يحتاج اتصالاً/);
     await ctx.context.setOffline(false);
     await ctx.page.evaluate(() => window.app.player.stop());
+  });
+
+  it('deletes one saved station from the saved page', async () => {
+    await ctx.page.click('.nav-item[data-nav="saved"]');
+    const row = ctx.page.locator('#cachedStationsList .cached-item-row').first();
+    await row.waitFor();
+    ctx.page.once('dialog', (dialog) => dialog.accept());
+    await row.locator('[data-action="delete-sample"]').click();
+    await ctx.page.locator('#cachedStationsList .cached-empty').waitFor();
+    assert.equal((await fetchOffline()).status, 404);
+    await ctx.page.click('.nav-item[data-nav="radio"]');
+    assert.equal(await target.locator('.offline-ready-badge').count(), 0);
+    // save it again so the clear-all test below has something to clear
+    await target.locator('[data-action="precache"]').click();
+    await target.locator('.offline-ready-badge').waitFor({ timeout: 60000 });
   });
 
   it('clears the saved stations and their badges', async () => {

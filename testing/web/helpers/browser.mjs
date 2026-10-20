@@ -17,7 +17,7 @@ const json = (route, status, body) => route.fulfill({
 });
 
 /**
- * options.width / height: viewport
+ * options.width / height: viewport; options.lang: 'ar' (default) or 'eng'
  * options.serviceWorkers: 'allow' | 'block' (default block)
  * options.streams: live radio streams 'wav' (default) | 'hang' | 'fail'
  * options.radios: replace the station list (e.g. to point stations at a local stream server)
@@ -36,16 +36,24 @@ export async function openApp(browser, baseUrl, options = {}) {
     serviceWorkers
   });
 
+  // Start in English when asked (the app remembers the language in localStorage)
+  if (options.lang === 'eng') {
+    await context.addInitScript(() => { try { localStorage.setItem('qr_lang', 'eng'); } catch (e) { /* blocked */ } });
+  }
+
   const liveWav = silentWav(60);
   const surahWav = silentWav(surahSeconds);
+  const langOf = (route) => (new URL(route.request().url()).searchParams.get('language') === 'eng' ? 'eng' : 'ar');
   await context.route(/\/api\/v3\/radios/, (route) => {
     if (options.apiStatus) return json(route, options.apiStatus, 'error');
-    return json(route, 200, { radios: options.radios ? options.radios('ar') : readRadios('ar') });
+    const lang = langOf(route);
+    return json(route, 200, { radios: options.radios ? options.radios(lang) : readRadios(lang) });
   });
   await context.route(/\/api\/v3\/(reciters|suwar)/, (route) => {
     if (options.quranStatus) return json(route, options.quranStatus, 'error');
+    const lang = langOf(route);
     const isSuwar = route.request().url().includes('/suwar');
-    return json(route, 200, isSuwar ? { suwar: readSuwar() } : { reciters: readReciters() });
+    return json(route, 200, isSuwar ? { suwar: readSuwar(lang) } : { reciters: readReciters(lang) });
   });
   await context.route(STREAM_HOST, (route) => {
     if (streams === 'hang') return; // never answered: a stalled stream
@@ -65,4 +73,17 @@ export async function openApp(browser, baseUrl, options = {}) {
   await page.goto(baseUrl + (options.hash || ''), { waitUntil: 'load' });
   await page.waitForSelector('.station-card', { state: 'attached' });
   return { page, context, problems };
+}
+
+// Scroll until an infinite list has rendered everything (its "loading more" cursor is gone)
+export async function scrollToEnd(page, container) {
+  for (let i = 0; i < 60; i++) {
+    const more = await page.evaluate((sel) => {
+      window.scrollTo(0, document.documentElement.scrollHeight);
+      return !!document.querySelector(`${sel} .list-cursor`);
+    }, container);
+    if (!more) return;
+    await page.waitForTimeout(80);
+  }
+  throw new Error(`${container} never finished loading`);
 }

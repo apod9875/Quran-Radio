@@ -100,9 +100,8 @@ Object.assign(App.prototype, {
     const surahs = moshaf.surahs.filter((n) => !query
       || normalizeArabic(this.surahName(n)).includes(query) || String(n) === query);
 
-    this.dom.surahList.innerHTML = surahs.length
-      ? surahs.map((n) => this._surahRowHtml(moshaf, n)).join('')
-      : `<div class="empty-state"><p>${escapeHtml(this.t.noSurahs)}</p></div>`;
+    this.listFor('surahs', this.dom.surahList, (n) => this._surahRowHtml(this.openReciter.moshaf, n))
+      .setItems(surahs, { emptyHtml: `<div class="empty-state"><p>${escapeHtml(this.t.noSurahs)}</p></div>` });
   },
 
   _surahRowHtml(moshaf, surah) {

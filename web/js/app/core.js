@@ -5,7 +5,7 @@
 class App {
   constructor() {
     const { readStorage, safeJson } = window.QRUtils;
-    this.lang = 'ar'; // the app is Arabic only
+    this.lang = readStorage('qr_lang') === 'eng' ? 'eng' : 'ar'; // Arabic by default
     this.activeCategory = 'ALL';
     this.activeRiwaya = 'ALL';
     this.searchQuery = '';
@@ -44,6 +44,14 @@ class App {
 
   get t() {
     return window.QR_I18N[this.lang];
+  }
+
+  // One InfiniteList per list container, created on first use
+  listFor(name, container, renderItem) {
+    this.lists = this.lists || {};
+    if (!this.lists[name]) this.lists[name] = new window.InfiniteList(container, { renderItem, pageSize: 30 });
+    this.lists[name].cursorText = window.QRUtils.escapeHtml(this.t.loadingMore);
+    return this.lists[name];
   }
 
   // Same-origin URL where the service worker serves the saved copy (radio sample or downloaded surah)

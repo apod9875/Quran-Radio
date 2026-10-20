@@ -144,9 +144,6 @@ Object.assign(App.prototype, {
     if (this.activeCategory === 'FAVORITES') this.renderStations();
     else this.refreshCard(id);
     this._updateFavButtons();
-    if (this.cachedIds.has(id)) {
-      window.QR_SW.post({ type: 'SET_FAVORITE_STATION', stationId: id, isFavorite: adding });
-    }
   },
 
   async shareCurrentStation() {

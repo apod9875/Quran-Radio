@@ -39,14 +39,7 @@ const MESSAGE_HANDLERS = {
   GET_CACHE_METRICS: () => getAudioCacheMetrics(),
   CACHE_STATION_AUDIO: (data) => precacheStation(data),
   CLEAR_ALL_AUDIO_CACHE: async () => { await clearAudioCache(); return { success: true }; },
-  REFRESH_UNUSED_CACHE: async () => {
-    const result = await refreshUnusedAudioCache(true);
-    return { success: true, freed: result.bytesFreed, metrics: await getAudioCacheMetrics() };
-  },
-  SET_FAVORITE_STATION: async (data) => {
-    await dbUpdateByStation(data.stationId, { isFavorite: !!data.isFavorite });
-    return { success: true };
-  },
+  DELETE_STATION_SAMPLE: (data) => deleteStationSample(data),
   RECORD_DOWNLOAD: (data) => recordDownload(data),
   DELETE_DOWNLOAD: (data) => deleteDownload(data),
   TOUCH_AUDIO: async (data) => {

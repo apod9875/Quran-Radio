@@ -32,7 +32,8 @@ const fetchSaved = (path, headers = {}) => ctx.page.evaluate(async ([p, h]) => {
 describe('surah downloads', () => {
   it('downloads one surah and marks it as saved', async () => {
     await go('#/reciter/51');
-    await ctx.page.locator('.surah-row[data-surah="108"]').waitFor();
+    await ctx.page.locator('.surah-row').first().waitFor();
+    await ctx.page.fill('#surahSearch', '108');
     await ctx.page.locator('.surah-row[data-surah="108"] [data-action="download"]').click();
     await ctx.page.locator('.surah-row[data-surah="108"].is-saved').waitFor({ timeout: 30000 });
     assert.match(await ctx.page.locator('.toast-notification').innerText(), /تم تحميل سورة الكوثر/);
@@ -79,7 +80,9 @@ describe('surah downloads', () => {
     await ctx.page.evaluate(() => window.app.player.stop());
     await go('#/reciter/51');
     await ctx.page.locator('.surah-row[data-surah="1"]').waitFor({ timeout: 15000 });
+    await ctx.page.fill('#surahSearch', '108');
     assert.ok(await ctx.page.locator('.surah-row[data-surah="108"].is-saved').isVisible());
+    await ctx.page.fill('#surahSearch', '');
     await ctx.page.locator('.surah-row[data-surah="1"] [data-action="play"]').click();
     await ctx.page.waitForFunction(() => window.app.player.state === 'error', null, { timeout: 3000 });
     assert.match(await ctx.page.locator('.toast-notification').innerText(), /هذه السورة غير محفوظة/);

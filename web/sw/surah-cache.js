@@ -30,8 +30,7 @@ async function recordDownload(meta) {
     remoteUrl: meta.remoteUrl,
     sizeBytes: meta.sizeBytes,
     addedAt: Date.now(),
-    lastAccessed: Date.now(),
-    isFavorite: true
+    lastAccessed: Date.now()
   });
   return { success: true };
 }

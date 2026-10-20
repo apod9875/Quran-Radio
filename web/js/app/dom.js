@@ -1,7 +1,7 @@
 /** Collects every element the app touches, once, by id. */
 window.QR_cacheDom = function () {
   const ids = [
-    'appTitle', 'appDedication', 'infoBtn', 'installBtn',
+    'appTitle', 'appDedication', 'langBtnText', 'langBtnShort', 'langToggleBtn', 'infoBtn', 'installBtn',
     'devicesBtn', 'cacheBtn', 'offlineBanner', 'offlineBannerText',
     'searchInput', 'clearSearchBtn', 'stationsCountBadge', 'categoriesBar', 'riwayaBar', 'stationsContainer',
     'heroTitle', 'heroCategory', 'heroIndicatorText', 'heroPlayBtn', 'heroPrevBtn', 'heroNextBtn',
@@ -17,7 +17,7 @@ window.QR_cacheDom = function () {
     'timerModal', 'closeTimerBtn', 'cancelTimerBtn', 'customTimerInput', 'applyCustomTimerBtn',
     'timerGrid', 'timerRemainingText',
     'cacheUsageText', 'cacheProgressBar', 'cacheStationsCountText',
-    'refreshUnusedCacheBtn', 'clearAllCacheBtn', 'cachedStationsList',
+    'storageFreeText', 'clearAllCacheBtn', 'cachedStationsList',
     'bottomNav', 'miniProgressFill', 'fullPlayerHeading',
     'recitersView', 'continueCard', 'reciterSearch', 'recitersCount', 'reciterFilterBar', 'letterBar', 'recitersList',
     'reciterView', 'reciterTitle', 'reciterSubtitle', 'reciterFavBtn', 'moshafBar', 'playAllBtn', 'downloadAllBtn',

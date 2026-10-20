@@ -2,12 +2,11 @@
  * Service worker configuration.
  * Bump CACHE_STATIC whenever STATIC_ASSETS changes (a new file, a rename, a removal).
  */
-const CACHE_STATIC = 'quran-radio-static-v3.0.0';
+const CACHE_STATIC = 'quran-radio-static-v3.1.0';
 
 // Shared with the page (js/core/storage-names.js); Node tests load it with require
 const STORAGE_NAMES = (typeof self !== 'undefined' && self.QR_STORAGE) || require('../js/core/storage-names.js');
 const CACHE_AUDIO = STORAGE_NAMES.CACHE_AUDIO;
-const MAX_AUDIO_CACHE_BYTES = STORAGE_NAMES.MAX_AUDIO_CACHE_BYTES;
 
 // A live stream never ends, so an offline copy is a short sample read from its start.
 const MAX_CLIP_BYTES = 5 * 1024 * 1024;
@@ -45,10 +44,12 @@ const STATIC_ASSETS = [
   './js/core/storage-names.js',
   './js/core/utils.js',
   './js/core/sw-client.js',
+  './js/core/infinite-list.js',
   './js/icons.js',
   './js/devices.js',
   './js/fallback.js',
   './js/i18n/ar.js',
+  './js/i18n/eng.js',
   './js/player/core.js',
   './js/player/events.js',
   './js/player/recovery.js',

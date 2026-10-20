@@ -1,7 +1,7 @@
 // Quran section in a real browser: tabs and routes, reciters page, reciter page and surah playback.
 import assert from 'node:assert/strict';
 import { after, afterEach, before, describe, it } from 'node:test';
-import { launchBrowser, openApp } from '../helpers/browser.mjs';
+import { launchBrowser, openApp, scrollToEnd } from '../helpers/browser.mjs';
 import { startStaticServer } from '../helpers/static-server.mjs';
 
 let server;
@@ -136,6 +136,9 @@ describe('reciter page and surah playback', () => {
     const page = await open({ hash: '#/reciter/118' });
     await rows(page).first().waitFor();
     assert.equal(await page.locator('#moshafBar .riwaya-chip').count(), 5);
+    assert.match(await page.locator('#reciterSubtitle').innerText(), /114/);
+    assert.equal(await rows(page).count(), 30, 'the first page only');
+    await scrollToEnd(page, '#surahList');
     assert.equal(await rows(page).count(), 114);
     await page.locator('#moshafBar .riwaya-chip', { hasText: 'ورش عن نافع' }).click();
     await waitFor(page, () => window.location.hash === '#/reciter/118/120');

@@ -1,4 +1,4 @@
-/** Offline samples: saving a station, the cache modal, and keeping the "saved" badges truthful. */
+/** Offline samples: saving a station, the saved page, and keeping the "saved" badges truthful. */
 Object.assign(App.prototype, {
   // The service worker is the source of truth: only clips that really sit in CacheStorage count
   async refreshCacheState() {
@@ -11,13 +11,6 @@ Object.assign(App.prototype, {
       const ids = new Set(items.map((item) => item.stationId));
       const changed = ids.size !== this.cachedIds.size || [...ids].some((id) => !this.cachedIds.has(id));
       this.cachedIds = ids;
-
-      items.forEach((item) => {
-        const wanted = this.favorites.has(item.stationId);
-        if (!!item.isFavorite !== wanted) {
-          window.QR_SW.post({ type: 'SET_FAVORITE_STATION', stationId: item.stationId, isFavorite: wanted });
-        }
-      });
       if (changed) this.renderStations();
       this._showSavedWhenOffline();
     } catch (err) {
@@ -50,7 +43,7 @@ Object.assign(App.prototype, {
     this.showToast(this.t.precacheBusyToast);
 
     try {
-      await this.player.precacheStation(station, this.favorites.has(station.id));
+      await this.player.precacheStation(station);
       this.cachedIds.add(station.id);
       this.showToast(this.t.precacheSuccessToast);
     } catch (err) {
@@ -69,7 +62,7 @@ Object.assign(App.prototype, {
     try {
       data = await window.QR_SW.request({ type: 'GET_CACHE_METRICS' });
     } catch (err) {
-      return;
+      data = { totalBytes: 0, items: [] }; // worker not ready yet: still show the free space
     }
     const { escapeHtml } = window.QRUtils;
     const t = this.t;
@@ -77,42 +70,53 @@ Object.assign(App.prototype, {
     this.storageBytes = totalBytes;
     this._syncSavedSurahs(data.items || []);
     this.renderSavedSurahs();
-    const mb = (totalBytes / (1024 * 1024)).toFixed(1);
-    const gb = (totalBytes / (1024 * 1024 * 1024)).toFixed(2);
-    const pct = Math.min(100, (totalBytes / data.maxBytes) * 100).toFixed(1);
-
-    this.dom.cacheUsageText.textContent = `${mb} MB (${gb} GB) / 10.0 GB (${pct}%)`;
-    this.dom.cacheProgressBar.style.width = `${pct}%`;
+    await this._renderStorageBar(totalBytes);
     const items = (data.items || []).filter((item) => item.kind !== 'surah');
     this.dom.cacheStationsCountText.textContent = `${t.savedSurahsCount.replace('{count}', this.savedSurahs.size)} · ${t.cacheStationsCount.replace('{count}', items.length)}`;
 
-    if (items.length === 0) {
-      this.dom.cachedStationsList.innerHTML = `<div class="cached-empty">${escapeHtml(t.cacheEmpty)}</div>`;
-      return;
-    }
     const locale = this.lang === 'ar' ? 'ar-EG' : 'en-US';
-    this.dom.cachedStationsList.innerHTML = items.map((item) => {
-      const size = (item.sizeBytes / (1024 * 1024)).toFixed(1);
+    this.listFor('savedStations', this.dom.cachedStationsList, (item) => {
       const time = new Date(item.lastAccessed).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
       return `
         <div class="cached-item-row" data-station-id="${item.stationId}" role="button" tabindex="0">
-          <span class="cached-item-name">${escapeHtml(item.stationName || 'Holy Quran Radio')}</span>
-          <span class="cached-item-meta"><span class="ltr-run">${size} MB</span><span>${escapeHtml(time)}</span></span>
+          <span class="cached-item-name">${escapeHtml(item.stationName || 'Quran Radio')}</span>
+          <span class="cached-item-meta"><span class="ltr-run">${this.formatBytes(item.sizeBytes || 0)}</span><span>${escapeHtml(time)}</span></span>
+          <button type="button" class="btn-card-action" data-action="delete-sample" aria-label="${escapeHtml(t.deleteDownload)}" title="${escapeHtml(t.deleteDownload)}">${window.SvgIcons.trash(16)}</button>
         </div>`;
-    }).join('');
+    }).setItems(items, { emptyHtml: `<div class="cached-empty">${escapeHtml(t.cacheEmpty)}</div>` });
   },
 
-  async refreshUnusedCache() {
+  formatBytes(bytes) {
+    const gb = bytes / (1024 * 1024 * 1024);
+    return gb >= 1 ? `${gb.toFixed(2)} GB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  },
+
+  // No app limit: the bar shows what the saved audio uses next to the free space on the device
+  async _renderStorageBar(totalBytes) {
+    let estimate = {};
     try {
-      const result = await window.QR_SW.request({ type: 'REFRESH_UNUSED_CACHE' });
-      if (!result || !result.success) return;
-      const freed = (result.freed / (1024 * 1024)).toFixed(1);
-      this.showToast(`${this.t.cacheRefreshedToast} (${freed} MB)`);
-      this.renderStorage();
-      this.refreshCacheState();
+      if (navigator.storage && navigator.storage.estimate) estimate = await navigator.storage.estimate();
+    } catch (e) { /* not available */ }
+    const free = estimate.quota && estimate.usage !== undefined ? Math.max(0, estimate.quota - estimate.usage) : null;
+    const pct = estimate.quota ? Math.min(100, (totalBytes / estimate.quota) * 100) : 0;
+    this.dom.cacheUsageText.textContent = this.formatBytes(totalBytes);
+    this.dom.cacheProgressBar.style.width = `${Math.max(pct, totalBytes ? 1 : 0)}%`;
+    this.dom.storageFreeText.textContent = free === null ? '' : this.t.storageFree.replace('{size}', this.formatBytes(free));
+    this.dom.storageFreeText.hidden = free === null;
+  },
+
+  async deleteStationSample(stationId) {
+    if (!window.confirm(this.t.deleteSampleConfirm)) return;
+    try {
+      await window.QR_SW.request({ type: 'DELETE_STATION_SAMPLE', stationId });
     } catch (err) {
-      console.warn('[Cache] refresh failed:', err.message);
+      return;
     }
+    this.cachedIds.delete(stationId);
+    this.refreshCard(stationId);
+    if (this.activeCategory === 'OFFLINE') this.renderStations();
+    this.showToast(this.t.deletedToast);
+    this.renderStorage();
   },
 
   async clearAllCache() {

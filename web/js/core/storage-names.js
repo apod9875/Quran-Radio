@@ -5,7 +5,6 @@
 (function (root) {
   const api = {
     CACHE_AUDIO: 'quran-radio-audio-v5',
-    MAX_AUDIO_CACHE_BYTES: 10 * 1024 * 1024 * 1024, // 10 GB
 
     // Same-origin path of a downloaded surah, e.g. offline-surah/102/001
     offlineSurahPath(moshafId, surah) {

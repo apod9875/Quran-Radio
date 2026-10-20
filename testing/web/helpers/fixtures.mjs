@@ -13,10 +13,10 @@ export function readRadios(lang = 'ar') {
   return readFixture(`radios_${lang}`).radios;
 }
 
-export function readReciters() {
-  return readFixture('reciters_ar').reciters;
+export function readReciters(lang = 'ar') {
+  return readFixture(`reciters_${lang}`).reciters;
 }
 
-export function readSuwar() {
-  return readFixture('suwar_ar').suwar;
+export function readSuwar(lang = 'ar') {
+  return readFixture(`suwar_${lang}`).suwar;
 }

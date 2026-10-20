@@ -66,6 +66,10 @@ button {
   display: inline;
 }
 
+.lang-label-short {
+  display: none;
+}
+
 /* Latin / number runs inside Arabic text must not reorder the sentence */
 .ltr-run {
   direction: ltr;

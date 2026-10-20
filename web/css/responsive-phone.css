@@ -63,8 +63,14 @@
     font-weight: 700;
   }
 
-  .header-actions .btn-label-mobile {
+  .header-actions .btn-label-mobile,
+  .lang-label-full,
+  .btn-lang-pill .svg-icon {
     display: none;
+  }
+
+  .lang-label-short {
+    display: inline;
   }
 
   .brand-wrapper {

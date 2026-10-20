@@ -22,7 +22,11 @@ Object.assign(App.prototype, {
 
     d.letterBar.addEventListener('click', (e) => {
       const chip = e.target.closest('.letter-chip');
-      const card = chip && d.recitersList.querySelector(`.reciter-card[data-letter="${chip.dataset.letter}"]`);
+      if (!chip || !this.lists || !this.lists.reciters) return;
+      // The letter may be further down than what is rendered yet
+      const list = this.lists.reciters;
+      list.renderUpTo(list.items.findIndex((entry) => entry.first && entry.reciter.letter === chip.dataset.letter));
+      const card = d.recitersList.querySelector(`.reciter-card[data-letter="${chip.dataset.letter}"]`);
       if (card) card.scrollIntoView({ block: 'start', behavior: 'smooth' });
     });
 
@@ -106,16 +110,14 @@ Object.assign(App.prototype, {
     this.dom.letterBar.innerHTML = letters.map((l) =>
       `<button type="button" class="letter-chip" data-letter="${escapeHtml(l)}">${escapeHtml(l)}</button>`).join('');
 
-    if (!list.length) {
-      this.dom.recitersList.innerHTML = `<div class="empty-state"><p>${escapeHtml(t.noReciters)}</p></div>`;
-      return;
-    }
     let lastLetter = null;
-    this.dom.recitersList.innerHTML = list.map((r) => {
-      const first = r.letter !== lastLetter;
-      lastLetter = r.letter;
-      return this._reciterCardHtml(r, first);
-    }).join('');
+    const entries = list.map((reciter) => {
+      const first = reciter.letter !== lastLetter;
+      lastLetter = reciter.letter;
+      return { reciter, first };
+    });
+    this.listFor('reciters', this.dom.recitersList, (entry) => this._reciterCardHtml(entry.reciter, entry.first))
+      .setItems(entries, { emptyHtml: `<div class="empty-state"><p>${escapeHtml(t.noReciters)}</p></div>` });
   },
 
   _reciterCardHtml(reciter, firstOfLetter) {
