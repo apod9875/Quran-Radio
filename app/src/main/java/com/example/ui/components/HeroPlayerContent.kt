@@ -338,7 +338,7 @@ fun HeroPlayerContent(
                             action = Intent.ACTION_SEND
                             putExtra(
                                 Intent.EXTRA_TEXT,
-                                "${station.name}\n${station.url}\n\nShared via MP3Quran Radio"
+                                "${station.name}\n${station.url}\n\nShared via Quran Radio"
                             )
                             type = "text/plain"
                         }

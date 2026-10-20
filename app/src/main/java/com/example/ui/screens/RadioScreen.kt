@@ -173,7 +173,7 @@ private fun RadioScreenContent(
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
                             Text(
-                                text = if (isAr) "إذاعة القرآن الكريم" else "MP3Quran Live Radio",
+                                text = if (isAr) "إذاعة القرآن الكريم" else "Quran Radio",
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
                                 color = GoldPrimary,

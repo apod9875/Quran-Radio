@@ -183,7 +183,7 @@ describe('language, modals and content', () => {
     await page.click('#langToggleBtn');
     await page.waitForFunction(() => document.querySelector('.station-name')?.textContent.startsWith('Holy Quran'));
     assert.equal(await page.evaluate(() => document.documentElement.dir), 'ltr');
-    assert.equal(await page.locator('#appTitle').innerText(), 'MP3Quran Live Radio');
+    assert.equal(await page.locator('#appTitle').innerText(), 'Quran Radio');
     assert.equal(await page.locator('#mobileBarStatus').innerText(), 'LIVE 24/7');
     assert.match(await page.locator('#mobileBarTitle').innerText(), /^Holy Quran Radio/);
     assert.equal(await page.locator('#closeCacheBtn').getAttribute('aria-label'), 'Close');

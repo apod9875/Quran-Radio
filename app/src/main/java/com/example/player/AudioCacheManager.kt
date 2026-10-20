@@ -138,7 +138,7 @@ object AudioCacheManager {
             connection = (url.openConnection() as HttpURLConnection).apply {
                 connectTimeout = 8000
                 readTimeout = 15000
-                setRequestProperty("User-Agent", "MP3QuranRadio/1.0 (Android)")
+                setRequestProperty("User-Agent", "QuranRadio/1.0 (Android)")
             }
             connection.connect()
 

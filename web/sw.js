@@ -1,5 +1,5 @@
 /**
- * Service Worker for MP3Quran Live Radio.
+ * Service Worker for Quran Radio.
  * - App shell: network-first with a cache fallback, so a deploy reaches users on their next visit.
  * - Live streams are never touched; the browser's media decoder talks to the stream directly.
  * - Offline samples of stations live in CacheStorage and are served at /offline-audio/<id>.

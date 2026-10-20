@@ -1,6 +1,6 @@
 window.QR_I18N = window.QR_I18N || {};
 window.QR_I18N.eng = {
-  appTitle: "MP3Quran Live Radio",
+  appTitle: "Quran Radio",
   dedication: "Sadaqah Jariyah for Abdulrahim Mabed • Mabed",
   searchPlaceholder: "Search reciter or station...",
   all: "All",

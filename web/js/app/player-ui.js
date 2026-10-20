@@ -125,7 +125,7 @@ Object.assign(App.prototype, {
     if (!station) return;
     const data = {
       title: station.name,
-      text: `${station.name}\n${station.url}\n\nMP3Quran Live Radio - ${this.t.dedication}`,
+      text: `${station.name}\n${station.url}\n\nQuran Radio - ${this.t.dedication}`,
       url: window.location.href
     };
     if (navigator.share) {

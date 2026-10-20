@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "MP3Quran Radio"
+rootProject.name = "Quran Radio"
 
 include(":app")

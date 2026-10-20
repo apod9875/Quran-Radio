@@ -6,7 +6,7 @@ Object.assign(AudioStreamPlayer.prototype, {
       navigator.mediaSession.metadata = new MediaMetadata({
         title: this.currentStation.name,
         artist: 'صدقة جارية لـ (عبدالرحيم معبد) • Mabed',
-        album: 'MP3Quran Live Radio',
+        album: 'Quran Radio',
         artwork: [
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' }
