@@ -2,7 +2,6 @@
  * Service Worker for Quran Radio.
  * - App shell: network-first with a cache fallback, so a deploy reaches users on their next visit.
  * - Live streams are never touched; the browser's media decoder talks to the stream directly.
- * - Offline samples of stations live in CacheStorage and are served at /offline-audio/<id>.
  * - Downloaded surahs are served at /offline-surah/<moshafId>/<nnn> with Range support.
  *
  * صدقة جارية لـ (عبدالرحيم معبد) • Mabed
@@ -31,21 +30,16 @@ self.addEventListener('activate', (event) => {
       .then((keys) => Promise.all(
         keys.filter((key) => key !== CACHE_STATIC && key !== CACHE_AUDIO).map((key) => caches.delete(key))
       ))
+      .then(() => removeLegacyRadioSamples())
       .then(() => self.clients.claim())
   );
 });
 
 const MESSAGE_HANDLERS = {
   GET_CACHE_METRICS: () => getAudioCacheMetrics(),
-  CACHE_STATION_AUDIO: (data) => precacheStation(data),
   CLEAR_ALL_AUDIO_CACHE: async () => { await clearAudioCache(); return { success: true }; },
-  DELETE_STATION_SAMPLE: (data) => deleteStationSample(data),
   RECORD_DOWNLOAD: (data) => recordDownload(data),
-  DELETE_DOWNLOAD: (data) => deleteDownload(data),
-  TOUCH_AUDIO: async (data) => {
-    await dbUpdateByStation(data.stationId, { lastAccessed: Date.now() });
-    return { success: true };
-  }
+  DELETE_DOWNLOAD: (data) => deleteDownload(data)
 };
 
 self.addEventListener('message', (event) => {
@@ -71,11 +65,8 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
 
   if (url.origin === self.location.origin) {
-    const offline = OFFLINE_AUDIO_PATH.exec(url.pathname);
     const surah = OFFLINE_SURAH_PATH.exec(url.pathname);
-    if (offline) {
-      event.respondWith(serveOfflineAudio(request, offline[1]));
-    } else if (surah) {
+    if (surah) {
       event.respondWith(serveOfflineSurah(request, surah[1], Number(surah[2])));
     } else if (url.pathname.includes('/icons/')) {
       event.respondWith(cacheFirst(request));

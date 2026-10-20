@@ -32,7 +32,7 @@ Object.assign(App.prototype, {
     const key = this.surahKey(moshaf.id, surah);
     if (this.isSurahSaved(moshaf.id, surah)) this.deleteSurahDownload(moshaf.id, surah, true);
     else if (this.downloadProgress.has(key)) this.cancelSurahDownload(key);
-    else this.queueSurahDownload(reciter, moshaf, surah);
+    else this.confirmSurahDownload(reciter, moshaf, surah);
   },
 
   queueSurahDownload(reciter, moshaf, surah, { silent } = {}) {
@@ -83,28 +83,19 @@ Object.assign(App.prototype, {
   async _downloadSurah(job) {
     const { reciter, moshaf, surah } = job;
     const remoteUrl = window.QRQuranModel.surahUrl(moshaf, surah);
-    this.player._requestPersistentStorage(); // ask the browser not to evict what the user saves
+    this._requestPersistentStorage();
     const response = await fetch(remoteUrl, { signal: job.controller.signal });
     if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`);
     const total = Number(response.headers.get('Content-Length')) || 0;
-    await this._ensureSpace(total, job.name);
-
-    // One copy of the stream goes into the cache, the other only counts bytes for the progress ring
-    const [toCache, toCount] = response.body.tee();
     const cache = await caches.open(window.QR_STORAGE.CACHE_AUDIO);
     const key = new URL(this.offlineSurahUrl(moshaf.id, surah), document.baseURI).href;
-    const type = response.headers.get('Content-Type') || 'audio/mpeg';
-    const saving = cache.put(key, new Response(toCache, { headers: { 'Content-Type': type } }));
-
-    const reader = toCount.getReader();
-    let loaded = 0;
-    for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      loaded += value.byteLength;
-      if (total) this._setDownloadProgress(job, loaded / total);
+    let loaded;
+    try {
+      loaded = await this._saveToCache(job, response, cache, key, total);
+    } catch (err) {
+      await cache.delete(key).catch(() => {}); // never leave a partial file behind
+      throw err;
     }
-    await saving;
 
     const result = await window.QR_SW.request({
       type: 'RECORD_DOWNLOAD',
@@ -126,11 +117,42 @@ Object.assign(App.prototype, {
     this.storageBytes += loaded;
   },
 
-  async _ensureSpace(bytes, name) {
-    const fail = (message) => Object.assign(new Error(message), { userMessage: message });
-    if (!navigator.storage || !navigator.storage.estimate) return;
-    const { quota, usage } = await navigator.storage.estimate();
-    if (quota && usage !== undefined && quota - usage < bytes * 1.05) throw fail(this.t.notEnoughSpace.replace('{name}', name));
+  // No size check in advance: the download runs until the device itself is full. One copy of the
+  // stream goes into the cache, the other only counts bytes for the progress ring.
+  async _saveToCache(job, response, cache, key, total) {
+    const [toCache, toCount] = response.body.tee();
+    const type = response.headers.get('Content-Type') || 'audio/mpeg';
+    let saveError = null;
+    const saving = cache.put(key, new Response(toCache, { headers: { 'Content-Type': type } }))
+      .catch((err) => { saveError = err; job.controller.abort(); });
+
+    const reader = toCount.getReader();
+    let loaded = 0;
+    try {
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        loaded += value.byteLength;
+        if (total) this._setDownloadProgress(job, loaded / total);
+      }
+    } catch (err) {
+      if (!saveError) throw err;
+    }
+    await saving;
+    if (saveError) {
+      const full = saveError.name === 'QuotaExceededError' || saveError.code === 22;
+      throw full ? Object.assign(new Error(this.t.storageFull), { userMessage: this.t.storageFull }) : saveError;
+    }
+    return loaded;
+  },
+
+  // Asked for on the first download rather than on page load, so the browser keeps the files as user data
+  async _requestPersistentStorage() {
+    if (this.persistRequested || !(navigator.storage && navigator.storage.persist)) return;
+    this.persistRequested = true;
+    try {
+      await navigator.storage.persist();
+    } catch (e) { /* not available in this browser */ }
   },
 
   _setDownloadProgress(job, ratio) {
@@ -153,7 +175,7 @@ Object.assign(App.prototype, {
 
   async deleteSurahDownload(moshafId, surah, confirmFirst) {
     const name = `${this.t.surahPrefix} ${this.surahName(surah)}`;
-    if (confirmFirst && !window.confirm(this.t.deleteSurahConfirm.replace('{name}', name))) return;
+    if (confirmFirst && !(await this.confirmDelete(this.t.deleteSurahConfirm.replace('{name}', name)))) return;
     try {
       await window.QR_SW.request({ type: 'DELETE_DOWNLOAD', moshafId, surah });
     } catch (err) {

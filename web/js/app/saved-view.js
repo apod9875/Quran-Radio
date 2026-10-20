@@ -93,7 +93,7 @@ Object.assign(App.prototype, {
   },
 
   async deleteSavedGroup(moshafId) {
-    if (!window.confirm(this.t.deleteGroupConfirm)) return;
+    if (!(await this.confirmDelete(this.t.deleteGroupConfirm))) return;
     const group = this._savedGroups().find((g) => g.moshafId === moshafId);
     if (!group) return;
     for (const item of group.items) await this.deleteSurahDownload(moshafId, item.surah, false);

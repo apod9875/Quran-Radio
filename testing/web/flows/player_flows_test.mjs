@@ -89,7 +89,7 @@ describe('playing', () => {
 
 describe('a stream that does not answer', () => {
   const shortTimings = () => page => page.evaluate(() => {
-    Object.assign(window.AudioStreamPlayer.TUNING, { maxRetries: 2, stallTimeoutMs: 300, retryDelayMs: 50 });
+    Object.assign(window.AudioStreamPlayer.TUNING, { maxRetries: 2, stallTimeoutMs: 300, mirrorStallTimeoutMs: 300, retryDelayMs: 50 });
   });
 
   it('ends in an error with a message instead of reconnecting forever', async () => {
@@ -221,7 +221,7 @@ describe('language, modals and content', () => {
   it('falls back to the built-in stations when the API is down', async () => {
     const page = await open({ apiStatus: 500 });
     const expected = await page.evaluate(() => window.FALLBACK_STATIONS.ar.length);
-    assert.equal(await cardCount(page), expected + 1, 'fallback stations plus the Egyptian radio');
+    assert.equal(await cardCount(page), expected + 4, 'fallback stations plus the four pinned live stations');
   });
 });
 
@@ -260,7 +260,7 @@ describe('Egyptian radio, alphabetical order and riwayat', () => {
     const ok = await page.evaluate(() => {
       const { nameSortKey } = window.QRUtils;
       const collator = new Intl.Collator('ar', { sensitivity: 'base', numeric: true });
-      const names = [...document.querySelectorAll('.station-card .station-name')].map((e) => e.textContent).slice(1);
+      const names = [...document.querySelectorAll('.station-card .station-name')].map((e) => e.textContent).slice(4);
       return names.every((n, i) => i === 0 || collator.compare(nameSortKey(names[i - 1], 'ar'), nameSortKey(n, 'ar')) <= 0);
     });
     assert.ok(ok, 'the list is not in alphabetical order');

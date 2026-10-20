@@ -12,7 +12,8 @@ const MAX_LINES = 200;
 
 function* walk(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (entry.name === 'node_modules' || entry.name.startsWith('.')) continue;
+    // web/vendor holds third-party builds that are copied in, not edited
+    if (entry.name === 'node_modules' || entry.name === 'vendor' || entry.name.startsWith('.')) continue;
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) yield* walk(full);
     else if (EXTENSIONS.has(path.extname(entry.name))) yield full;

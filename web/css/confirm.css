@@ -1,0 +1,60 @@
+/* Confirmation window: same shell as the other modals, compact and centred */
+.confirm-card {
+  max-width: 420px;
+  text-align: start;
+}
+
+.confirm-message {
+  color: var(--text-main);
+  line-height: 1.6;
+  margin: 10px 0 6px;
+}
+
+.confirm-details {
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 0.88rem;
+  margin-bottom: 4px;
+}
+
+.confirm-details[hidden] {
+  display: none;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.confirm-actions .btn-text-pill {
+  flex: 1;
+  justify-content: center;
+  padding: 11px 14px;
+  font-weight: 700;
+}
+
+.btn-confirm-ok {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #121815;
+}
+
+.btn-confirm-ok:hover {
+  background: var(--gold-hover);
+}
+
+.btn-confirm-ok.is-danger {
+  background: var(--red-live);
+  border-color: var(--red-live);
+  color: #fff;
+}
+
+.btn-confirm-cancel {
+  color: var(--text-main);
+  border-color: var(--border);
+}
+
+.confirm-message {
+  white-space: pre-line;
+}

@@ -22,7 +22,9 @@
       });
     }
 
-    setItems(items, { emptyHtml } = {}) {
+    // keepRendered: show at least as many rows as before (the list was re-ordered, not replaced)
+    setItems(items, { emptyHtml, keepRendered } = {}) {
+      const before = keepRendered ? this.rendered : 0;
       this.items = items;
       this.rendered = 0;
       this._dropCursor();
@@ -33,6 +35,7 @@
       }
       this.container.innerHTML = '';
       this.renderNextPage();
+      if (before > this.rendered) this._append(Math.min(this.items.length, before));
     }
 
     get done() {

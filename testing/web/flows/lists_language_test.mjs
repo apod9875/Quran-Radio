@@ -32,7 +32,7 @@ describe('infinite scrolling', () => {
     assert.equal(await count(page, '#stationsContainer .station-card'), 30);
     assert.equal(await count(page, '#stationsContainer .list-cursor'), 1);
     await scrollToEnd(page, '#stationsContainer');
-    assert.equal(await count(page, '#stationsContainer .station-card'), 178);
+    assert.equal(await count(page, '#stationsContainer .station-card'), 181);
     assert.equal(await count(page, '#stationsContainer .list-cursor'), 0);
   });
 

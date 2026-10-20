@@ -45,7 +45,7 @@ Object.assign(App.prototype, {
     const seen = new Set();
     this.stations = [];
     const extras = (window.QR_EXTRA_STATIONS || []).map((extra) => ({
-      id: extra.id, name: extra.names[this.lang], url: extra.url, pinned: !!extra.pinned
+      id: extra.id, name: extra.names[this.lang], url: extra.mirrors[0], mirrors: extra.mirrors, format: extra.format, pinned: true
     }));
     [...extras, ...list].forEach((item) => {
       const id = Number(item.id);
@@ -61,11 +61,18 @@ Object.assign(App.prototype, {
         riwaya: window.QRUtils.riwayaName(url, this.lang),
         riwayaId: window.QRUtils.riwayaId(url),
         pinned: !!item.pinned,
+        mirrors: item.mirrors && item.mirrors.length > 1 ? item.mirrors.slice() : null,
+        format: item.format || null,
         searchKey: normalizeArabic(name)
       });
     });
-    this.stations = window.QRUtils.sortStations(this.stations, this.lang);
+    this._sortStations();
     this.stationsById = new Map(this.stations.map((s) => [s.id, s]));
+  },
+
+  // Favorites first, then the pinned stations, then the rest by letters
+  _sortStations() {
+    this.stations = window.QRUtils.sortStations(this.stations, this.lang, this.favorites);
   },
 
   // After a language switch the playing station gets its name in the new language
@@ -81,7 +88,6 @@ Object.assign(App.prototype, {
     return this.stations.filter((s) => {
       const inCategory = this.activeCategory === 'ALL'
         || (this.activeCategory === 'FAVORITES' && this.favorites.has(s.id))
-        || (this.activeCategory === 'OFFLINE' && this.cachedIds.has(s.id))
         || s.category === this.activeCategory;
       const inRiwaya = this.activeCategory !== 'RIWAYAT' || this.activeRiwaya === 'ALL' || s.riwayaId === this.activeRiwaya;
       return inCategory && inRiwaya && (!query || s.searchKey.includes(query));

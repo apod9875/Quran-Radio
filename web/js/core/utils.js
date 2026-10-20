@@ -109,13 +109,27 @@
     return clean.replace(/^radio\s+/i, '').toLowerCase();
   }
 
-  // Pinned stations first (in their given order), everything else alphabetical
-  function sortStations(stations, lang) {
+  // Favorites first (alphabetical), then pinned stations (in their given order), then the rest alphabetical
+  function sortStations(stations, lang, favorites) {
     const collator = new Intl.Collator(lang === 'ar' ? 'ar' : 'en', { sensitivity: 'base', numeric: true });
-    const pinned = stations.filter((s) => s.pinned);
-    const rest = stations.filter((s) => !s.pinned)
-      .sort((a, b) => collator.compare(nameSortKey(a.name, lang), nameSortKey(b.name, lang)));
-    return [...pinned, ...rest];
+    const isFav = (s) => !!favorites && favorites.has(s.id);
+    const byName = (a, b) => collator.compare(nameSortKey(a.name, lang), nameSortKey(b.name, lang));
+    const favs = stations.filter(isFav).sort(byName);
+    const pinned = stations.filter((s) => !isFav(s) && s.pinned);
+    const rest = stations.filter((s) => !isFav(s) && !s.pinned).sort(byName);
+    return [...favs, ...pinned, ...rest];
+  }
+
+  // Mirrors measured fastest on this device first; mirrors without a measurement keep their listed order after them
+  function orderMirrors(urls, stats) {
+    const time = (url) => (stats && Number.isFinite(stats[url]) ? stats[url] : Infinity);
+    return urls.map((url, i) => ({ url, i })).sort((a, b) => time(a.url) - time(b.url) || a.i - b.i).map((m) => m.url);
+  }
+
+  // Smoothed start time per mirror, so one slow or lucky sample does not decide alone
+  function updateMirrorStat(stats, url, ms) {
+    const previous = stats[url];
+    return { ...stats, [url]: Number.isFinite(previous) ? Math.round(previous * 0.6 + ms * 0.4) : Math.round(ms) };
   }
 
   // "#/reciter/12/34" -> { view: 'reciter', reciterId: 12, moshafId: 34 }; anything unknown is the radio page
@@ -135,6 +149,8 @@
     riwayaId,
     nameSortKey,
     sortStations,
+    orderMirrors,
+    updateMirrorStat,
     normalizeArabic,
     escapeHtml,
     safeJson,

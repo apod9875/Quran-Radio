@@ -3,6 +3,8 @@
 AudioStreamPlayer.TUNING = {
   maxRetries: 3,
   stallTimeoutMs: 7000,
+  mirrorStallTimeoutMs: 4000, // stations with another mirror to fail over to
+  hlsStallTimeoutMs: 15000, // HLS starts with a whole video segment (about 1 MB) before the first sound
   retryDelayMs: 1000,
   stalePauseMs: 20000
 };
@@ -26,7 +28,7 @@ Object.assign(AudioStreamPlayer.prototype, {
     const token = this.loadToken;
     this.watchdogTimer = setTimeout(() => {
       if (token === this.loadToken && this.state === 'buffering') this._handleStreamFailure('stall');
-    }, AudioStreamPlayer.TUNING.stallTimeoutMs);
+    }, this._stallTimeoutMs());
   },
 
   _startStation() {
@@ -38,22 +40,29 @@ Object.assign(AudioStreamPlayer.prototype, {
       this._setState('error');
       return;
     }
-    this._loadStream(this.currentStation.url, false);
+    this._loadStream(this._firstStreamUrl(), false);
   },
 
   _loadStream(url, offline) {
     const token = ++this.loadToken;
     this.usingOffline = !!offline;
-    // Only a short live-radio sample loops; a surah plays once and then moves on
-    this.audio.loop = !!offline && !this._isFile();
+    this.mirrorLoadAt = offline ? 0 : performance.now();
     this.pendingSeek = this._isFile() ? this.resumeAt : 0;
     this.resumeAt = 0;
     try { this.audio.pause(); } catch (e) { /* ignore */ }
-    this.audio.src = url;
-    this._applyRate();
+    this._destroyHls();
     this._setState('buffering');
     this._startWatchdog();
+    if (!offline && this._needsHlsJs()) {
+      this._playWithHlsJs(url, token);
+      return;
+    }
+    this.audio.src = url;
+    this._applyRate();
+    this._playAudio(token);
+  },
 
+  _playAudio(token) {
     const attempt = this.audio.play();
     if (attempt && attempt.catch) {
       attempt.catch((err) => {
@@ -75,10 +84,10 @@ Object.assign(AudioStreamPlayer.prototype, {
 
     if (this.usingOffline) {
       this.usingOffline = false;
-      this.audio.loop = false;
       this._setState('error');
       return;
     }
+    if (this._tryNextMirror()) return;
 
     if (this.retryCount < AudioStreamPlayer.TUNING.maxRetries) {
       this.retryCount++;
@@ -100,7 +109,7 @@ Object.assign(AudioStreamPlayer.prototype, {
     if (!this.currentStation) return;
     // A surah continues from where it stopped
     if (this._isFile()) this.resumeAt = this.audio.currentTime || this.pendingSeek || 0;
-    const base = this.currentStation.url;
+    const base = this._firstStreamUrl(); // a retry starts again from the fastest mirror
     this._loadStream(`${base}${base.includes('?') ? '&' : '?'}t=${Date.now()}`, false);
   },
 

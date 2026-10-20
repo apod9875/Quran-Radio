@@ -2,7 +2,7 @@
  * AudioStreamPlayer: HTML5 audio engine for live Quran radio streams and surah files.
  * This file holds the state machine and the public API; the behaviour lives in
  *   events.js (audio + network events), recovery.js (loading, stalls, retries, offline copy),
- *   session.js (Media Session + sleep timer), offline.js (saving a station sample) and
+ *   session.js (Media Session + sleep timer), mirrors.js (fastest mirror + failover), hls.js (HLS live) and
  *   seek.js (surah files: seeking, speed, saved position, end of track).
  *
  * States: idle | buffering | playing | paused | error
@@ -26,6 +26,10 @@ class AudioStreamPlayer {
     this.retryTimer = null;
     this.pausedAt = 0;
     this.usingOffline = false;
+    this.hls = null;
+    this.mirrorOrder = null; // see mirrors.js
+    this.mirrorIndex = 0;
+    this.mirrorLoadAt = 0;
     this.errorReason = null;
     this.resumeAt = 0; // seconds to start the next surah at (set by the app before play())
     this.pendingSeek = 0;
@@ -33,7 +37,7 @@ class AudioStreamPlayer {
     this.stopAfterTrack = false;
     const savedRate = parseFloat(window.QRUtils.readStorage('qr_rate'));
     this.rate = [1, 1.25, 1.5, 0.75].includes(savedRate) ? savedRate : 1;
-    this.getOfflineUrl = null; // set by the app: station => same-origin URL of a saved sample, or null
+    this.getOfflineUrl = null; // set by the app: track => same-origin URL of a downloaded surah, or null
 
     this.sleepTimerRemaining = null;
     this.sleepTimerEndsAt = null;
@@ -105,7 +109,7 @@ class AudioStreamPlayer {
   stop() {
     this._cancelPending();
     this.usingOffline = false;
-    this.audio.loop = false;
+    this._destroyHls();
     try {
       this.audio.pause();
       this.audio.removeAttribute('src');

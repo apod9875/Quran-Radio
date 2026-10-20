@@ -58,13 +58,3 @@ function dbDelete(url) {
 function dbClear() {
   return runRequest('readwrite', (store) => { store.clear(); }).catch(() => {});
 }
-
-// Update every record of a station (there is one per station, keyed by its offline URL).
-function dbUpdateByStation(stationId, patch) {
-  return runRequest('readwrite', (store) => {
-    const req = store.index('stationId').getAll(stationId);
-    req.onsuccess = () => {
-      (req.result || []).forEach((item) => store.put({ ...item, ...patch }));
-    };
-  }).catch(() => {});
-}

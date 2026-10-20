@@ -31,6 +31,13 @@ describe('sortStations', () => {
     assert.deepEqual(sorted, [2, 3, 1]);
   });
 
+  it('puts favorites first (alphabetical), ahead of the pinned stations', () => {
+    const list = [station(1, 'ب'), station(2, 'ز', { pinned: true }), station(3, 'أ'), station(4, 'ي', { pinned: true })];
+    assert.deepEqual(sortStations(list, 'ar', new Set([1, 3])).map((s) => s.id), [3, 1, 2, 4]);
+    assert.deepEqual(sortStations(list, 'ar', new Set([4])).map((s) => s.id), [4, 2, 3, 1]);
+    assert.deepEqual(sortStations(list, 'ar', new Set()).map((s) => s.id), [2, 4, 3, 1]);
+  });
+
   it('orders every live station list without losing or inventing stations', () => {
     for (const lang of ['ar', 'eng']) {
       const radios = readRadios(lang);

@@ -1,4 +1,4 @@
-// Tiny audio fixtures: silent WAV files every Chromium build can decode, served with Range support.
+// Tiny audio fixtures: silent WAV / MP3 files every Chromium build can decode, served with Range support.
 
 // `seconds` of silence as 8 kHz mono 8-bit PCM
 export function silentWav(seconds = 60) {
@@ -18,6 +18,22 @@ export function silentWav(seconds = 60) {
   header.write('data', 36);
   header.writeUInt32LE(data.length, 40);
   return Buffer.concat([header, data]);
+}
+
+// `seconds` of silent MPEG-1 Layer III (128 kbps, 44.1 kHz, mono): frames whose side info is all zero
+// decode as silence. Used as the segments of the test HLS live stream (hls.js plays MP3 segments).
+export function silentMp3(seconds = 2) {
+  const frame = Buffer.alloc(417, 0);
+  Buffer.from([0xff, 0xfb, 0x90, 0xc4]).copy(frame);
+  const frames = Math.ceil((seconds * 44100) / 1152);
+  return Buffer.concat(Array.from({ length: frames }, () => frame));
+}
+
+// A live HLS playlist (no #EXT-X-ENDLIST) of `count` two-second MP3 segments
+export function liveHlsPlaylist(count = 6) {
+  const lines = ['#EXTM3U', '#EXT-X-VERSION:3', '#EXT-X-TARGETDURATION:2', '#EXT-X-MEDIA-SEQUENCE:0'];
+  for (let i = 0; i < count; i++) lines.push('#EXTINF:2.0,', `seg${i}.mp3`);
+  return `${lines.join('\n')}\n`;
 }
 
 // Answer a Playwright route like a CDN: 206 for "Range: bytes=a-b", 200 for the whole file

@@ -84,9 +84,6 @@ Object.assign(App.prototype, {
     if (playing) this._rememberSurah(station);
 
     if (state === 'error' && this.lastPlayerState !== 'error') this.showToast(this._errorText());
-    if (busy && this.lastPlayerState !== 'buffering' && station.kind !== 'surah' && this.cachedIds.has(station.id)) {
-      window.QR_SW.post({ type: 'TOUCH_AUDIO', stationId: station.id });
-    }
     this.lastPlayerState = state;
   },
 
@@ -140,9 +137,11 @@ Object.assign(App.prototype, {
     window.QRUtils.writeStorage('mp3quran_favs', JSON.stringify(Array.from(this.favorites)));
     this.showToast(adding ? this.t.favAddedToast : this.t.favRemovedToast);
 
-    // Removing a favorite inside the Favorites tab drops its card; otherwise just refresh it
-    if (this.activeCategory === 'FAVORITES') this.renderStations();
-    else this.refreshCard(id);
+    // Favorites sit at the top of the list, so the order changes with every heart
+    if (this.stationsById.has(id)) {
+      this._sortStations();
+      this.renderStations({ keepRendered: true }); // the user keeps their place in a long list
+    }
     this._updateFavButtons();
   },
 

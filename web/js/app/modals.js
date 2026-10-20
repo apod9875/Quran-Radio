@@ -14,28 +14,14 @@ Object.assign(App.prototype, {
     bind(d.cacheBtn, () => { window.location.hash = '#/saved'; });
     bind(d.clearAllCacheBtn, () => this.clearAllCache());
 
-    const playSavedRow = (e) => {
-      const row = e.target.closest('.cached-item-row');
-      if (row && e.target.closest('[data-action="delete-sample"]')) {
-        this.deleteStationSample(Number(row.dataset.stationId));
-        return;
-      }
-      const station = row && this.stationsById.get(Number(row.dataset.stationId));
-      if (station) this.playOrToggle(station);
-    };
-    d.cachedStationsList.addEventListener('click', playSavedRow);
-    d.cachedStationsList.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); playSavedRow(e); }
-    });
-
-    document.querySelectorAll('.modal-overlay').forEach((overlay) => {
+    document.querySelectorAll('.modal-overlay:not(#confirmModal)').forEach((overlay) => {
       overlay.addEventListener('click', (e) => {
         if (e.target === overlay) overlay.classList.remove('active');
       });
     });
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Escape') return;
-      document.querySelectorAll('.modal-overlay.active').forEach((m) => m.classList.remove('active'));
+      document.querySelectorAll('.modal-overlay.active:not(#confirmModal)').forEach((m) => m.classList.remove('active'));
       this.closeMobileFullPlayer();
     });
   },

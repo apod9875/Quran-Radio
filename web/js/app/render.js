@@ -5,7 +5,6 @@ const CATEGORIES = [
   { id: 'RIWAYAT', key: 'riwayat' },
   { id: 'TAFSEER', key: 'tafseer' },
   { id: 'TRANSLATIONS', key: 'translations' },
-  { id: 'OFFLINE', key: 'savedOffline' },
   { id: 'FAVORITES', key: 'favorites' }
 ];
 
@@ -14,7 +13,7 @@ Object.assign(App.prototype, {
   renderCategories() {
     const t = this.t;
     const present = new Set(this.stations.map((s) => s.category));
-    const visible = CATEGORIES.filter((c) => ['ALL', 'OFFLINE', 'FAVORITES'].includes(c.id) || present.has(c.id));
+    const visible = CATEGORIES.filter((c) => ['ALL', 'FAVORITES'].includes(c.id) || present.has(c.id));
     if (!visible.some((c) => c.id === this.activeCategory)) this.activeCategory = 'ALL';
 
     this.renderRiwayaFilter();
@@ -41,7 +40,7 @@ Object.assign(App.prototype, {
     bar.scrollBy({ left: delta, behavior: 'smooth' });
   },
 
-  renderStations() {
+  renderStations({ keepRendered } = {}) {
     const t = this.t;
     const filtered = this.getFilteredStations();
     this.visibleIds = filtered.map((s) => s.id);
@@ -53,13 +52,13 @@ Object.assign(App.prototype, {
     const emptyHtml = this.stations.length === 0 ? '' : `
       <div class="empty-state">
         <span class="empty-state-icon">${window.SvgIcons.radio(40)}</span>
-        <p>${window.QRUtils.escapeHtml(this.activeCategory === 'OFFLINE' && !this.searchQuery ? t.noOffline : t.noResults)}</p>
+        <p>${window.QRUtils.escapeHtml(this.activeCategory === 'FAVORITES' && !this.searchQuery ? t.noFavorites : t.noResults)}</p>
       </div>`;
     this.listFor('stations', this.dom.stationsContainer, (s, i) => this._cardHtml(s, i))
-      .setItems(filtered, { emptyHtml });
+      .setItems(filtered, { emptyHtml, keepRendered });
   },
 
-  // Replace one card in place (used for play-state, favorite and cache changes)
+  // Replace one card in place (used for play-state changes)
   refreshCard(id) {
     const index = this.visibleIds.indexOf(id);
     const station = this.stationsById.get(id);

@@ -85,7 +85,21 @@ for (const width of WIDTHS) {
         const name = await box(ctx.page, '.station-card .station-name');
         if (width <= 480) assert.ok(name.width >= 90, `station name is only ${name.width}px wide`);
         const actions = await ctx.page.locator('.station-card').first().locator('.btn-card-action').count();
-        assert.equal(actions, 3, 'cards show save, favorite and play only');
+        assert.equal(actions, 2, 'cards show favorite and play only (radios are never saved)');
+      });
+
+      it('fits the video-broadcast note inside the Haram and Nabawi cards', async () => {
+        for (const id of [900003, 900004]) {
+          const fits = await ctx.page.evaluate((sid) => {
+            const card = document.querySelector(`.station-card[data-id="${sid}"]`);
+            const badge = card && card.querySelector('.station-note-badge');
+            if (!badge) return 'no badge';
+            const c = card.getBoundingClientRect();
+            const b = badge.getBoundingClientRect();
+            return b.width > 20 && b.left >= c.left - 0.5 && b.right <= c.right + 0.5 ? 'ok' : `${b.left}..${b.right} in ${c.left}..${c.right}`;
+          }, id);
+          assert.equal(fits, 'ok', `station ${id}`);
+        }
       });
 
       it('keeps the sticky header on screen after scrolling', async () => {

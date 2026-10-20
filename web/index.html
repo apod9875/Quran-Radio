@@ -7,7 +7,7 @@
   <title>إذاعة القرآن الكريم • Quran Radio</title>
 
   <!-- PWA & Mobile Meta Tags -->
-  <meta name="description" content="24/7 Live Holy Quran Radio streaming with loved-station offline audio caching - صدقة جارية لـ (عبدالرحيم معبد) • Mabed">
+  <meta name="description" content="24/7 live Holy Quran radio, Makkah and Madinah live, and Quran reciters with offline surah downloads - صدقة جارية لـ (عبدالرحيم معبد) • Mabed">
   <meta name="theme-color" content="#0E2A22">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,6 +16,11 @@
   <link rel="icon" type="image/png" href="icons/icon.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="manifest" href="manifest.json">
+  <!-- Stream hosts of the pinned stations: DNS + TLS are ready before the first tap -->
+  <link rel="preconnect" href="https://stream.radiojar.com">
+  <link rel="preconnect" href="https://radio.xecod.com">
+  <link rel="preconnect" href="https://edge.mixlr.com">
+  <link rel="preconnect" href="https://win.holol.com">
 
   <!-- Stylesheets -->
   <link rel="stylesheet" href="css/tokens.css">
@@ -31,6 +36,7 @@
   <link rel="stylesheet" href="css/mobile-player.css">
   <link rel="stylesheet" href="css/toast-banner.css">
   <link rel="stylesheet" href="css/modals.css">
+  <link rel="stylesheet" href="css/confirm.css">
   <link rel="stylesheet" href="css/modal-about-timer.css">
   <link rel="stylesheet" href="css/storage.css">
   <link rel="stylesheet" href="css/bottom-nav.css">
@@ -200,7 +206,7 @@
         <div class="surah-list" id="surahList"></div>
       </section>
 
-      <!-- Saved: storage, downloaded surahs, saved radio samples -->
+      <!-- Saved: storage used and the downloaded surahs -->
       <section class="view" data-view="saved" id="savedView" hidden>
         <h2 class="view-title" data-i18n="navSaved">المحفوظات</h2>
         <div class="cache-storage-box">
@@ -208,17 +214,13 @@
             <span class="cache-storage-label" data-i18n="cacheUsageLabel">مساحة المحفوظات على الجهاز:</span>
             <span id="cacheUsageText" class="cache-storage-val">0.0 MB</span>
           </div>
-          <div class="cache-progress-track"><div id="cacheProgressBar" class="cache-progress-fill" style="width: 0%;"></div></div>
           <div class="cache-storage-footer">
             <span id="cacheStationsCountText"></span>
-            <span class="cache-badge-ok" id="storageFreeText" hidden></span>
           </div>
         </div>
         <div class="download-queue" id="downloadQueue" hidden></div>
         <h3 class="saved-section-title" data-i18n="savedSurahsTitle">السور المحفوظة</h3>
         <div class="saved-list" id="savedSurahsList"></div>
-        <h3 class="saved-section-title" data-i18n="savedStationsTitle">الإذاعات المحفوظة</h3>
-        <div id="cachedStationsList" class="cached-stations-list"></div>
         <div class="cache-info-callout">
           <svg class="svg-icon cache-info-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
           <div class="cache-info-text" data-i18n="savedCallout">السور المحمّلة تعمل كاملة دون انترنت. الإذاعات المباشرة تُحفظ منها مقاطع قصيرة فقط.</div>
@@ -548,6 +550,19 @@
     </div>
   </div>
 
+  <!-- Confirmation window (used instead of the browser's confirm / alert popups) -->
+  <div class="modal-overlay" id="confirmModal" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+    <div class="modal-card confirm-card">
+      <h3 class="modal-title" id="confirmTitle"></h3>
+      <p class="confirm-message" id="confirmMessage"></p>
+      <p class="confirm-details" id="confirmDetails" hidden></p>
+      <div class="confirm-actions">
+        <button class="btn-text-pill btn-confirm-ok" id="confirmOkBtn" type="button"></button>
+        <button class="btn-text-pill btn-confirm-cancel" id="confirmCancelBtn" type="button"></button>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="js/core/storage-names.js"></script>
   <script src="js/core/utils.js"></script>
@@ -562,7 +577,8 @@
   <script src="js/player/events.js"></script>
   <script src="js/player/recovery.js"></script>
   <script src="js/player/session.js"></script>
-  <script src="js/player/offline.js"></script>
+  <script src="js/player/mirrors.js"></script>
+  <script src="js/player/hls.js"></script>
   <script src="js/player/seek.js"></script>
   <script src="js/app/dom.js"></script>
   <script src="js/app/core.js"></script>
@@ -578,6 +594,7 @@
   <script src="js/app/volume-ui.js"></script>
   <script src="js/app/cache-ui.js"></script>
   <script src="js/app/modals.js"></script>
+  <script src="js/app/confirm-dialog.js"></script>
   <script src="js/app/progress-ui.js"></script>
   <script src="js/app/saved-view.js"></script>
   <script src="js/app/router.js"></script>
@@ -587,6 +604,7 @@
   <script src="js/quran/reciter-view.js"></script>
   <script src="js/quran/surah-player.js"></script>
   <script src="js/quran/downloads.js"></script>
+  <script src="js/quran/download-confirm.js"></script>
   <script src="js/app/boot.js"></script>
 </body>
 </html>

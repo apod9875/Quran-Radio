@@ -24,17 +24,48 @@ after(async () => {
 const go = async (hash) => {
   await ctx.page.evaluate((h) => { window.location.hash = h; }, hash);
 };
+const confirmModal = () => ctx.page.locator('#confirmModal.active');
+const answer = async (button) => {
+  await confirmModal().waitFor();
+  await ctx.page.click(button === 'ok' ? '#confirmOkBtn' : '#confirmCancelBtn');
+  await ctx.page.locator('#confirmModal.active').waitFor({ state: 'detached' });
+};
 const fetchSaved = (path, headers = {}) => ctx.page.evaluate(async ([p, h]) => {
   const res = await fetch(p, { headers: h });
   return { status: res.status, size: (await res.arrayBuffer()).byteLength, range: res.headers.get('Content-Range') };
 }, [path, headers]);
 
 describe('surah downloads', () => {
-  it('downloads one surah and marks it as saved', async () => {
+  it('asks in a confirmation window with the surah, reciter and size, and Cancel downloads nothing', async () => {
     await go('#/reciter/51');
     await ctx.page.locator('.surah-row').first().waitFor();
     await ctx.page.fill('#surahSearch', '108');
     await ctx.page.locator('.surah-row[data-surah="108"] [data-action="download"]').click();
+    await confirmModal().waitFor();
+    assert.match(await ctx.page.locator('#confirmMessage').innerText(), /سورة الكوثر.*عبدالباسط عبدالصمد/);
+    await ctx.page.waitForFunction(() => /MB/.test(document.querySelector('#confirmDetails').textContent));
+    assert.equal(await ctx.page.locator('#confirmOkBtn.is-danger').count(), 0);
+    await answer('cancel');
+    assert.equal(await ctx.page.evaluate(() => window.app.downloadProgress.size), 0);
+    assert.equal(await ctx.page.locator('.surah-row[data-surah="108"].is-saved').count(), 0);
+  });
+
+  it('shows "storage full" when the device refuses the file, and keeps no partial copy', async () => {
+    await ctx.page.evaluate(() => {
+      window.__realPut = Cache.prototype.put;
+      Cache.prototype.put = function () { return Promise.reject(new DOMException('full', 'QuotaExceededError')); };
+    });
+    await ctx.page.locator('.surah-row[data-surah="108"] [data-action="download"]').click();
+    await answer('ok');
+    await ctx.page.waitForFunction(() => /مساحة جهازك ممتلئة/.test(document.querySelector('.toast-notification').textContent));
+    await ctx.page.evaluate(() => { Cache.prototype.put = window.__realPut; });
+    assert.equal((await fetchSaved('offline-surah/53/108')).status, 404);
+    assert.equal(await ctx.page.locator('.surah-row[data-surah="108"].is-saved').count(), 0);
+  });
+
+  it('downloads one surah after confirming and marks it as saved', async () => {
+    await ctx.page.locator('.surah-row[data-surah="108"] [data-action="download"]').click();
+    await answer('ok');
     await ctx.page.locator('.surah-row[data-surah="108"].is-saved').waitFor({ timeout: 30000 });
     assert.match(await ctx.page.locator('.toast-notification').innerText(), /تم تحميل سورة الكوثر/);
     const file = await fetchSaved('offline-surah/53/108');
@@ -46,8 +77,10 @@ describe('surah downloads', () => {
     await go('#/reciter/123/124');
     await ctx.page.locator('#surahList .surah-row').first().waitFor();
     const total = await ctx.page.locator('#surahList .surah-row').count();
-    ctx.page.once('dialog', (dialog) => dialog.accept());
     await ctx.page.click('#downloadAllBtn');
+    await confirmModal().waitFor();
+    assert.match(await ctx.page.locator('#confirmMessage').innerText(), new RegExp(`${total} سورة`));
+    await answer('ok');
     await ctx.page.waitForFunction((n) => document.querySelectorAll('#surahList .surah-row.is-saved').length === n, total, { timeout: 60000 });
   });
 
@@ -93,8 +126,10 @@ describe('surah downloads', () => {
     await ctx.page.click('.nav-item[data-nav="saved"]');
     const group = ctx.page.locator('.saved-group', { hasText: 'عبدالباسط عبدالصمد' });
     await group.waitFor();
-    ctx.page.once('dialog', (dialog) => dialog.accept());
     await group.locator('.saved-surah-row [data-action="delete"]').first().click();
+    await confirmModal().waitFor();
+    assert.equal(await ctx.page.locator('#confirmOkBtn.is-danger').count(), 1, 'deleting uses the red button');
+    await answer('ok');
     await ctx.page.waitForFunction(() => document.querySelectorAll('.saved-group').length === 1);
     assert.equal((await fetchSaved('offline-surah/53/108')).status, 404);
     assert.deepEqual(ctx.problems, []);

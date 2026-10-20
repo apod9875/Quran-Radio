@@ -26,6 +26,7 @@ Object.assign(AudioStreamPlayer.prototype, {
       if (!this._isActive()) return;
       this._clearWatchdog();
       this.retryCount = 0;
+      this._onStreamStarted();
       this._setState('playing');
     });
 

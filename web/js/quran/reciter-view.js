@@ -143,12 +143,18 @@ Object.assign(App.prototype, {
     row.replaceWith(holder.firstElementChild);
   },
 
-  downloadWholeMoshaf() {
+  async downloadWholeMoshaf() {
     const open = this.openReciter;
     if (!open) return;
     const missing = open.moshaf.surahs.filter((n) => !this.isSurahSaved(open.moshaf.id, n));
     if (!missing.length) return;
-    if (!window.confirm(this.t.downloadAllConfirm.replace('{count}', missing.length))) return;
+    const urls = missing.map((n) => window.QRQuranModel.surahUrl(open.moshaf, n));
+    const ok = await this._confirmWithSize({
+      title: this.t.downloadAllTitle,
+      message: `${open.reciter.name} · ${this.moshafLabel(open.moshaf)}\n${this.t.downloadAllConfirm.replace('{count}', missing.length)}`,
+      confirmText: this.t.downloadBtn
+    }, urls);
+    if (!ok) return;
     missing.forEach((n) => this.queueSurahDownload(open.reciter, open.moshaf, n, { silent: true }));
   }
 });

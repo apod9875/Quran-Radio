@@ -13,9 +13,6 @@ class App {
     this.stationsById = new Map();
     this.visibleIds = [];
     this.fetchToken = 0;
-    this.cachedIds = new Set();
-    this.precaching = new Set();
-    this.autoOfflineShown = false;
     this.shownStationId = null;
     this.lastPlayerState = 'idle';
     this.deferredInstallPrompt = null;
@@ -32,6 +29,7 @@ class App {
     this.player = new window.AudioStreamPlayer();
     this.player.getOfflineUrl = (station) => this.getOfflineUrl(station);
     this._initDownloads();
+    this._bindConfirmDialog();
 
     this._bindEvents();
     this._setupPwa();
@@ -54,12 +52,10 @@ class App {
     return this.lists[name];
   }
 
-  // Same-origin URL where the service worker serves the saved copy (radio sample or downloaded surah)
+  // Same-origin URL where the service worker serves a downloaded surah; radios are never saved
   getOfflineUrl(track) {
-    if (track.kind === 'surah') {
-      return this.isSurahSaved(track.moshafId, track.surah) ? this.offlineSurahUrl(track.moshafId, track.surah) : null;
-    }
-    return this.cachedIds.has(track.id) ? `offline-audio/${track.id}` : null;
+    if (track.kind !== 'surah' || !this.isSurahSaved(track.moshafId, track.surah)) return null;
+    return this.offlineSurahUrl(track.moshafId, track.surah);
   }
 
   showToast(message) {
@@ -78,7 +74,6 @@ class App {
     document.body.classList.toggle('is-offline', isOffline);
     if (isOffline) {
       this.dom.offlineBannerText.textContent = this.t.offlineNotice;
-      this._showSavedWhenOffline();
     }
   }
 }

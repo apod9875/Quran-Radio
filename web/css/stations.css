@@ -133,7 +133,7 @@
   color: var(--gold);
 }
 
-.offline-ready-badge {
+.station-note-badge {
   display: inline-block;
   font-size: clamp(0.6rem, 2.3vw, 0.7rem);
   color: var(--mint-light);
@@ -160,7 +160,7 @@
   margin-bottom: 8px;
 }
 
-/* Without a connection only saved stations can play: dim the rest */
-.is-offline .station-card:not(.is-saved) {
+/* Live radio needs a connection: dim the stations while offline */
+.is-offline .station-card {
   opacity: 0.45;
 }

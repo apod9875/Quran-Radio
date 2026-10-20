@@ -61,8 +61,7 @@ Object.assign(App.prototype, {
       if (!station) return;
       const button = e.target.closest('[data-action]');
       const action = button ? button.dataset.action : 'play';
-      if (action === 'precache') this.precacheStation(station);
-      else if (action === 'fav') this.toggleFavorite(station.id);
+      if (action === 'fav') this.toggleFavorite(station.id);
       else this.playOrToggle(station);
     });
 

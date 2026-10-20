@@ -73,12 +73,6 @@
   color: var(--text-muted);
 }
 
-/* On the page the saved radio list can grow with its content */
-.view .cached-stations-list {
-  max-height: none;
-  margin-bottom: 14px;
-}
-
 .download-queue {
   display: flex;
   flex-direction: column;
