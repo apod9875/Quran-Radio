@@ -223,6 +223,17 @@ describe('language, modals and content', () => {
     const expected = await page.evaluate(() => window.FALLBACK_STATIONS.ar.length);
     assert.equal(await cardCount(page), expected + 4, 'fallback stations plus the four pinned live stations');
   });
+
+  it('shows the last station list at once on the next start, before the API answers', async () => {
+    const page = await open();
+    const expected = await cardCount(page);
+    // The API never answers now (a slow connection): the list must not wait for it, nor fall back
+    await ctx.context.route(/\/api\/v3\/radios/, () => {});
+    await page.reload({ waitUntil: 'load' });
+    await page.waitForSelector('.station-card', { state: 'attached', timeout: 3000 });
+    assert.equal(await cardCount(page), expected);
+    assert.doesNotMatch(await page.locator('#stationsCountBadge').innerText(), /جاري تحميل/);
+  });
 });
 
 describe('sleep timer inside the full-screen player', () => {

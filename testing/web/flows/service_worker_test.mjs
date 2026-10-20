@@ -38,6 +38,20 @@ describe('service worker', () => {
     assert.ok(!urls.some((u) => u.includes('/vendor/')), 'hls.js is loaded on demand, never precached');
   });
 
+  it('answers app files from the cache at once, but icons from the network first', async () => {
+    const status = await ctx.page.evaluate(async () => {
+      const name = (await caches.keys()).find((n) => n.includes('static'));
+      const cache = await caches.open(name);
+      await cache.put('/cached-only.txt', new Response('from the cache'));
+      await cache.put('/icons/cached-only.png', new Response('old icon'));
+      const file = await fetch('/cached-only.txt');
+      const icon = await fetch('/icons/cached-only.png');
+      return { file: await file.text(), icon: icon.status };
+    });
+    assert.equal(status.file, 'from the cache', 'the server does not have it: it came from the cache');
+    assert.equal(status.icon, 404, 'an icon goes to the network when it answers');
+  });
+
   it('removes the radio samples saved by earlier versions when it activates', async () => {
     // A fresh browser profile that already holds an old sample, then the new worker installs
     const context = await browser.newContext({ serviceWorkers: 'allow' });

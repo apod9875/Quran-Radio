@@ -1,4 +1,9 @@
-/** Strategies for the app shell: fresh from the network first, the cache only as a fallback. */
+/**
+ * Strategies for the app shell.
+ * - staleWhileRevalidate: app files open at once from the cache and are refreshed in the background, so a
+ *   slow connection never holds the start back (a new version is precached by the new worker anyway).
+ * - networkFirst: icons and the API, which must be fresh when the network answers.
+ */
 const NETWORK_TIMEOUT_MS = 4000;
 const API_TIMEOUT_MS = 8000;
 
@@ -38,4 +43,16 @@ async function networkFirst(request, timeoutMs = NETWORK_TIMEOUT_MS) {
     if (cached) return cached;
     throw err;
   }
+}
+
+async function staleWhileRevalidate(request) {
+  const network = fetch(request);
+  const cached = await cachedFallback(request);
+  if (cached) {
+    network.then((fresh) => storeCopy(request, fresh)).catch(() => {});
+    return cached;
+  }
+  const fresh = await network;
+  storeCopy(request, fresh);
+  return fresh;
 }

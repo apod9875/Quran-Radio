@@ -1,6 +1,6 @@
 /**
  * Service Worker for Quran Radio.
- * - App shell: network-first with a cache fallback, so a deploy reaches users on their next visit.
+ * - App shell: from the cache at once, refreshed in the background (icons and the manifest: network first).
  * - Live streams are never touched; the browser's media decoder talks to the stream directly.
  * - Downloaded surahs are served at /offline-surah/<moshafId>/<nnn> with Range support.
  *
@@ -56,6 +56,10 @@ self.addEventListener('message', (event) => {
   );
 });
 
+function isFreshFirst(url) {
+  return url.pathname.includes('/icons/') || url.pathname.endsWith('/manifest.json');
+}
+
 function isApiRequest(url) {
   return /(^|\.)mp3quran\.net$/.test(url.hostname) && url.pathname.startsWith('/api/');
 }
@@ -70,8 +74,8 @@ self.addEventListener('fetch', (event) => {
     if (surah) {
       event.respondWith(serveOfflineSurah(request, surah[1], Number(surah[2])));
     } else {
-      // Icons too: a changed icon must reach installed apps, so the network wins when it answers
-      event.respondWith(networkFirst(request));
+      // A changed icon must reach installed apps, so for icons the network wins when it answers
+      event.respondWith(isFreshFirst(url) ? networkFirst(request) : staleWhileRevalidate(request));
     }
     return;
   }

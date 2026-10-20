@@ -35,7 +35,9 @@ Object.assign(AudioStreamPlayer.prototype, {
     this.errorReason = null;
     if (!navigator.onLine) {
       if (this._tryOfflineCopy()) return;
-      // Nothing to play without a connection: say so now instead of spinning through retries
+      // Nothing to play without a connection: say so now instead of spinning through retries,
+      // and stop the previous track so it does not keep playing under this one's error
+      try { this.audio.pause(); } catch (e) { /* element already torn down */ }
       this.errorReason = 'offline-unsaved';
       this._setState('error');
       return;

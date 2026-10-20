@@ -45,7 +45,7 @@ describe("what's new", () => {
     const latest = await page.evaluate(() => window.QR_RELEASES[0]);
     assert.match(await page.locator('.whats-new-version').first().innerText(), new RegExp(`الإصدار ${latest.version}`));
     assert.equal(await page.locator('.whats-new-release').first().locator('li').count(), latest.ar.length);
-    assert.match(await page.locator('#whatsNewList').innerText(), /مكة المكرمة/);
+    assert.ok((await page.locator('#whatsNewList').innerText()).includes(latest.ar[0]));
 
     await page.click('#whatsNewOkBtn');
     assert.equal(await page.evaluate(() => localStorage.getItem('qr_seen_version')), latest.version);
@@ -61,7 +61,8 @@ describe("what's new", () => {
     await page.evaluate(() => localStorage.setItem('qr_seen_version', '3.6.0'));
     await reload(page);
     await modal(page).waitFor({ timeout: 6000 });
-    assert.match(await page.locator('#whatsNewList').innerText(), /Makkah/);
+    const latest = await page.evaluate(() => window.QR_RELEASES[0]);
+    assert.ok((await page.locator('#whatsNewList').innerText()).includes(latest.eng[0]));
     await page.keyboard.press('Escape');
     await modal(page).waitFor({ state: 'detached' });
   });

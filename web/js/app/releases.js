@@ -6,6 +6,22 @@
  */
 window.QR_RELEASES = [
   {
+    version: '3.7.3',
+    date: '2026-10-20',
+    ar: [
+      'التطبيق يفتح أسرع، وتظهر الإذاعات فوراً',
+      'إصلاح تشغيل السور المحفوظة دون إنترنت بعد محاولة تشغيل سورة غير محفوظة',
+      'إصلاح أخطاء',
+      'هذه الملاحظات من م. أسامة الحلفاوي'
+    ],
+    eng: [
+      'The app opens faster and the stations show right away',
+      'Fixed playing saved surahs offline after trying a surah that is not saved',
+      'Bug fixes',
+      'These notes are from Eng. Osama Alhalafawi'
+    ]
+  },
+  {
     version: '3.7.2',
     date: '2026-10-20',
     ar: [

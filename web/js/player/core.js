@@ -87,6 +87,7 @@ class AudioStreamPlayer {
 
     this.currentStation = station;
     this.retryCount = 0;
+    this.usingOffline = false; // the device copy of the previous track says nothing about this one
     this._updateMediaMetadata();
     this._startStation();
   }

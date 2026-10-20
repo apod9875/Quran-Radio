@@ -122,6 +122,29 @@ describe('surah downloads', () => {
     await ctx.context.setOffline(false);
   });
 
+  it('plays a saved surah offline again after an unsaved one was refused', async () => {
+    const page = ctx.page;
+    const playSaved = async () => {
+      await go('#/saved');
+      const group = page.locator('.saved-group', { hasText: 'عبدالباسط عبدالصمد' });
+      await group.locator('.saved-surah-row [data-action="play"]').first().click();
+      await page.waitForFunction(() => window.app.player.state === 'playing', null, { timeout: 15000 });
+    };
+    await ctx.context.setOffline(true);
+    await playSaved();
+
+    // No stop() in between: straight from the saved surah to one that is not saved
+    await go('#/reciter/51');
+    await page.locator('.surah-row[data-surah="1"] [data-action="play"]').click();
+    await page.waitForFunction(() => window.app.player.state === 'error', null, { timeout: 3000 });
+    assert.equal(await page.evaluate(() => window.app.player.audio.paused), true, 'the previous surah stops');
+
+    await playSaved();
+    assert.match(await page.evaluate(() => window.app.player.audio.currentSrc), /offline-surah\/53\/108$/);
+    await page.evaluate(() => window.app.player.stop());
+    await ctx.context.setOffline(false);
+  });
+
   it('deletes a download and frees its space', async () => {
     await ctx.page.click('.nav-item[data-nav="saved"]');
     const group = ctx.page.locator('.saved-group', { hasText: 'عبدالباسط عبدالصمد' });

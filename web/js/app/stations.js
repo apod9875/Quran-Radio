@@ -1,27 +1,57 @@
 /** Station catalog: loading (with timeout + fallback), filtering and neighbours. */
 const API_URL = 'https://www.mp3quran.net/api/v3/radios';
 const FETCH_TIMEOUT_MS = 8000;
+const STORED_LIST_KEY = 'qr_stations_'; // + language: the last list the API returned
 
 Object.assign(App.prototype, {
+  // A returning user sees the last list at once; the API refreshes it in the background
   async fetchStations() {
     const token = ++this.fetchToken;
     const lang = this.lang;
-    this.dom.stationsCountBadge.textContent = this.t.loadingStations;
+    const stored = this._storedRadioList(lang);
+    if (stored) {
+      this._showStations(stored);
+      this._afterStationsShown();
+    } else {
+      this.dom.stationsCountBadge.textContent = this.t.loadingStations;
+    }
 
     let list;
     try {
       list = await this._fetchRadioList(lang);
+      window.QRUtils.writeStorage(STORED_LIST_KEY + lang, JSON.stringify(list));
     } catch (err) {
+      if (stored) return; // keep the last list
       console.warn('[Stations] using the built-in fallback list:', err);
       list = (window.FALLBACK_STATIONS && window.FALLBACK_STATIONS[lang]) || [];
     }
     if (token !== this.fetchToken) return; // a newer language switch superseded this response
+    if (stored) {
+      if (JSON.stringify(list) !== JSON.stringify(stored)) this._showStations(list);
+      return;
+    }
+    this._showStations(list);
+    this._afterStationsShown();
+  },
 
+  _storedRadioList(lang) {
+    try {
+      const list = JSON.parse(window.QRUtils.readStorage(STORED_LIST_KEY + lang));
+      return Array.isArray(list) && list.length ? list : null;
+    } catch (e) {
+      return null;
+    }
+  },
+
+  _showStations(list) {
     this._setStations(list);
     this.renderCategories();
     this.renderStations();
     this._syncPlayingStation();
-    // The saved surahs must be known before a surah resumes after a refresh (it may play from the device)
+  },
+
+  // The saved surahs must be known before a surah resumes after a refresh (it may play from the device)
+  _afterStationsShown() {
     this.refreshCacheState().then(() => this.resumeAfterReload());
   },
 
