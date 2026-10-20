@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { readRadios } from '../helpers/fixtures.mjs';
 
 const require = createRequire(import.meta.url);
-const { riwayaName, sortStations, nameSortKey, categorizeStation } = require('../../../web/js/core/utils.js');
+const { riwayaName, riwayaId, sortStations, nameSortKey, categorizeStation } = require('../../../web/js/core/utils.js');
 
 const station = (id, name, extra = {}) => ({ id, name, ...extra });
 
@@ -76,5 +76,31 @@ describe('riwayaName', () => {
     for (const s of readRadios('ar')) {
       if (categorizeStation(s.url, s.name) === 'RIWAYAT') assert.ok(riwayaName(s.url, 'ar'), `${s.id} ${s.url}`);
     }
+  });
+});
+
+describe('riwayaId', () => {
+  const base = 'https://backup.qurango.net/radio/';
+
+  it('gives stable ids that match the names', () => {
+    assert.equal(riwayaId(base + 'abdulbasit_abdulsamad_warsh'), 'warsh');
+    assert.equal(riwayaId(base + 'ali_alhuthaifi_qalon'), 'qalon');
+    assert.equal(riwayaId(base + 'mohammad_alabdullah_albizi'), 'albizi');
+    assert.equal(riwayaId(base + 'muftah_alsaltany_aldori_an_abi_amr'), 'aldori');
+    assert.equal(riwayaId(base + 'mohammad_alabdullah_aldorai'), 'aldori');
+    assert.equal(riwayaId(base + 'abdulrasheed_soufi_assosi'), 'assosi');
+    assert.equal(riwayaId(base + 'abdulrasheed_soufi_khalaf'), 'khalaf');
+    assert.equal(riwayaId(base + 'muftah_alsaltany_ibn_thakwan_an_ibn_amr'), 'ibnthakwan');
+  });
+
+  it('is null exactly when there is no riwaya name', () => {
+    for (const s of readRadios('ar')) {
+      assert.equal(riwayaId(s.url) === null, riwayaName(s.url, 'ar') === null, s.url);
+    }
+  });
+
+  it('keeps the seven riwayat of the live list', () => {
+    const ids = new Set(readRadios('ar').map((s) => riwayaId(s.url)).filter(Boolean));
+    assert.deepEqual([...ids].sort(), ['albizi', 'aldori', 'assosi', 'ibnthakwan', 'khalaf', 'qalon', 'warsh']);
   });
 });

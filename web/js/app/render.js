@@ -16,19 +16,24 @@ Object.assign(App.prototype, {
     const visible = CATEGORIES.filter((c) => c.id === 'ALL' || c.id === 'FAVORITES' || present.has(c.id));
     if (!visible.some((c) => c.id === this.activeCategory)) this.activeCategory = 'ALL';
 
+    this.renderRiwayaFilter();
     this.dom.categoriesBar.innerHTML = visible.map((cat) => `
       <button type="button" class="cat-chip${this.activeCategory === cat.id ? ' active' : ''}" data-id="${cat.id}">${window.QRUtils.escapeHtml(t[cat.key])}</button>`).join('');
   },
 
   _selectCategory(chip) {
     this.activeCategory = chip.dataset.id;
+    if (this.activeCategory !== 'RIWAYAT') this.activeRiwaya = 'ALL';
     this.dom.categoriesBar.querySelectorAll('.cat-chip').forEach((el) => {
       el.classList.toggle('active', el === chip);
     });
+    this.renderRiwayaFilter();
     this.renderStations();
+    this._centerChip(this.dom.categoriesBar, chip);
+  },
 
-    // Center the chip inside the bar without scrolling the page itself
-    const bar = this.dom.categoriesBar;
+  // Center a chip inside its scrolling bar without scrolling the page itself
+  _centerChip(bar, chip) {
     const chipBox = chip.getBoundingClientRect();
     const barBox = bar.getBoundingClientRect();
     const delta = chipBox.left + chipBox.width / 2 - (barBox.left + barBox.width / 2);

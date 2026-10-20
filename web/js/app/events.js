@@ -7,6 +7,7 @@ Object.assign(App.prototype, {
     this._bindPlayerControls();
     this._bindTimerEvents();
     this._bindModalEvents();
+    this._bindVolumeControls();
 
     this.player.onStateChange((state, station) => this._updatePlayerUi(state, station));
     this.player.onTimerTick((seconds) => this._updateTimerUi(seconds));
@@ -37,6 +38,11 @@ Object.assign(App.prototype, {
     this.dom.categoriesBar.addEventListener('click', (e) => {
       const chip = e.target.closest('.cat-chip');
       if (chip) this._selectCategory(chip);
+    });
+
+    this.dom.riwayaBar.addEventListener('click', (e) => {
+      const chip = e.target.closest('.riwaya-chip');
+      if (chip) this._selectRiwaya(chip);
     });
 
     const list = this.dom.stationsContainer;
@@ -77,15 +83,6 @@ Object.assign(App.prototype, {
     onAll([d.heroFavBtn, d.fullPlayerFavBtn], favoriteCurrent);
     onAll([d.heroTimerBtn, d.fullPlayerTimerBtn], () => this.openTimerModal());
     d.heroShareBtn.addEventListener('click', () => this.shareCurrentStation());
-
-    [d.heroVolumeSlider, d.fullPlayerVolumeSlider].forEach((slider) => {
-      slider.addEventListener('input', (e) => {
-        const volume = parseFloat(e.target.value);
-        player.setVolume(volume);
-        d.heroVolumeSlider.value = volume;
-        d.fullPlayerVolumeSlider.value = volume;
-      });
-    });
 
     // Mini player: buttons act on their own, the rest of the bar opens the full player
     d.mobileBarPlayBtn.addEventListener('click', (e) => {

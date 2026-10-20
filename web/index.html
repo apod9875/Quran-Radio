@@ -23,9 +23,11 @@
   <link rel="stylesheet" href="css/header.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/search-categories.css">
+  <link rel="stylesheet" href="css/riwaya-filter.css">
   <link rel="stylesheet" href="css/stations.css">
   <link rel="stylesheet" href="css/station-actions.css">
   <link rel="stylesheet" href="css/hero-player.css">
+  <link rel="stylesheet" href="css/volume.css">
   <link rel="stylesheet" href="css/mobile-player.css">
   <link rel="stylesheet" href="css/toast-banner.css">
   <link rel="stylesheet" href="css/modals.css">
@@ -140,6 +142,9 @@
           </div>
         </div>
 
+        <!-- Riwaya filter: only visible on the Riwayat tab -->
+        <div class="riwaya-filter" id="riwayaBar" role="group" data-i18n-label="riwayaFilterLabel" aria-label="تصفية حسب الرواية" hidden></div>
+
         <!-- Station cards container -->
         <div class="stations-list" id="stationsContainer">
           <!-- Populated by JavaScript -->
@@ -192,18 +197,10 @@
           </div>
 
           <!-- Volume Slider -->
-          <div class="volume-row">
-            <span>
-              <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z"/>
-              </svg>
-            </span>
-            <input type="range" id="heroVolumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="1">
-            <span>
-              <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-              </svg>
-            </span>
+          <div class="volume-control" data-volume-control>
+            <button type="button" class="volume-mute-btn" data-volume-mute aria-label="كتم الصوت"></button>
+            <input type="range" class="volume-slider" data-volume-slider min="0" max="1" step="0.05" value="1" data-i18n-label="volumeLabel" aria-label="مستوى الصوت">
+            <output class="volume-value" data-volume-value>100%</output>
           </div>
 
           <!-- Active Sleep Timer Badge -->
@@ -307,11 +304,11 @@
         </button>
       </div>
 
-      <div class="volume-row volume-row--full">
-        <span><svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z"/></svg></span>
-        <input type="range" id="fullPlayerVolumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="1" data-i18n-label="volumeLabel" aria-label="مستوى الصوت">
-        <span><svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg></span>
-      </div>
+      <div class="volume-control volume-control--full" data-volume-control>
+            <button type="button" class="volume-mute-btn" data-volume-mute aria-label="كتم الصوت"></button>
+            <input type="range" class="volume-slider" data-volume-slider min="0" max="1" step="0.05" value="1" data-i18n-label="volumeLabel" aria-label="مستوى الصوت">
+            <output class="volume-value" data-volume-value>100%</output>
+          </div>
 
       <div class="timer-active-badge" id="fullTimerBadge"></div>
 
@@ -531,8 +528,10 @@
   <script src="js/app/extra-stations.js"></script>
   <script src="js/app/render-card.js"></script>
   <script src="js/app/render.js"></script>
+  <script src="js/app/riwaya-filter.js"></script>
   <script src="js/app/events.js"></script>
   <script src="js/app/player-ui.js"></script>
+  <script src="js/app/volume-ui.js"></script>
   <script src="js/app/cache-ui.js"></script>
   <script src="js/app/modals.js"></script>
   <script src="js/app/boot.js"></script>

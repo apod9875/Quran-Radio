@@ -279,3 +279,99 @@ describe('Egyptian radio, alphabetical order and riwayat', () => {
     await page.waitForFunction(() => document.querySelector('.station-riwaya')?.textContent.includes(' from '));
   });
 });
+
+describe('riwaya filter', () => {
+  const chips = (page) => page.locator('.riwaya-chip');
+
+  it('shows a chip per riwaya with counts only on the Riwayat tab', async () => {
+    const page = await open();
+    assert.ok(await page.locator('#riwayaBar').isHidden());
+    await page.click('.cat-chip[data-id="RIWAYAT"]');
+    assert.ok(await page.locator('#riwayaBar').isVisible());
+    assert.equal(await chips(page).count(), 8, 'All riwayat plus 7 riwayat');
+    const warsh = chips(page).filter({ hasText: 'ورش عن نافع' });
+    assert.equal((await warsh.locator('.riwaya-count').innerText()).trim(), '2');
+    assert.match(await chips(page).first().innerText(), /كل الروايات\s*10/);
+    await page.click('.cat-chip[data-id="ALL"]');
+    assert.ok(await page.locator('#riwayaBar').isHidden());
+  });
+
+  it('filters the list by the chosen riwaya and restores it afterwards', async () => {
+    const page = await open();
+    await page.click('.cat-chip[data-id="RIWAYAT"]');
+    await chips(page).filter({ hasText: 'ورش عن نافع' }).click();
+    assert.equal(await cardCount(page), 2);
+    assert.deepEqual([...new Set(await page.locator('.station-riwaya').allInnerTexts())], ['ورش عن نافع']);
+    assert.match(await page.locator('#stationsCountBadge').innerText(), /2/);
+
+    await chips(page).first().click();
+    assert.equal(await cardCount(page), 10);
+
+    await chips(page).filter({ hasText: 'قالون عن نافع' }).click();
+    await page.click('.cat-chip[data-id="POPULAR"]');
+    await page.click('.cat-chip[data-id="RIWAYAT"]');
+    assert.equal(await cardCount(page), 10, 'leaving the tab resets the riwaya filter');
+  });
+
+  it('uses the English names after a language switch', async () => {
+    const page = await open();
+    await page.click('.cat-chip[data-id="RIWAYAT"]');
+    await page.click('#langToggleBtn');
+    await page.waitForFunction(() => document.querySelector('.riwaya-chip')?.textContent.includes('All riwayat'));
+    await chips(page).filter({ hasText: 'Warsh from Nafi' }).click();
+    assert.equal(await cardCount(page), 2);
+  });
+});
+
+describe('volume control', () => {
+  const open2 = async () => {
+    const page = await open();
+    await page.locator('.station-card').nth(2).locator('.station-name').click();
+    await waitState(page, 'playing');
+    await page.click('#mobilePlayerBar .mini-bar-info');
+    return page;
+  };
+  const full = (page) => page.locator('#mobileFullPlayerOverlay [data-volume-control]');
+  const setSlider = (page, value) => full(page).locator('[data-volume-slider]').evaluate((el, v) => {
+    el.value = v;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  }, value);
+
+  it('puts high volume on the right in Arabic and fills the track up to the thumb', async () => {
+    const page = await open2();
+    const slider = full(page).locator('[data-volume-slider]');
+    assert.equal(await slider.evaluate((el) => getComputedStyle(el).direction), 'ltr');
+    assert.equal((await full(page).locator('[data-volume-value]').innerText()).trim(), '100%');
+    await setSlider(page, 0.3);
+    assert.equal(await slider.evaluate((el) => el.style.getPropertyValue('--vol')), '30%');
+    assert.equal((await full(page).locator('[data-volume-value]').innerText()).trim(), '30%');
+    assert.equal(await page.evaluate(() => window.app.player.audio.volume), 0.3);
+  });
+
+  it('mutes and restores the previous level, and keeps both controls in sync', async () => {
+    const page = await open2();
+    await setSlider(page, 0.3);
+    await full(page).locator('[data-volume-mute]').click();
+    assert.equal(await page.evaluate(() => window.app.player.audio.muted), true);
+    assert.equal(await full(page).locator('[data-volume-mute]').getAttribute('aria-pressed'), 'true');
+    assert.equal((await full(page).locator('[data-volume-value]').innerText()).trim(), '0%');
+    const hero = page.locator('.hero-player-panel [data-volume-control]');
+    assert.equal(await hero.evaluate((el) => el.classList.contains('is-muted')), true);
+
+    await full(page).locator('[data-volume-mute]').click();
+    assert.equal(await page.evaluate(() => window.app.player.audio.muted), false);
+    assert.equal(await page.evaluate(() => window.app.player.audio.volume), 0.3);
+    assert.equal((await hero.locator('[data-volume-value]').innerText()).trim(), '30%');
+  });
+
+  it('moving the slider while muted unmutes, and the level survives a reload', async () => {
+    const page = await open2();
+    await full(page).locator('[data-volume-mute]').click();
+    await setSlider(page, 0.6);
+    assert.equal(await page.evaluate(() => window.app.player.audio.muted), false);
+    await page.reload();
+    await page.waitForSelector('.station-card');
+    assert.equal(await page.evaluate(() => window.app.player.audio.volume), 0.6);
+    assert.equal(await page.evaluate(() => window.app.player.muted), false);
+  });
+});

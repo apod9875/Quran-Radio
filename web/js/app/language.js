@@ -20,6 +20,7 @@ Object.assign(App.prototype, {
     this.renderStations();
     this._updatePlayerUi(this.player.state, this.player.currentStation);
     this._updateTimerUi(this.player.sleepTimerRemaining);
+    if (this.player.supportsVolume) this._renderVolume();
     if (this.dom.cacheModal.classList.contains('active')) this.updateCacheModalMetrics();
   },
 

@@ -1,0 +1,61 @@
+/* Riwaya filter: a smaller second chip row under the category tabs, same gutter alignment */
+.riwaya-filter {
+  display: flex;
+  gap: 6px;
+  margin: -6px 0 14px;
+  padding: 2px 2px 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  touch-action: manipulation;
+}
+
+.riwaya-filter[hidden] {
+  display: none;
+}
+
+.riwaya-filter::-webkit-scrollbar {
+  display: none;
+}
+
+.riwaya-chip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid rgba(226, 186, 85, 0.4);
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.riwaya-chip:hover {
+  background: rgba(226, 186, 85, 0.15);
+}
+
+.riwaya-chip.active {
+  background: var(--gold);
+  color: #111e19;
+  border-color: var(--gold);
+}
+
+.riwaya-count {
+  min-width: 1.5em;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  background: rgba(226, 186, 85, 0.18);
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+.riwaya-chip.active .riwaya-count {
+  background: rgba(17, 30, 25, 0.18);
+}

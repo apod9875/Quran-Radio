@@ -2,7 +2,7 @@
  * Service worker configuration.
  * Bump CACHE_STATIC whenever STATIC_ASSETS changes (a new file, a rename, a removal).
  */
-const CACHE_STATIC = 'quran-radio-static-v2.1.0';
+const CACHE_STATIC = 'quran-radio-static-v2.2.0';
 const CACHE_AUDIO = 'quran-radio-audio-v5';
 const MAX_AUDIO_CACHE_BYTES = 10 * 1024 * 1024 * 1024; // 10 GB
 
@@ -21,9 +21,11 @@ const STATIC_ASSETS = [
   './css/header.css',
   './css/layout.css',
   './css/search-categories.css',
+  './css/riwaya-filter.css',
   './css/stations.css',
   './css/station-actions.css',
   './css/hero-player.css',
+  './css/volume.css',
   './css/mobile-player.css',
   './css/toast-banner.css',
   './css/modals.css',
@@ -51,8 +53,10 @@ const STATIC_ASSETS = [
   './js/app/extra-stations.js',
   './js/app/render-card.js',
   './js/app/render.js',
+  './js/app/riwaya-filter.js',
   './js/app/events.js',
   './js/app/player-ui.js',
+  './js/app/volume-ui.js',
   './js/app/cache-ui.js',
   './js/app/modals.js',
   './js/app/boot.js',

@@ -59,6 +59,7 @@ Object.assign(App.prototype, {
         url,
         category: categorizeStation(url, name),
         riwaya: window.QRUtils.riwayaName(url, this.lang),
+        riwayaId: window.QRUtils.riwayaId(url),
         pinned: !!item.pinned,
         searchKey: normalizeArabic(name)
       });
@@ -80,7 +81,8 @@ Object.assign(App.prototype, {
     return this.stations.filter((s) => {
       const inCategory = this.activeCategory === 'ALL'
         || (this.activeCategory === 'FAVORITES' ? this.favorites.has(s.id) : s.category === this.activeCategory);
-      return inCategory && (!query || s.searchKey.includes(query));
+      const inRiwaya = this.activeCategory !== 'RIWAYAT' || this.activeRiwaya === 'ALL' || s.riwayaId === this.activeRiwaya;
+      return inCategory && inRiwaya && (!query || s.searchKey.includes(query));
     });
   },
 

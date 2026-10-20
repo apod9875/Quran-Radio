@@ -77,20 +77,29 @@
   }
 
   // Only riwayat that the stream name proves; nothing is guessed for other stations.
-  const RIWAYA_BY_SLUG = [
-    [/warsh/, { ar: 'ورش عن نافع', eng: 'Warsh from Nafi' }],
-    [/qalon|qaloon/, { ar: 'قالون عن نافع', eng: 'Qalun from Nafi' }],
-    [/albizi/, { ar: 'البزي عن ابن كثير', eng: 'Al-Bazzi from Ibn Kathir' }],
-    [/assosi/, { ar: 'السوسي عن أبي عمرو', eng: 'As-Susi from Abu Amr' }],
-    [/aldor(?:a)?i/, { ar: 'الدوري عن أبي عمرو', eng: 'Ad-Duri from Abu Amr' }],
-    [/soufi_khalaf/, { ar: 'خلف عن حمزة', eng: 'Khalaf from Hamzah' }],
-    [/ibn_thakwan/, { ar: 'ابن ذكوان عن ابن عامر', eng: 'Ibn Dhakwan from Ibn Amir' }]
+  const RIWAYAT = [
+    { id: 'warsh', pattern: /warsh/, ar: 'ورش عن نافع', eng: 'Warsh from Nafi' },
+    { id: 'qalon', pattern: /qalon|qaloon/, ar: 'قالون عن نافع', eng: 'Qalun from Nafi' },
+    { id: 'albizi', pattern: /albizi/, ar: 'البزي عن ابن كثير', eng: 'Al-Bazzi from Ibn Kathir' },
+    { id: 'assosi', pattern: /assosi/, ar: 'السوسي عن أبي عمرو', eng: 'As-Susi from Abu Amr' },
+    { id: 'aldori', pattern: /aldor(?:a)?i/, ar: 'الدوري عن أبي عمرو', eng: 'Ad-Duri from Abu Amr' },
+    { id: 'khalaf', pattern: /soufi_khalaf/, ar: 'خلف عن حمزة', eng: 'Khalaf from Hamzah' },
+    { id: 'ibnthakwan', pattern: /ibn_thakwan/, ar: 'ابن ذكوان عن ابن عامر', eng: 'Ibn Dhakwan from Ibn Amir' }
   ];
 
-  function riwayaName(url, lang) {
+  function findRiwaya(url) {
     const slug = stationSlug(url);
-    const match = RIWAYA_BY_SLUG.find(([pattern]) => pattern.test(slug));
-    return match ? match[1][lang === 'ar' ? 'ar' : 'eng'] : null;
+    return RIWAYAT.find((r) => r.pattern.test(slug)) || null;
+  }
+
+  function riwayaName(url, lang) {
+    const riwaya = findRiwaya(url);
+    return riwaya ? riwaya[lang === 'ar' ? 'ar' : 'eng'] : null;
+  }
+
+  function riwayaId(url) {
+    const riwaya = findRiwaya(url);
+    return riwaya ? riwaya.id : null;
   }
 
   // Sort key: ignore leading punctuation and the generic "Radio" / "إذاعة" prefix
@@ -111,6 +120,7 @@
 
   const api = {
     riwayaName,
+    riwayaId,
     nameSortKey,
     sortStations,
     normalizeArabic,

@@ -8,6 +8,7 @@ class App {
     const { readStorage, safeJson } = window.QRUtils;
     this.lang = readStorage('mp3quran_lang') === 'eng' ? 'eng' : 'ar';
     this.activeCategory = 'ALL';
+    this.activeRiwaya = 'ALL';
     this.searchQuery = '';
     this.stations = [];
     this.stationsById = new Map();
@@ -25,9 +26,6 @@ class App {
     this.dom = window.QR_cacheDom();
     this.player = new window.AudioStreamPlayer();
     this.player.getOfflineUrl = (station) => this.getOfflineUrl(station);
-
-    this.dom.heroVolumeSlider.value = this.player.volume;
-    this.dom.fullPlayerVolumeSlider.value = this.player.volume;
 
     this._bindEvents();
     this._setupPwa();

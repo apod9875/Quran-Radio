@@ -116,6 +116,26 @@ for (const width of WIDTHS) {
         await ctx.page.evaluate(() => window.app.player.stop());
       });
 
+      it('keeps the riwaya filter and the volume control on the gutter', async () => {
+        await ctx.page.click('.cat-chip[data-id="RIWAYAT"]');
+        const bar = await box(ctx.page, '#riwayaBar');
+        const tabs = await box(ctx.page, '.categories-bar');
+        near(bar.left, tabs.left, 'riwaya bar left edge');
+        near(bar.right, tabs.right, 'riwaya bar right edge');
+        await ctx.page.click('.cat-chip[data-id="ALL"]');
+
+        if (width >= 960) return; // the full player only exists below 960px
+        await ctx.page.evaluate(() => window.app.player.play(window.app.stations[3]));
+        await ctx.page.waitForSelector('.mobile-player-bar.visible');
+        await ctx.page.click('#mobilePlayerBar .mini-bar-info');
+        const volume = await box(ctx.page, '#mobileFullPlayerOverlay [data-volume-control]');
+        assert.ok(volume.left >= 0 && volume.right <= width, `volume row spans ${volume.left}..${volume.right}`);
+        const slider = await box(ctx.page, '#mobileFullPlayerOverlay .volume-slider');
+        assert.ok(slider.width >= 100, `slider is only ${slider.width}px wide`);
+        await ctx.page.click('#closeFullPlayerBtn');
+        await ctx.page.evaluate(() => window.app.player.stop());
+      });
+
       it('keeps the toast and the modals inside the viewport', async () => {
         await ctx.page.evaluate(() => window.app.showToast('رسالة طويلة جداً '.repeat(12)));
         await ctx.page.waitForSelector('.toast-notification.show');

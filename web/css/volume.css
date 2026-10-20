@@ -1,0 +1,106 @@
+/* Volume control: always left-to-right (low on the left, high on the right) in Arabic too */
+.volume-control {
+  direction: ltr;
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.volume-control[hidden] {
+  display: none;
+}
+
+.volume-control--full {
+  margin-bottom: 24px;
+}
+
+.volume-mute-btn {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface-variant);
+  color: var(--text-main);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.volume-mute-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.volume-control.is-muted .volume-mute-btn {
+  color: var(--red-live);
+  border-color: rgba(239, 83, 80, 0.5);
+}
+
+/* The slider is 28px tall so it is easy to hit; the visible track is 6px */
+.volume-slider {
+  --vol: 100%;
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.volume-slider:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.volume-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--gold) var(--vol), var(--surface-variant) var(--vol));
+}
+
+.volume-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--gold) var(--vol), var(--surface-variant) var(--vol));
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: -7px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid var(--bg-main);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid var(--bg-main);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+}
+
+.volume-value {
+  flex: 0 0 3.4em;
+  text-align: right;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.volume-control.is-muted .volume-value {
+  color: var(--red-live);
+}

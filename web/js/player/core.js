@@ -32,11 +32,15 @@ class AudioStreamPlayer {
     this.sleepTimerInterval = null;
     this.isOffline = !navigator.onLine;
 
-    this.listeners = { state: [], timer: [], offline: [], skip: [] };
+    this.listeners = { state: [], timer: [], offline: [], skip: [], volume: [] };
 
     const savedVolume = parseFloat(window.QRUtils.readStorage('mp3quran_volume'));
     this.volume = Number.isFinite(savedVolume) ? Math.max(0, Math.min(1, savedVolume)) : 1;
+    this.lastVolume = this.volume > 0 ? this.volume : 0.5;
+    this.muted = window.QRUtils.readStorage('mp3quran_muted') === '1';
     this.audio.volume = this.volume;
+    this.audio.muted = this.muted;
+    this.supportsVolume = this._detectVolumeSupport();
 
     this._bindAudioEvents();
     this._bindNetworkEvents();
@@ -46,6 +50,7 @@ class AudioStreamPlayer {
   onTimerTick(callback) { this.listeners.timer.push(callback); }
   onOfflineChange(callback) { this.listeners.offline.push(callback); }
   onSkip(callback) { this.listeners.skip.push(callback); }
+  onVolumeChange(callback) { this.listeners.volume.push(callback); }
 
   _setState(state) {
     this.state = state;
@@ -97,10 +102,45 @@ class AudioStreamPlayer {
     this._setState('idle');
   }
 
+  // iOS Safari ignores audio.volume (the hardware buttons control the sound), so the UI hides itself there
+  _detectVolumeSupport() {
+    try {
+      const previous = this.audio.volume;
+      this.audio.volume = 0.5;
+      const works = Math.abs(this.audio.volume - 0.5) < 0.01;
+      this.audio.volume = previous;
+      return works;
+    } catch (e) {
+      return false;
+    }
+  }
+
   setVolume(volume) {
     this.volume = Math.max(0, Math.min(1, volume));
+    if (this.volume > 0) {
+      this.lastVolume = this.volume;
+      this.muted = false;
+    }
+    this._applyVolume();
+  }
+
+  // Mute keeps the slider position; unmuting from a zero level restores the last audible one
+  toggleMute() {
+    if (this.muted || this.volume === 0) {
+      this.muted = false;
+      if (this.volume === 0) this.volume = this.lastVolume;
+    } else {
+      this.muted = true;
+    }
+    this._applyVolume();
+  }
+
+  _applyVolume() {
     this.audio.volume = this.volume;
+    this.audio.muted = this.muted;
     window.QRUtils.writeStorage('mp3quran_volume', String(this.volume));
+    window.QRUtils.writeStorage('mp3quran_muted', this.muted ? '1' : '0');
+    this.listeners.volume.forEach((cb) => cb(this.volume, this.muted));
   }
 
   // The station list is re-fetched when the language changes; keep the playing station's name fresh.
