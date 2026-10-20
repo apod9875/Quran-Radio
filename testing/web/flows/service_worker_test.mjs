@@ -92,13 +92,49 @@ describe('service worker', () => {
     assert.equal(await flag(), false);
   });
 
-  it('plays the saved sample when the connection is lost', async () => {
+  it('plays a saved station from the cache modal', async () => {
+    await ctx.page.click('#cacheBtn');
+    await ctx.page.locator('#cachedStationsList .cached-item-row').first().click();
+    await ctx.page.waitForFunction((id) => window.app.player.currentStation?.id === id, stationId);
+    assert.equal(await ctx.page.locator('#cacheModal.active').count(), 0, 'the modal closes');
+    await ctx.page.evaluate(() => window.app.player.stop());
+  });
+
+  it('reloads without a connection and opens the Saved offline tab', async () => {
     await ctx.context.setOffline(true);
-    await ctx.page.evaluate((id) => window.app.player.play(window.app.stationsById.get(id)), stationId);
+    await ctx.page.reload({ waitUntil: 'load' });
+    await ctx.page.waitForSelector('.station-card', { timeout: 15000 });
+    assert.ok(await ctx.page.locator('#offlineBanner').isVisible());
+    assert.ok(await ctx.page.evaluate(() => document.body.classList.contains('is-offline')));
+    assert.equal(await ctx.page.locator('.cat-chip.active').getAttribute('data-id'), 'OFFLINE');
+    assert.equal(await ctx.page.locator('.station-card').count(), 1);
+    assert.equal(await ctx.page.locator('.station-card .offline-ready-badge').count(), 1);
+  });
+
+  it('plays the saved sample offline and says so', async () => {
+    await ctx.page.locator('.station-card').first().locator('.station-name').click();
     await ctx.page.waitForFunction(() => window.app.player.state === 'playing', null, { timeout: 15000 });
     assert.equal(await ctx.page.evaluate(() => window.app.player.usingOffline), true);
+    assert.match(await ctx.page.locator('#mobileBarStatus').innerText(), /المقطع المحفوظ/);
     await ctx.page.evaluate(() => window.app.player.stop());
+  });
+
+  it('dims unsaved stations and fails at once with a clear message', async () => {
+    await ctx.page.click('.cat-chip[data-id="ALL"]');
+    const dimmed = await ctx.page.locator('.station-card:not(.is-saved)').first()
+      .evaluate((el) => Number(getComputedStyle(el).opacity));
+    assert.ok(dimmed < 1, 'unsaved stations are dimmed while offline');
+
+    await ctx.page.locator('.station-card:not(.is-saved)').first().locator('.station-name').click();
+    await ctx.page.waitForFunction(() => window.app.player.state === 'error', null, { timeout: 3000 });
+    assert.match(await ctx.page.locator('.toast-notification').innerText(), /غير محفوظة/);
+  });
+
+  it('refuses to save a station without a connection', async () => {
+    await ctx.page.locator('.station-card:not(.is-saved)').first().locator('[data-action="precache"]').click();
+    assert.match(await ctx.page.locator('.toast-notification').innerText(), /يحتاج اتصالاً/);
     await ctx.context.setOffline(false);
+    await ctx.page.evaluate(() => window.app.player.stop());
   });
 
   it('clears the saved stations and their badges', async () => {

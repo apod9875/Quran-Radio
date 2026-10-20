@@ -17,6 +17,18 @@ Object.assign(App.prototype, {
     bind(d.refreshUnusedCacheBtn, () => this.refreshUnusedCache());
     bind(d.clearAllCacheBtn, () => this.clearAllCache());
 
+    const playSavedRow = (e) => {
+      const row = e.target.closest('.cached-item-row');
+      const station = row && this.stationsById.get(Number(row.dataset.stationId));
+      if (!station) return;
+      this.closeCacheModal();
+      this.playOrToggle(station);
+    };
+    d.cachedStationsList.addEventListener('click', playSavedRow);
+    d.cachedStationsList.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); playSavedRow(e); }
+    });
+
     document.querySelectorAll('.modal-overlay').forEach((overlay) => {
       overlay.addEventListener('click', (e) => {
         if (e.target === overlay) overlay.classList.remove('active');

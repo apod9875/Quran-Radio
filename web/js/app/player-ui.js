@@ -3,9 +3,13 @@ Object.assign(App.prototype, {
   _statusText(state) {
     const t = this.t;
     if (state === 'buffering') return t.connecting;
-    if (state === 'playing') return t.live;
-    if (state === 'error') return t.streamError;
+    if (state === 'playing') return this.player.usingOffline ? t.offlinePlaying : t.live;
+    if (state === 'error') return this._errorText();
     return t.paused;
+  },
+
+  _errorText() {
+    return this.player.errorReason === 'offline-unsaved' ? this.t.offlineUnsaved : this.t.streamError;
   },
 
   _favIcon(isFav, size) {
@@ -67,7 +71,7 @@ Object.assign(App.prototype, {
     });
     this.shownStationId = station.id;
 
-    if (state === 'error' && this.lastPlayerState !== 'error') this.showToast(t.streamError);
+    if (state === 'error' && this.lastPlayerState !== 'error') this.showToast(this._errorText());
     if (busy && this.lastPlayerState !== 'buffering' && this.cachedIds.has(station.id)) {
       window.QR_SW.post({ type: 'TOUCH_AUDIO', stationId: station.id });
     }

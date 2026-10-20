@@ -5,6 +5,7 @@ const CATEGORIES = [
   { id: 'RIWAYAT', key: 'riwayat' },
   { id: 'TAFSEER', key: 'tafseer' },
   { id: 'TRANSLATIONS', key: 'translations' },
+  { id: 'OFFLINE', key: 'savedOffline' },
   { id: 'FAVORITES', key: 'favorites' }
 ];
 
@@ -13,7 +14,7 @@ Object.assign(App.prototype, {
   renderCategories() {
     const t = this.t;
     const present = new Set(this.stations.map((s) => s.category));
-    const visible = CATEGORIES.filter((c) => c.id === 'ALL' || c.id === 'FAVORITES' || present.has(c.id));
+    const visible = CATEGORIES.filter((c) => ['ALL', 'OFFLINE', 'FAVORITES'].includes(c.id) || present.has(c.id));
     if (!visible.some((c) => c.id === this.activeCategory)) this.activeCategory = 'ALL';
 
     this.renderRiwayaFilter();
@@ -53,7 +54,7 @@ Object.assign(App.prototype, {
       this.dom.stationsContainer.innerHTML = this.stations.length === 0 ? '' : `
         <div class="empty-state">
           <span class="empty-state-icon">${window.SvgIcons.radio(40)}</span>
-          <p>${window.QRUtils.escapeHtml(t.noResults)}</p>
+          <p>${window.QRUtils.escapeHtml(this.activeCategory === 'OFFLINE' && !this.searchQuery ? t.noOffline : t.noResults)}</p>
         </div>`;
       return;
     }

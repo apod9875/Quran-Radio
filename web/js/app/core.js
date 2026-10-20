@@ -16,6 +16,7 @@ class App {
     this.fetchToken = 0;
     this.cachedIds = new Set();
     this.precaching = new Set();
+    this.autoOfflineShown = false;
     this.shownStationId = null;
     this.lastPlayerState = 'idle';
     this.deferredInstallPrompt = null;
@@ -57,7 +58,11 @@ class App {
     const banner = this.dom.offlineBanner;
     if (!banner) return;
     banner.style.display = isOffline ? 'block' : 'none';
-    if (isOffline) this.dom.offlineBannerText.textContent = this.t.offlineNotice;
+    document.body.classList.toggle('is-offline', isOffline);
+    if (isOffline) {
+      this.dom.offlineBannerText.textContent = this.t.offlineNotice;
+      this._showSavedWhenOffline();
+    }
   }
 }
 

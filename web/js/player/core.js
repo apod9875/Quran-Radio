@@ -25,6 +25,7 @@ class AudioStreamPlayer {
     this.retryTimer = null;
     this.pausedAt = 0;
     this.usingOffline = false;
+    this.errorReason = null;
     this.getOfflineUrl = null; // set by the app: station => same-origin URL of a saved sample, or null
 
     this.sleepTimerRemaining = null;

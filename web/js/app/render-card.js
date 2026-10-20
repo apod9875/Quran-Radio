@@ -35,7 +35,7 @@ Object.assign(App.prototype, {
       : '';
 
     return `
-      <div class="station-card${isCurrent ? ' active' : ''}" data-id="${station.id}" tabindex="0" role="button">
+      <div class="station-card${isCurrent ? ' active' : ''}${isCached ? ' is-saved' : ''}" data-id="${station.id}" tabindex="0" role="button">
         <div class="station-left">
           <span class="station-index-badge">#${String(index + 1).padStart(2, '0')}</span>
           <div class="station-thumb">

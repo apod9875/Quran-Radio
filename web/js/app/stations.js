@@ -80,7 +80,9 @@ Object.assign(App.prototype, {
     const query = window.QRUtils.normalizeArabic(this.searchQuery);
     return this.stations.filter((s) => {
       const inCategory = this.activeCategory === 'ALL'
-        || (this.activeCategory === 'FAVORITES' ? this.favorites.has(s.id) : s.category === this.activeCategory);
+        || (this.activeCategory === 'FAVORITES' && this.favorites.has(s.id))
+        || (this.activeCategory === 'OFFLINE' && this.cachedIds.has(s.id))
+        || s.category === this.activeCategory;
       const inRiwaya = this.activeCategory !== 'RIWAYAT' || this.activeRiwaya === 'ALL' || s.riwayaId === this.activeRiwaya;
       return inCategory && inRiwaya && (!query || s.searchKey.includes(query));
     });

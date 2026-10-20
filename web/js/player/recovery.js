@@ -30,7 +30,14 @@ Object.assign(AudioStreamPlayer.prototype, {
   },
 
   _startStation() {
-    if (!navigator.onLine && this._tryOfflineCopy()) return;
+    this.errorReason = null;
+    if (!navigator.onLine) {
+      if (this._tryOfflineCopy()) return;
+      // Nothing to play without a connection: say so now instead of spinning through retries
+      this.errorReason = 'offline-unsaved';
+      this._setState('error');
+      return;
+    }
     this._loadStream(this.currentStation.url, false);
   },
 

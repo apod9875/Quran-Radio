@@ -153,6 +153,7 @@
 }
 
 .cached-item-row {
+  cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -180,4 +181,8 @@
   color: var(--text-muted);
   font-size: 0.75rem;
   flex-shrink: 0;
+}
+
+.cached-item-row:hover {
+  border-color: var(--gold);
 }

@@ -70,7 +70,10 @@ Object.assign(AudioStreamPlayer.prototype, {
       const wasPlaying = this.state === 'playing' || this.state === 'buffering';
       if (wasPlaying && !this.usingOffline) {
         this._cancelPending();
-        if (!this._tryOfflineCopy()) this._setState('error');
+        if (!this._tryOfflineCopy()) {
+          this.errorReason = 'offline-unsaved';
+          this._setState('error');
+        }
       }
     });
   }

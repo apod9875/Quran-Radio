@@ -159,3 +159,8 @@
   color: var(--gold);
   margin-bottom: 8px;
 }
+
+/* Without a connection only saved stations can play: dim the rest */
+.is-offline .station-card:not(.is-saved) {
+  opacity: 0.45;
+}
