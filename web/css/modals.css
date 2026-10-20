@@ -3,7 +3,7 @@
   display: none;
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: 260; /* above the full-screen player (250) so its timer/cache dialogs are visible */
   background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);

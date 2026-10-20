@@ -75,16 +75,18 @@ Object.assign(App.prototype, {
   },
 
   _updateTimerUi(seconds) {
-    const badge = this.dom.heroTimerBadge;
+    const badges = [this.dom.heroTimerBadge, this.dom.fullTimerBadge];
     if (!seconds || seconds <= 0) {
-      badge.style.display = 'none';
+      badges.forEach((badge) => { badge.style.display = 'none'; });
       this.dom.timerRemainingText.textContent = '';
       return;
     }
     const clock = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
     const label = window.QRUtils.escapeHtml(this.t.sleepIn);
-    badge.style.display = 'inline-block';
-    badge.innerHTML = `${window.SvgIcons.moon(14)} ${label} <bdi dir="ltr">${clock}</bdi>`;
+    badges.forEach((badge) => {
+      badge.style.display = 'inline-block';
+      badge.innerHTML = `${window.SvgIcons.moon(14)} ${label} <bdi dir="ltr">${clock}</bdi>`;
+    });
     this.dom.timerRemainingText.textContent = `${this.t.sleepIn} ${clock}`;
   },
 

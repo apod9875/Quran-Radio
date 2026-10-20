@@ -221,3 +221,24 @@ describe('language, modals and content', () => {
     assert.equal(await cardCount(page), expected);
   });
 });
+
+describe('sleep timer inside the full-screen player', () => {
+  it('shows the timer dialog on top and the countdown without closing the player', async () => {
+    const page = await open();
+    await card(page, 0).locator('.station-name').click();
+    await waitState(page, 'playing');
+    await page.click('#mobilePlayerBar .mini-bar-info');
+    await page.click('#fullPlayerTimerBtn');
+
+    const onTop = await page.evaluate(() => {
+      const chip = document.querySelector('#timerGrid .btn-timer-chip').getBoundingClientRect();
+      const hit = document.elementFromPoint(chip.left + chip.width / 2, chip.top + chip.height / 2);
+      return !!hit.closest('#timerModal');
+    });
+    assert.ok(onTop, 'the timer dialog is hidden behind the full player');
+
+    await page.click('#timerGrid .btn-timer-chip');
+    assert.ok(await page.locator('#fullPlayerTimerBadge, #fullTimerBadge').first().isVisible());
+    assert.match(await page.locator('#fullTimerBadge').innerText(), /\d\d:\d\d/);
+  });
+});

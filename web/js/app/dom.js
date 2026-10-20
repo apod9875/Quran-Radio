@@ -5,7 +5,7 @@ window.QR_cacheDom = function () {
     'devicesBtn', 'cacheBtn', 'offlineBanner', 'offlineBannerText',
     'searchInput', 'clearSearchBtn', 'stationsCountBadge', 'categoriesBar', 'stationsContainer',
     'heroTitle', 'heroCategory', 'heroIndicatorText', 'heroPlayBtn', 'heroPrevBtn', 'heroNextBtn',
-    'heroFavBtn', 'heroTimerBtn', 'heroShareBtn', 'heroVolumeSlider', 'heroTimerBadge',
+    'heroFavBtn', 'heroTimerBtn', 'heroShareBtn', 'heroVolumeSlider', 'heroTimerBadge', 'fullTimerBadge',
     'mobilePlayerBar', 'mobileBarTitle', 'mobileBarStatus', 'mobileBarPlayBtn', 'mobileBarFavBtn',
     'mobileFullPlayerOverlay', 'closeFullPlayerBtn', 'fullPlayerTitle', 'fullPlayerCategory',
     'fullPlayerPlayBtn', 'fullPlayerPrevBtn', 'fullPlayerNextBtn', 'fullPlayerFavBtn',
