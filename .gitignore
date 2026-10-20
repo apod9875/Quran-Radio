@@ -19,3 +19,7 @@ app/build/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Node tooling
+node_modules/
+test-results/

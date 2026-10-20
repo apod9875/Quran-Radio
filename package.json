@@ -1,0 +1,18 @@
+{
+  "name": "quran-radio",
+  "private": true,
+  "description": "Quran Radio: the web app (PWA in web/) and the Android app (app/)",
+  "scripts": {
+    "check": "node scripts/check-file-lines.mjs && node scripts/check-test-location.mjs",
+    "test": "node --test --test-concurrency=1 \"testing/**/*_test.mjs\"",
+    "test:unit": "node --test \"testing/web/unit/*_test.mjs\"",
+    "test:layout": "node --test --test-concurrency=1 \"testing/web/layout/*_test.mjs\"",
+    "test:flows": "node --test --test-concurrency=1 \"testing/web/flows/*_test.mjs\""
+  },
+  "devDependencies": {
+    "playwright": "1.64.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
