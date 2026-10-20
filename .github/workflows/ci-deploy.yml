@@ -1,4 +1,4 @@
-name: web-checks
+name: ci-deploy
 
 on:
   push:
@@ -21,3 +21,17 @@ jobs:
         run: npm run check
       - name: Unit, layout and flow tests
         run: npm test
+
+  deploy:
+    needs: web
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy ./web to the quran-radio Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
