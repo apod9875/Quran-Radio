@@ -4,6 +4,11 @@ Object.assign(App.prototype, {
     return this.t[station.category.toLowerCase()] || station.category;
   },
 
+  // "Hafs from Asim"-style label when known, otherwise the tab name
+  _categoryLine(station) {
+    return station.riwaya || this._categoryLabel(station);
+  },
+
   _playIcon(isCurrent, state, size) {
     const icons = window.SvgIcons;
     if (isCurrent && state === 'buffering') return icons.spinner(size);
@@ -39,7 +44,7 @@ Object.assign(App.prototype, {
           <div class="station-details">
             <div class="station-name">${escapeHtml(station.name)}</div>
             <div class="station-meta">
-              <span class="station-badge">${escapeHtml(this._categoryLabel(station))}</span>
+              <span class="station-badge${station.riwaya ? ' station-riwaya' : ''}">${escapeHtml(this._categoryLine(station))}</span>
               ${cachedBadge}${wave}
             </div>
           </div>

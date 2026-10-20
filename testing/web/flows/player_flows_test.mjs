@@ -181,11 +181,11 @@ describe('language, modals and content', () => {
     await card(page, 0).locator('.station-name').click();
     await waitState(page, 'playing');
     await page.click('#langToggleBtn');
-    await page.waitForFunction(() => document.querySelector('.station-name')?.textContent.startsWith('Radio'));
+    await page.waitForFunction(() => document.querySelector('.station-name')?.textContent.startsWith('Holy Quran'));
     assert.equal(await page.evaluate(() => document.documentElement.dir), 'ltr');
     assert.equal(await page.locator('#appTitle').innerText(), 'MP3Quran Live Radio');
     assert.equal(await page.locator('#mobileBarStatus').innerText(), 'LIVE 24/7');
-    assert.match(await page.locator('#mobileBarTitle').innerText(), /^Radio /);
+    assert.match(await page.locator('#mobileBarTitle').innerText(), /^Holy Quran Radio/);
     assert.equal(await page.locator('#closeCacheBtn').getAttribute('aria-label'), 'Close');
   });
 
@@ -211,14 +211,14 @@ describe('language, modals and content', () => {
       radios: () => [{ id: 1, name: '<img src=x onerror="window.__xss=1">Reciter', url: 'https://backup.qurango.net/radio/x' }]
     });
     assert.equal(await page.evaluate(() => window.__xss), undefined);
-    assert.match(await page.locator('.station-name').innerText(), /<img src=x/);
+    assert.equal(await page.locator('.station-name', { hasText: '<img src=x' }).count(), 1);
     assert.equal(await page.locator('.station-name img').count(), 0);
   });
 
   it('falls back to the built-in stations when the API is down', async () => {
     const page = await open({ apiStatus: 500 });
     const expected = await page.evaluate(() => window.FALLBACK_STATIONS.ar.length);
-    assert.equal(await cardCount(page), expected);
+    assert.equal(await cardCount(page), expected + 1, 'fallback stations plus the Egyptian radio');
   });
 });
 
@@ -240,5 +240,42 @@ describe('sleep timer inside the full-screen player', () => {
     await page.click('#timerGrid .btn-timer-chip');
     assert.ok(await page.locator('#fullPlayerTimerBadge, #fullTimerBadge').first().isVisible());
     assert.match(await page.locator('#fullTimerBadge').innerText(), /\d\d:\d\d/);
+  });
+});
+
+describe('Egyptian radio, alphabetical order and riwayat', () => {
+  it('pins the Cairo Quran radio first and plays it', async () => {
+    const page = await open();
+    assert.equal(await card(page, 0).getAttribute('data-id'), '900001');
+    assert.equal(await card(page, 0).locator('.station-name').innerText(), 'إذاعة القرآن الكريم من القاهرة');
+    await card(page, 0).locator('.station-name').click();
+    await page.waitForFunction(() => window.app.player.currentStation.id === 900001);
+  });
+
+  it('lists the other stations alphabetically in Arabic and English', async () => {
+    const page = await open();
+    for (const lang of ['ar', 'eng']) {
+      if (lang === 'eng') {
+        await page.click('#langToggleBtn');
+        await page.waitForFunction(() => document.querySelector('.station-name')?.textContent.startsWith('Holy Quran'));
+      }
+      const ok = await page.evaluate((l) => {
+        const { nameSortKey } = window.QRUtils;
+        const collator = new Intl.Collator(l === 'ar' ? 'ar' : 'en', { sensitivity: 'base', numeric: true });
+        const names = [...document.querySelectorAll('.station-name')].map((e) => e.textContent).slice(1);
+        return names.every((n, i) => i === 0 || collator.compare(nameSortKey(names[i - 1], l), nameSortKey(n, l)) <= 0);
+      }, lang);
+      assert.ok(ok, `${lang} list is not in alphabetical order`);
+    }
+  });
+
+  it('shows the riwaya name on every station of the Riwayat tab', async () => {
+    const page = await open();
+    await page.click('.cat-chip[data-id="RIWAYAT"]');
+    const badges = await page.locator('.station-card .station-riwaya').allInnerTexts();
+    assert.equal(badges.length, await cardCount(page));
+    assert.ok(badges.includes('ورش عن نافع') && badges.includes('قالون عن نافع'));
+    await page.click('#langToggleBtn');
+    await page.waitForFunction(() => document.querySelector('.station-riwaya')?.textContent.includes(' from '));
   });
 });

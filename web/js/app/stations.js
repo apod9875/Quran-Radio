@@ -44,7 +44,10 @@ Object.assign(App.prototype, {
     const { normalizeArabic, categorizeStation } = window.QRUtils;
     const seen = new Set();
     this.stations = [];
-    list.forEach((item) => {
+    const extras = (window.QR_EXTRA_STATIONS || []).map((extra) => ({
+      id: extra.id, name: extra.names[this.lang], url: extra.url, pinned: !!extra.pinned
+    }));
+    [...extras, ...list].forEach((item) => {
       const id = Number(item.id);
       const name = String(item.name || '').trim();
       const url = String(item.url || '').trim();
@@ -55,9 +58,12 @@ Object.assign(App.prototype, {
         name,
         url,
         category: categorizeStation(url, name),
+        riwaya: window.QRUtils.riwayaName(url, this.lang),
+        pinned: !!item.pinned,
         searchKey: normalizeArabic(name)
       });
     });
+    this.stations = window.QRUtils.sortStations(this.stations, this.lang);
     this.stationsById = new Map(this.stations.map((s) => [s.id, s]));
   },
 

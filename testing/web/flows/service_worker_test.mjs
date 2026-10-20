@@ -15,6 +15,7 @@ let streams;
 let browser;
 let ctx;
 let stationId;
+let target;
 
 before(async () => {
   streams = await startStreamServer();
@@ -22,7 +23,8 @@ before(async () => {
   browser = await launchBrowser();
   const radios = (lang) => readRadios(lang).map((s, i) => (i === 0 ? { ...s, url: streams.endlessUrl } : s));
   ctx = await openApp(browser, server.url, { serviceWorkers: 'allow', radios, width: 393 });
-  stationId = Number(await ctx.page.locator('.station-card').first().getAttribute('data-id'));
+  stationId = readRadios('ar')[0].id;
+  target = ctx.page.locator(`.station-card[data-id="${stationId}"]`);
   await ctx.page.waitForFunction(() => navigator.serviceWorker.controller, null, { timeout: 30000 });
 });
 
@@ -48,7 +50,7 @@ describe('service worker', () => {
   });
 
   it('does not report a station as saved just because it was played', async () => {
-    await ctx.page.locator('.station-card').first().locator('.station-name').click();
+    await target.locator('.station-name').click();
     await ctx.page.waitForFunction(() => window.app.player.state === 'playing', null, { timeout: 15000 });
     await ctx.page.evaluate(() => window.app.player.stop());
     await ctx.page.evaluate(() => window.app.refreshCacheState());
@@ -56,8 +58,8 @@ describe('service worker', () => {
   });
 
   it('saves a sample of an endless stream and marks the station as offline ready', async () => {
-    await ctx.page.locator('.station-card').first().locator('[data-action="precache"]').click();
-    await ctx.page.locator('.station-card').first().locator('.offline-ready-badge').waitFor({ timeout: 60000 });
+    await target.locator('[data-action="precache"]').click();
+    await target.locator('.offline-ready-badge').waitFor({ timeout: 60000 });
 
     const full = await fetchOffline();
     assert.equal(full.status, 200);
@@ -78,21 +80,21 @@ describe('service worker', () => {
   });
 
   it('keeps the favorite flag of a saved station in sync', async () => {
-    await ctx.page.locator('.station-card').first().locator('[data-action="fav"]').click();
+    await target.locator('[data-action="fav"]').click();
     const flag = async () => ctx.page.evaluate(async () => {
       const data = await window.QR_SW.request({ type: 'GET_CACHE_METRICS' });
       return data.items[0].isFavorite;
     });
     await ctx.page.waitForTimeout(300);
     assert.equal(await flag(), true);
-    await ctx.page.locator('.station-card').first().locator('[data-action="fav"]').click();
+    await target.locator('[data-action="fav"]').click();
     await ctx.page.waitForTimeout(300);
     assert.equal(await flag(), false);
   });
 
   it('plays the saved sample when the connection is lost', async () => {
     await ctx.context.setOffline(true);
-    await ctx.page.evaluate(() => window.app.player.play(window.app.stations[0]));
+    await ctx.page.evaluate((id) => window.app.player.play(window.app.stationsById.get(id)), stationId);
     await ctx.page.waitForFunction(() => window.app.player.state === 'playing', null, { timeout: 15000 });
     assert.equal(await ctx.page.evaluate(() => window.app.player.usingOffline), true);
     await ctx.page.evaluate(() => window.app.player.stop());

@@ -71,6 +71,8 @@ describe('categorizeStation', () => {
     ['ali_alhuthaifi_qalon', 'RIWAYAT'],
     ['muftah_alsaltany_aldori_an_abi_amr', 'RIWAYAT'],
     ['mohammad_alabdullah_albizi', 'RIWAYAT'],
+    ['mohammad_alabdullah_aldorai', 'RIWAYAT'],
+    ['muftah_alsaltany_aldorai', 'RIWAYAT'],
     ['abdulrasheed_soufi_khalaf', 'RIWAYAT'],
     ['abdullah_alkhalaf', 'POPULAR'],
     ['yasser_aldosari', 'POPULAR'],

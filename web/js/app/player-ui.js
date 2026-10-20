@@ -38,7 +38,7 @@ Object.assign(App.prototype, {
       return;
     }
 
-    const category = this._categoryLabel(station);
+    const category = this._categoryLine(station);
     d.heroTitle.textContent = station.name;
     d.heroCategory.textContent = category;
     d.mobileBarTitle.textContent = station.name;
