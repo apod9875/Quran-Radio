@@ -2,7 +2,7 @@
  * Service worker configuration.
  * Bump CACHE_STATIC whenever STATIC_ASSETS changes (a new file, a rename, a removal).
  */
-const CACHE_STATIC = 'quran-radio-static-v3.3.0';
+const CACHE_STATIC = 'quran-radio-static-v3.4.0';
 
 // Shared with the page (js/core/storage-names.js); Node tests load it with require
 const STORAGE_NAMES = (typeof self !== 'undefined' && self.QR_STORAGE) || require('../js/core/storage-names.js');
@@ -82,6 +82,8 @@ const STATIC_ASSETS = [
   './icons/icon.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
+  './icons/icon-maskable-512.png',
+  './icons/favicon-32.png',
   './icons/apple-touch-icon.png'
 ];
 

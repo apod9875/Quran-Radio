@@ -1,7 +1,7 @@
 {
   "name": "إذاعة القرآن الكريم • Quran Radio",
   "short_name": "Quran Radio",
-  "description": "24/7 Live Holy Quran Radio streaming with loved-station offline audio caching - صدقة جارية لـ (عبدالرحيم معبد) • Mabed",
+  "description": "Live Holy Quran radio, Makkah and Madinah live, and Quran reciters with offline surah downloads - صدقة جارية لـ (عبدالرحيم معبد) • Mabed",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -24,7 +24,7 @@
       "purpose": "any"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "icons/icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
