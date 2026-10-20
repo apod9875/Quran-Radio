@@ -21,7 +21,8 @@ Object.assign(App.prototype, {
     this.renderCategories();
     this.renderStations();
     this._syncPlayingStation();
-    this.refreshCacheState();
+    // The saved surahs must be known before a surah resumes after a refresh (it may play from the device)
+    this.refreshCacheState().then(() => this.resumeAfterReload());
   },
 
   async _fetchRadioList(lang) {

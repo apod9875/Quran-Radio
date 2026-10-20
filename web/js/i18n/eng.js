@@ -137,5 +137,6 @@ window.QR_I18N.eng = {
   downloadSizeLoading: "Size: calculating…",
   downloadSizeUnknown: "Size: …",
   storageFull: "Your device storage is full. Delete some saved items.",
-  hlsBadge: "Video broadcast · uses more data"
+  hlsBadge: "Video broadcast · uses more data",
+  resumeTapHint: "Tap anywhere to continue listening"
 };

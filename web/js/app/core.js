@@ -30,6 +30,7 @@ class App {
     this.player.getOfflineUrl = (station) => this.getOfflineUrl(station);
     this._initDownloads();
     this._bindConfirmDialog();
+    this._setupResume();
 
     this._bindEvents();
     this._setupPwa();

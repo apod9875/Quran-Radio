@@ -137,5 +137,6 @@ window.QR_I18N.ar = {
   downloadSizeLoading: "الحجم: جاري الحساب…",
   downloadSizeUnknown: "الحجم: …",
   storageFull: "مساحة جهازك ممتلئة، احذف بعض المحفوظات",
-  hlsBadge: "بث مرئي · يستهلك بيانات أكثر"
+  hlsBadge: "بث مرئي · يستهلك بيانات أكثر",
+  resumeTapHint: "اضغط في أي مكان لمتابعة الاستماع"
 };
