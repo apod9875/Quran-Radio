@@ -1,0 +1,124 @@
+/* Search bar & live stations counter */
+.search-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.search-box {
+  position: relative;
+  width: 100%;
+}
+
+.search-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  color: var(--text-main);
+  padding: 12px 42px;
+  border-radius: var(--radius-md);
+  font-size: 16px; /* 16px stops iOS from zooming the page on focus */
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus {
+  border-color: var(--gold);
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 14px;
+  transform: translateY(-50%);
+  color: var(--gold);
+  pointer-events: none;
+}
+
+.clear-search-btn {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: 14px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: none;
+}
+
+.search-meta-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stations-count-chip {
+  font-size: 0.78rem;
+  color: var(--gold);
+  background: rgba(226, 186, 85, 0.12);
+  border: 1px solid rgba(226, 186, 85, 0.25);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  max-width: 100%;
+}
+
+/* Categories bar with touch-swipe */
+.categories-container {
+  position: relative;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.categories-bar {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 2px 10px 2px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: manipulation;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  cursor: grab;
+  user-select: none;
+}
+
+.categories-bar:active {
+  cursor: grabbing;
+}
+
+.categories-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.cat-chip {
+  padding: 7px 16px;
+  border-radius: var(--radius-full);
+  background: var(--surface-variant);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.cat-chip:hover {
+  border-color: rgba(226, 186, 85, 0.5);
+  color: var(--text-main);
+}
+
+.cat-chip.active {
+  background: var(--gold);
+  color: #111e19;
+  border-color: var(--gold);
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(226, 186, 85, 0.25);
+}

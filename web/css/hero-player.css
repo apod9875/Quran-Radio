@@ -1,0 +1,174 @@
+/* Hero player panel (desktop persistent pane) */
+.hero-player-panel {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  position: sticky;
+  top: 85px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.live-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  background: rgba(239, 83, 80, 0.15);
+  color: var(--red-live);
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.live-indicator .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red-live);
+  box-shadow: 0 0 8px var(--red-live);
+}
+
+.hero-station-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 6px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.hero-station-category {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.hero-waveform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 44px;
+  margin-bottom: 24px;
+}
+
+.hero-waveform .wave-bar {
+  width: 5px;
+  background: linear-gradient(180deg, var(--gold) 0%, var(--mint) 100%);
+  border-radius: 3px;
+}
+
+/* Transport controls keep the usual left-to-right order (previous, play, next) in RTL too */
+.player-controls-row {
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.btn-ctrl {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface-variant);
+  color: var(--text-main);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.btn-ctrl:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.btn-main-play {
+  width: 68px;
+  height: 68px;
+  background: var(--gold);
+  color: #111e19;
+  border: none;
+  box-shadow: 0 6px 20px rgba(226, 186, 85, 0.35);
+}
+
+.btn-main-play:hover {
+  background: var(--gold-hover);
+  color: #111e19;
+  transform: scale(1.04);
+}
+
+.volume-row {
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.volume-slider {
+  flex: 1;
+  min-width: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface-variant);
+  outline: none;
+  cursor: pointer;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--gold);
+  cursor: pointer;
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 50%;
+  background: var(--gold);
+  cursor: pointer;
+}
+
+.timer-active-badge {
+  display: none;
+  background: rgba(226, 186, 85, 0.15);
+  color: var(--gold);
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.player-secondary-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.hero-dedication-tag {
+  font-size: 0.75rem;
+  color: var(--gold);
+  background: rgba(226, 186, 85, 0.1);
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+}

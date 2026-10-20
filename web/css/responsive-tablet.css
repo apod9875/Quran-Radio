@@ -1,0 +1,43 @@
+/* Tablet & large phones (max-width: 768px): header gets compact; sizes come from tokens */
+@media (max-width: 768px) {
+  .header-container {
+    gap: 6px;
+  }
+
+  .header-actions {
+    gap: 5px;
+  }
+
+  .btn-label-desktop {
+    display: none;
+  }
+
+  .btn-label-mobile {
+    display: inline;
+  }
+
+  .btn-text-pill {
+    padding: 6px 10px;
+    font-size: 0.78rem;
+    gap: 4px;
+  }
+
+  /* Devices and install buttons collapse to icon-only circles */
+  .btn-devices-pill,
+  .btn-install {
+    width: var(--header-btn);
+    height: var(--header-btn);
+    min-width: var(--header-btn);
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+  }
+
+  .brand-text h1 {
+    font-size: 0.96rem;
+  }
+
+  .brand-dedication {
+    font-size: 0.7rem;
+  }
+}

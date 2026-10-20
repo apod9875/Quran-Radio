@@ -1,0 +1,115 @@
+/* Phones (max-width: 600px) */
+@media (max-width: 600px) {
+  .search-input {
+    padding: 10px 38px;
+  }
+
+  .cat-chip {
+    padding: 6px 13px;
+    font-size: 0.78rem;
+  }
+
+  .stations-count-chip {
+    font-size: 0.74rem;
+    padding: 3px 8px;
+  }
+
+  .modal-overlay {
+    padding: 10px;
+  }
+
+  .modal-card {
+    padding: 18px 14px;
+    max-height: 88vh;
+    border-radius: var(--radius-md);
+  }
+
+  .modal-title {
+    font-size: 1.05rem;
+  }
+
+  .cache-actions-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .cache-storage-header,
+  .cache-storage-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+  }
+
+  .cache-storage-val {
+    text-align: start;
+  }
+}
+
+/* Phones up to 480px: every header control becomes an icon-only circle so the title keeps its room */
+@media (max-width: 480px) {
+  .header-actions {
+    gap: 4px;
+  }
+
+  .header-actions .btn-text-pill,
+  .header-actions .btn-icon {
+    width: var(--header-btn);
+    height: var(--header-btn);
+    min-width: var(--header-btn);
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+
+  .header-actions .btn-label-mobile,
+  .lang-label-full,
+  .btn-lang-pill .svg-icon {
+    display: none;
+  }
+
+  .lang-label-short {
+    display: inline;
+  }
+
+  .brand-wrapper {
+    gap: 8px;
+  }
+}
+
+/* Compact phones (max-width: 420px) */
+@media (max-width: 420px) {
+  .brand-text h1 {
+    font-size: 0.9rem;
+  }
+
+  .brand-dedication {
+    font-size: 0.65rem;
+  }
+
+  .mobile-player-bar {
+    padding: 6px 10px;
+    gap: 8px;
+  }
+
+  .mini-bar-actions {
+    gap: 6px;
+  }
+
+  .device-diag-grid {
+    font-size: 0.75rem;
+  }
+}
+
+/* Ultra-compact phones (max-width: 360px) */
+@media (max-width: 360px) {
+  .station-meta {
+    gap: 4px;
+  }
+
+  .header-actions .svg-icon {
+    width: 16px;
+    height: 16px;
+  }
+}

@@ -1,0 +1,186 @@
+/* About & dedication modal */
+.dedication-card {
+  background: rgba(226, 186, 85, 0.1);
+  border: 1.5px solid var(--gold);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.dedication-icon {
+  margin-bottom: 8px;
+  color: var(--gold);
+}
+
+.dedication-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+
+.dedication-dua {
+  font-size: 0.82rem;
+  color: var(--text-main);
+  line-height: 1.6;
+}
+
+.developer-card {
+  background: var(--surface-variant);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.developer-info {
+  text-align: start;
+}
+
+.developer-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.developer-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.developer-icon {
+  color: var(--gold);
+}
+
+.about-note {
+  font-size: 0.78rem;
+  color: var(--mint-light);
+  margin-bottom: 14px;
+  background: rgba(82, 183, 136, 0.1);
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  line-height: 1.6;
+}
+
+.links-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface-variant);
+  color: var(--gold);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  min-width: 0;
+}
+
+.btn-link span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.btn-link:hover {
+  border-color: var(--gold);
+  background: rgba(226, 186, 85, 0.15);
+}
+
+/* Sleep timer: preset grid & custom input */
+.timer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.btn-timer-chip {
+  padding: 10px 6px;
+  border-radius: var(--radius-md);
+  background: var(--surface-variant);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.btn-timer-chip:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.custom-timer-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.custom-timer-input {
+  flex: 1;
+  min-width: 0;
+  background: var(--surface-variant);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  outline: none;
+}
+
+.custom-timer-input:focus {
+  border-color: var(--gold);
+}
+
+.btn-apply-timer {
+  background: var(--gold);
+  color: #121815;
+  border: none;
+  padding: 8px 16px;
+  white-space: nowrap;
+}
+
+.btn-apply-timer:hover {
+  background: var(--gold-hover);
+}
+
+.btn-modal-done {
+  margin-top: 18px;
+}
+
+.btn-cancel-timer {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: rgba(239, 83, 80, 0.15);
+  border: 1px solid var(--red-live);
+  color: var(--red-live);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.timer-remaining {
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+}
+
+.timer-hint {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}

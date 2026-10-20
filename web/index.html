@@ -2,7 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
   <title>إذاعة القرآن الكريم • MP3Quran Live Radio</title>
 
   <!-- PWA & Mobile Meta Tags -->
@@ -17,7 +18,21 @@
   <link rel="manifest" href="manifest.json">
 
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/search-categories.css">
+  <link rel="stylesheet" href="css/stations.css">
+  <link rel="stylesheet" href="css/station-actions.css">
+  <link rel="stylesheet" href="css/hero-player.css">
+  <link rel="stylesheet" href="css/mobile-player.css">
+  <link rel="stylesheet" href="css/toast-banner.css">
+  <link rel="stylesheet" href="css/modals.css">
+  <link rel="stylesheet" href="css/modal-about-timer.css">
+  <link rel="stylesheet" href="css/modal-cache.css">
+  <link rel="stylesheet" href="css/responsive-tablet.css">
+  <link rel="stylesheet" href="css/responsive-phone.css">
 </head>
 <body>
 
@@ -30,7 +45,7 @@
       <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>
       </svg>
-      <span id="offlineBannerText">وضع عدم الاتصال بالإنترنت • يتم تشغيل الإذاعات المحفوظة في ذاكرة الـ 10 جيجابايت</span>
+      <span id="offlineBannerText" data-i18n="offlineNotice">وضع عدم الاتصال بالإنترنت • تُشغَّل الإذاعات المحفوظة من الذاكرة</span>
     </div>
   </div>
 
@@ -42,50 +57,51 @@
           <img src="icons/icon.png" alt="Quran Radio Emblem">
         </div>
         <div class="brand-text">
-          <h1 id="appTitle">إذاعة القرآن الكريم</h1>
-          <div class="brand-dedication" id="appDedication">صدقة جارية لـ ( عبدالرحيم معبد ) • Mabed</div>
+          <h1 id="appTitle" data-i18n="appTitle">إذاعة القرآن الكريم</h1>
+          <div class="brand-dedication" id="appDedication" data-i18n="dedication">صدقة جارية لـ ( عبدالرحيم معبد ) • Mabed</div>
         </div>
       </div>
 
       <div class="header-actions">
         <!-- 10 GB Offline Audio Cache Button -->
-        <button id="cacheBtn" class="btn-text-pill btn-cache-stat" title="ذاكرة الصوتيات والاستماع دون انترنت (10 GB)" aria-label="ذاكرة الصوتيات 10GB">
+        <button id="cacheBtn" class="btn-text-pill btn-cache-stat" data-i18n-label="cacheBtnTitle" title="ذاكرة الصوتيات والاستماع دون انترنت (10 GB)" aria-label="ذاكرة الصوتيات والاستماع دون انترنت (10 GB)">
           <svg class="svg-icon svg-gold-glow" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
             <path d="M19 2H5a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V5a3 3 0 0 0-3-3zm-7 16c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm5-11H7V5h10v2z"/>
           </svg>
-          <span id="cacheBtnLabel" class="btn-label-desktop">ذاكرة 10GB</span>
-          <span id="cacheBtnMobileLabel" class="btn-label-mobile">10GB</span>
+          <span class="btn-label-desktop" data-i18n="cacheBtnLabel">ذاكرة 10GB</span>
+          <span class="btn-label-mobile">10GB</span>
         </button>
 
         <!-- Supported Devices Matrix Button -->
-        <button id="devicesBtn" class="btn-text-pill btn-devices-pill" title="الأجهزة والشاشات المدعومة" aria-label="الأجهزة المدعومة">
+        <button id="devicesBtn" class="btn-text-pill btn-devices-pill" data-i18n-label="devicesTitle" title="الأجهزة والشاشات المدعومة" aria-label="الأجهزة والشاشات المدعومة">
           <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
           </svg>
-          <span id="devicesBtnLabel" class="btn-label-desktop">الأجهزة المدعومة</span>
+          <span class="btn-label-desktop" data-i18n="devicesLabel">الأجهزة المدعومة</span>
         </button>
 
         <!-- Install PWA button -->
-        <button id="installBtn" class="btn-text-pill btn-install" title="تثبيت التطبيق" aria-label="تثبيت التطبيق">
+        <button id="installBtn" class="btn-text-pill btn-install" data-i18n-label="installApp" title="تثبيت التطبيق" aria-label="تثبيت التطبيق">
           <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/><path d="M12 7v6m-3-3l3 3 3-3"/>
           </svg>
-          <span class="btn-label btn-label-desktop">تثبيت التطبيق</span>
+          <span class="btn-label btn-label-desktop" data-i18n="installApp">تثبيت التطبيق</span>
         </button>
 
         <!-- About & Dedication button -->
-        <button id="infoBtn" class="btn-icon" title="About & Dedication" aria-label="حول التطبيق والإهداء">
+        <button id="infoBtn" class="btn-icon" data-i18n-label="aboutTitle" title="حول التطبيق والإهداء" aria-label="حول التطبيق والإهداء">
           <svg class="svg-icon svg-gold-glow" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
           </svg>
         </button>
 
         <!-- Language toggle button -->
-        <button id="langToggleBtn" class="btn-text-pill btn-lang-pill" title="Switch Language" aria-label="تغيير اللغة">
+        <button id="langToggleBtn" class="btn-text-pill btn-lang-pill" data-i18n-label="langSwitchLabel" title="تغيير اللغة" aria-label="تغيير اللغة">
           <svg class="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
           </svg>
-          <span id="langBtnText">English</span>
+          <span id="langBtnText" class="lang-label-full">English</span>
+          <span id="langBtnShort" class="lang-label-short">EN</span>
         </button>
       </div>
     </div>
@@ -105,8 +121,8 @@
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
             </span>
-            <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن قارئ أو إذاعة...">
-            <button id="clearSearchBtn" class="clear-search-btn">
+            <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن قارئ أو إذاعة..." data-i18n-placeholder="searchPlaceholder" enterkeyhint="search" autocomplete="off">
+            <button id="clearSearchBtn" class="clear-search-btn" type="button" data-i18n-label="close" aria-label="إغلاق">
               <svg class="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
               </svg>
@@ -135,10 +151,10 @@
         <div class="hero-player-panel" id="heroPlayerPanel">
           <div class="live-indicator" id="heroIndicator">
             <span class="dot"></span>
-            <span id="heroIndicatorText">بث مباشر الآن</span>
+            <span id="heroIndicatorText" data-i18n="live">بث مباشر الآن</span>
           </div>
 
-          <h2 class="hero-station-title" id="heroTitle">اختر إذاعة لبدء الاستماع المبارك</h2>
+          <h2 class="hero-station-title" id="heroTitle" data-i18n="selectPrompt">اختر إذاعة لبدء الاستماع المبارك</h2>
           <div class="hero-station-category" id="heroCategory"></div>
 
           <!-- Waveform Visualizer -->
@@ -158,17 +174,17 @@
 
           <!-- Main Player Controls -->
           <div class="player-controls-row">
-            <button id="heroPrevBtn" class="btn-ctrl" title="Previous Station">
+            <button id="heroPrevBtn" class="btn-ctrl" type="button" data-i18n-label="prevStation" title="المحطة السابقة" aria-label="المحطة السابقة">
               <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M6 6a1 1 0 0 1 2 0v12a1 1 0 0 1-2 0V6zm11.5 0.5a1 1 0 0 0-1.5-.86l-8 5.5a1 1 0 0 0 0 1.72l8 5.5a1 1 0 0 0 1.5-.86V6.5z"/>
               </svg>
             </button>
-            <button id="heroPlayBtn" class="btn-ctrl btn-main-play" title="Play / Pause">
+            <button id="heroPlayBtn" class="btn-ctrl btn-main-play" type="button" data-i18n-label="playPause" title="تشغيل / إيقاف" aria-label="تشغيل / إيقاف">
               <svg class="svg-icon svg-gold-glow" width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86a1 1 0 0 0-1.5.86z"/>
               </svg>
             </button>
-            <button id="heroNextBtn" class="btn-ctrl" title="Next Station">
+            <button id="heroNextBtn" class="btn-ctrl" type="button" data-i18n-label="nextStation" title="المحطة التالية" aria-label="المحطة التالية">
               <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M18 6a1 1 0 0 1 2 0v12a1 1 0 0 1-2 0V6zM6.5 6.5a1 1 0 0 1 1.5-.86l8 5.5a1 1 0 0 1 0 1.72l-8 5.5a1 1 0 0 1-1.5-.86V6.5z"/>
               </svg>
@@ -195,17 +211,17 @@
 
           <!-- Secondary Actions: Sleep Timer, Favorite, Share -->
           <div class="player-secondary-actions">
-            <button id="heroTimerBtn" class="btn-ctrl" title="Sleep Timer">
+            <button id="heroTimerBtn" class="btn-ctrl" type="button" data-i18n-label="sleepTimerTitle" title="مؤقت النوم" aria-label="مؤقت النوم">
               <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12.3 2a10 10 0 0 0-.19 20 10 10 0 0 0 8.76-5.18 1 1 0 0 0-1.07-1.46 8 8 0 1 1-8.96-12.29 1 1 0 0 0-1.07-1.46A9.9 9.9 0 0 0 12.3 2z"/>
               </svg>
             </button>
-            <button id="heroFavBtn" class="btn-ctrl" title="Favorite">
+            <button id="heroFavBtn" class="btn-ctrl" type="button" data-i18n-label="favoriteLabel" title="إضافة إلى المفضلة" aria-label="إضافة إلى المفضلة">
               <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
               </svg>
             </button>
-            <button id="heroShareBtn" class="btn-ctrl" title="Share">
+            <button id="heroShareBtn" class="btn-ctrl" type="button" data-i18n-label="shareLabel" title="مشاركة" aria-label="مشاركة">
               <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
                 <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
@@ -214,33 +230,31 @@
           </div>
 
           <!-- Dedication Footer Badge -->
-          <div class="hero-dedication-tag" id="heroDedication">صدقة جارية لـ ( عبدالرحيم معبد ) • Mabed</div>
+          <div class="hero-dedication-tag" data-i18n="dedication">صدقة جارية لـ ( عبدالرحيم معبد ) • Mabed</div>
         </div>
       </aside>
 
     </div>
   </main>
 
-  <!-- Mobile Floating Player Bar (Tap to expand full player) -->
+  <!-- Mobile Floating Player Bar (tap to expand the full player) -->
   <div class="mobile-player-bar" id="mobilePlayerBar">
-    <div style="display:flex; align-items:center; gap: 10px; overflow:hidden; flex:1;">
-      <span style="color:var(--gold);">
-        <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M3.24 6.15C2.51 6.43 2 7.17 2 8v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8c0-.83-.51-1.57-1.24-1.85L16.2 4.47l.8-1.74a1 1 0 1 0-1.81-.84l-1.33 2.92L4.76 5.37a2 2 0 0 0-1.52.78zM20 20H4V8h16v12zm-6-6a4 4 0 1 1-8 0 4 4 0 0 1 8 0zm4-3a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
-        </svg>
-      </span>
-      <div style="overflow:hidden;">
-        <div id="mobileBarTitle" style="font-weight:700; color:var(--gold); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:0.9rem;"></div>
-        <div id="mobileBarStatus" style="font-size:0.75rem; color:var(--text-muted);">بث مباشر • اضغط للتحكم الكامل</div>
+    <div class="mini-bar-left">
+      <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3.24 6.15C2.51 6.43 2 7.17 2 8v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8c0-.83-.51-1.57-1.24-1.85L16.2 4.47l.8-1.74a1 1 0 1 0-1.81-.84l-1.33 2.92L4.76 5.37a2 2 0 0 0-1.52.78zM20 20H4V8h16v12zm-6-6a4 4 0 1 1-8 0 4 4 0 0 1 8 0zm4-3a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+      </svg>
+      <div class="mini-bar-info">
+        <div class="mini-bar-title" id="mobileBarTitle"></div>
+        <div class="mini-bar-status" id="mobileBarStatus" data-i18n="liveHint">بث مباشر • اضغط للتحكم الكامل</div>
       </div>
     </div>
-    <div style="display:flex; align-items:center; gap: 8px;">
-      <button id="mobileBarFavBtn" class="btn-card-action" style="border:none;">
+    <div class="mini-bar-actions">
+      <button id="mobileBarFavBtn" class="btn-card-action" type="button" data-i18n-label="favoriteLabel" aria-label="إضافة إلى المفضلة">
         <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
         </svg>
       </button>
-      <button id="mobileBarPlayBtn" class="btn-card-action btn-play-card" style="background:var(--gold); color:#121815;">
+      <button id="mobileBarPlayBtn" class="btn-card-action btn-play-card" type="button" data-i18n-label="playPause" aria-label="تشغيل / إيقاف">
         <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
           <path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86a1 1 0 0 0-1.5.86z"/>
         </svg>
@@ -249,27 +263,27 @@
   </div>
 
   <!-- Mobile Full Player Sheet / Overlay -->
-  <div class="mobile-full-player-overlay" id="mobileFullPlayerOverlay">
+  <div class="mobile-full-player-overlay" id="mobileFullPlayerOverlay" role="dialog" aria-modal="true">
     <div class="full-player-header">
-      <button class="btn-icon" id="closeFullPlayerBtn">
+      <button class="btn-icon" id="closeFullPlayerBtn" type="button" data-i18n-label="close" aria-label="إغلاق">
         <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
       </button>
-      <div style="font-weight:700; color:var(--gold); font-size:1rem;">مشغل البث المباشر</div>
-      <div style="width:40px;"></div>
+      <div class="full-player-heading" data-i18n="fullPlayerHeading">مشغل البث المباشر</div>
+      <div class="full-player-spacer"></div>
     </div>
 
-    <div style="display:flex; flex-direction:column; align-items:center; text-align:center; width:100%; max-width:400px; margin:auto 0;">
+    <div class="full-player-body">
       <div class="live-indicator">
         <span class="dot"></span>
-        <span>بث مباشر الآن</span>
+        <span data-i18n="live">بث مباشر الآن</span>
       </div>
 
-      <h2 id="fullPlayerTitle" style="color:var(--gold); font-size:1.4rem; font-weight:700; margin-bottom:8px; line-height:1.4;"></h2>
-      <div id="fullPlayerCategory" style="color:var(--text-muted); font-size:0.9rem; margin-bottom:24px;"></div>
+      <h2 class="full-player-title" id="fullPlayerTitle"></h2>
+      <div class="full-player-category" id="fullPlayerCategory"></div>
 
-      <div class="hero-waveform" style="margin-bottom:28px;">
+      <div class="hero-waveform hero-waveform--full">
         <div class="wave-bar"></div>
         <div class="wave-bar"></div>
         <div class="wave-bar"></div>
@@ -281,143 +295,76 @@
         <div class="wave-bar"></div>
       </div>
 
-      <!-- Controls -->
-      <div class="player-controls-row" style="margin-bottom:28px;">
-        <button id="fullPlayerPrevBtn" class="btn-ctrl">
-          <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M6 6a1 1 0 0 1 2 0v12a1 1 0 0 1-2 0V6zm11.5 0.5a1 1 0 0 0-1.5-.86l-8 5.5a1 1 0 0 0 0 1.72l8 5.5a1 1 0 0 0 1.5-.86V6.5z"/>
-          </svg>
+      <div class="player-controls-row player-controls-row--full">
+        <button id="fullPlayerPrevBtn" class="btn-ctrl" type="button" data-i18n-label="prevStation" aria-label="المحطة السابقة">
+          <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6a1 1 0 0 1 2 0v12a1 1 0 0 1-2 0V6zm11.5 0.5a1 1 0 0 0-1.5-.86l-8 5.5a1 1 0 0 0 0 1.72l8 5.5a1 1 0 0 0 1.5-.86V6.5z"/></svg>
         </button>
-        <button id="fullPlayerPlayBtn" class="btn-ctrl btn-main-play">
-          <svg class="svg-icon svg-gold-glow" width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86a1 1 0 0 0-1.5.86z"/>
-          </svg>
+        <button id="fullPlayerPlayBtn" class="btn-ctrl btn-main-play" type="button" data-i18n-label="playPause" aria-label="تشغيل / إيقاف">
+          <svg class="svg-icon svg-gold-glow" width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86a1 1 0 0 0-1.5.86z"/></svg>
         </button>
-        <button id="fullPlayerNextBtn" class="btn-ctrl">
-          <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M18 6a1 1 0 0 1 2 0v12a1 1 0 0 1-2 0V6zM6.5 6.5a1 1 0 0 1 1.5-.86l8 5.5a1 1 0 0 1 0 1.72l-8 5.5a1 1 0 0 1-1.5-.86V6.5z"/>
-          </svg>
+        <button id="fullPlayerNextBtn" class="btn-ctrl" type="button" data-i18n-label="nextStation" aria-label="المحطة التالية">
+          <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M18 6a1 1 0 0 1 2 0v12a1 1 0 0 1-2 0V6zM6.5 6.5a1 1 0 0 1 1.5-.86l8 5.5a1 1 0 0 1 0 1.72l-8 5.5a1 1 0 0 1-1.5-.86V6.5z"/></svg>
         </button>
       </div>
 
-      <!-- Volume -->
-      <div class="volume-row" style="margin-bottom:24px;">
-        <span>
-          <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z"/>
-          </svg>
-        </span>
-        <input type="range" id="fullPlayerVolumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="1">
-        <span>
-          <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-          </svg>
-        </span>
+      <div class="volume-row volume-row--full">
+        <span><svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z"/></svg></span>
+        <input type="range" id="fullPlayerVolumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="1" data-i18n-label="volumeLabel" aria-label="مستوى الصوت">
+        <span><svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg></span>
       </div>
 
-      <div class="player-secondary-actions" style="margin-bottom:24px;">
-        <button id="fullPlayerTimerBtn" class="btn-ctrl" title="Sleep Timer">
-          <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12.3 2a10 10 0 0 0-.19 20 10 10 0 0 0 8.76-5.18 1 1 0 0 0-1.07-1.46 8 8 0 1 1-8.96-12.29 1 1 0 0 0-1.07-1.46A9.9 9.9 0 0 0 12.3 2z"/>
-          </svg>
+      <div class="player-secondary-actions player-secondary-actions--full">
+        <button id="fullPlayerTimerBtn" class="btn-ctrl" type="button" data-i18n-label="sleepTimerTitle" aria-label="مؤقت النوم">
+          <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.3 2a10 10 0 0 0-.19 20 10 10 0 0 0 8.76-5.18 1 1 0 0 0-1.07-1.46 8 8 0 1 1-8.96-12.29 1 1 0 0 0-1.07-1.46A9.9 9.9 0 0 0 12.3 2z"/></svg>
         </button>
-        <button id="fullPlayerFavBtn" class="btn-ctrl" title="Favorite">
-          <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-          </svg>
+        <button id="fullPlayerFavBtn" class="btn-ctrl" type="button" data-i18n-label="favoriteLabel" aria-label="إضافة إلى المفضلة">
+          <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
         </button>
       </div>
 
-      <div class="hero-dedication-tag">صدقة جارية لـ ( عبدالرحيم معبد ) • Mabed</div>
+      <div class="hero-dedication-tag" data-i18n="dedication">صدقة جارية لـ ( عبدالرحيم معبد ) • Mabed</div>
     </div>
   </div>
 
   <!-- Supported Devices & Screen Matrix Modal -->
-  <div class="modal-overlay" id="devicesModal">
+  <div class="modal-overlay" id="devicesModal" role="dialog" aria-modal="true">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 class="modal-title">الأجهزة والشاشات المدعومة • Device Compatibility</h3>
-        <button class="modal-close-btn" id="closeDevicesBtn">
+        <h3 class="modal-title" data-i18n="devicesTitle">الأجهزة والشاشات المدعومة</h3>
+        <button class="modal-close-btn" id="closeDevicesBtn" type="button" data-i18n-label="close" aria-label="إغلاق">
           <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
         </button>
       </div>
 
-      <!-- Live Screen Diagnostics Banner -->
       <div class="device-diagnostics-box">
         <div class="device-diag-title">
-          <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <span>شاشتك الحالية (Live Screen Diagnostics):</span>
+          <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span data-i18n="diagTitle">شاشتك الحالية:</span>
         </div>
         <div class="device-diag-grid">
-          <div class="device-diag-item">الأبعاد: <span id="diagResolution">0 x 0</span></div>
-          <div class="device-diag-item">التصنيف: <span id="diagCategory">جاري الفحص...</span></div>
-          <div class="device-diag-item">الاتجاه: <span id="diagOrientation">...</span></div>
-          <div class="device-diag-item">اللمس: <span id="diagTouch">...</span></div>
+          <div class="device-diag-item"><span data-i18n="diagSize">الأبعاد:</span> <b id="diagResolution">0 x 0</b></div>
+          <div class="device-diag-item"><span data-i18n="diagCategory">التصنيف:</span> <b id="diagCategory">...</b></div>
+          <div class="device-diag-item"><span data-i18n="diagOrientation">الاتجاه:</span> <b id="diagOrientation">...</b></div>
+          <div class="device-diag-item"><span data-i18n="diagTouch">اللمس:</span> <b id="diagTouch">...</b></div>
         </div>
       </div>
 
-      <!-- Supported Devices Matrix Grid -->
       <div class="devices-grid" id="devicesContainer">
-        <!-- Rendered by devices.js -->
+        <!-- Rendered by app/modals.js from devices.js -->
       </div>
 
-      <button class="btn-text-pill" id="closeDevicesDoneBtn" style="width:100%; justify-content:center; background:var(--gold); color:#121815; border:none; padding:12px; font-weight:700;">
-        إغلاق
-      </button>
-    </div>
-  </div>
-
-  <!-- Reciter Biography Modal -->
-  <div class="modal-overlay" id="reciterModal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 class="modal-title">معلومات القارئ والإذاعة</h3>
-        <button class="modal-close-btn" id="closeReciterBtn">
-          <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-      </div>
-
-      <div class="reciter-card-header">
-        <div class="reciter-avatar-large">
-          <img id="reciterAvatarImg" src="icons/icon.png" alt="Reciter avatar">
-        </div>
-        <div class="reciter-full-name" id="reciterNameText"></div>
-        <div class="reciter-title-tag" id="reciterTitleTag"></div>
-      </div>
-
-      <div class="reciter-meta-box">
-        <div class="reciter-meta-item">
-          <span class="reciter-meta-label">البلد:</span>
-          <span id="reciterOriginText"></span>
-        </div>
-        <div class="reciter-meta-item">
-          <span class="reciter-meta-label">الفترة:</span>
-          <span id="reciterEraText"></span>
-        </div>
-        <div class="reciter-meta-item">
-          <span class="reciter-meta-label">الرواية:</span>
-          <span id="reciterRiwayahText"></span>
-        </div>
-      </div>
-
-      <div class="reciter-bio-text" id="reciterBioBody"></div>
-
-      <button class="btn-text-pill" onclick="document.getElementById('reciterModal').classList.remove('active')" style="width:100%; justify-content:center; background:var(--gold); color:#121815; border:none; padding:12px;">
-        إغلاق
-      </button>
+      <button class="btn-text-pill btn-modal-done" id="closeDevicesDoneBtn" type="button" data-i18n="close">إغلاق</button>
     </div>
   </div>
 
   <!-- About & Dedication Modal -->
-  <div class="modal-overlay" id="aboutModal">
+  <div class="modal-overlay" id="aboutModal" role="dialog" aria-modal="true">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 class="modal-title">حول التطبيق والإهداء</h3>
-        <button class="modal-close-btn" id="closeAboutBtn">
+        <h3 class="modal-title" data-i18n="aboutTitle">حول التطبيق والإهداء</h3>
+        <button class="modal-close-btn" id="closeAboutBtn" type="button" data-i18n-label="close" aria-label="إغلاق">
           <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
@@ -425,163 +372,166 @@
       </div>
 
       <div class="dedication-card">
-        <div style="margin-bottom: 8px; color: var(--gold);">
+        <div class="dedication-icon">
           <svg class="svg-icon svg-gold-glow" width="36" height="36" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
           </svg>
         </div>
-        <div class="dedication-title">صدقة جارية لـ ( عبدالرحيم معبد )</div>
-        <div class="dedication-dua">
-          «اللهم اغفر له وارحمه وعافه واعف عنه وأكرم نزله ووسع مدخله واجعله في الفردوس الأعلى من الجنة»
-        </div>
+        <div class="dedication-title" data-i18n="sadaqahTitle">صدقة جارية لـ ( عبدالرحيم معبد )</div>
+        <div class="dedication-dua" data-i18n="sadaqahDua">«اللهم اغفر له وارحمه وعافه واعف عنه وأكرم نزله ووسع مدخله واجعله في الفردوس الأعلى من الجنة»</div>
       </div>
 
       <div class="developer-card">
-        <div style="text-align: right;">
-          <div style="font-size: 0.78rem; color: var(--text-muted);">تطوير وبرمجة</div>
-          <div style="font-size: 1.15rem; font-weight: 700; color: var(--gold);">Mabed</div>
+        <div class="developer-info">
+          <div class="developer-label" data-i18n="developedBy">تطوير وبرمجة</div>
+          <div class="developer-name">Mabed</div>
         </div>
-        <span style="color:var(--gold);">
+        <span class="developer-icon">
           <svg class="svg-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
           </svg>
         </span>
       </div>
 
-      <div style="font-size: 0.78rem; color: var(--mint-light); margin-bottom: 14px; background: rgba(82,183,136,0.1); padding: 10px; border-radius: 8px; line-height: 1.6;">
-        💾 التخزين المؤقت للاستماع دون انترنت يتم فقط للإذاعات المفضلة (Loved Stations) بسعة حتى 20 جيجابايت للكمبيوتر و 10 جيجابايت للهواتف.
-      </div>
+      <div class="about-note" data-i18n="aboutNote">يمكنك حفظ مقطع قصير من أي إذاعة بزر التحميل في بطاقتها، ليعمل كاحتياطي عند انقطاع الإنترنت (بسعة تصل إلى 10 جيجابايت).</div>
 
       <div class="links-row">
         <a href="https://github.com/apod9875/mp3quran-live-radio" target="_blank" rel="noopener" class="btn-link">
           <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
           </svg>
-          <span>GitHub: apod9875/mp3quran-live-radio</span>
+          <span>GitHub: <bdi dir="ltr">apod9875/mp3quran-live-radio</bdi></span>
         </a>
         <a href="https://quran-radio.apod9875.workers.dev/" target="_blank" rel="noopener" class="btn-link">
           <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
           </svg>
-          <span>تطبيق الويب الرسمي: quran-radio.apod9875.workers.dev</span>
+          <span><span data-i18n="webApp">تطبيق الويب الرسمي</span>: <bdi dir="ltr">quran-radio.apod9875.workers.dev</bdi></span>
         </a>
       </div>
 
-      <button class="btn-text-pill" id="doneAboutBtn" style="margin-top: 18px; width: 100%; justify-content: center; background: var(--gold); color: #121815; border: none;">
-        إغلاق
-      </button>
+      <button class="btn-text-pill btn-modal-done" id="doneAboutBtn" type="button" data-i18n="close">إغلاق</button>
     </div>
   </div>
 
   <!-- Sleep Timer Modal with Presets + Custom Input -->
-  <div class="modal-overlay" id="timerModal">
+  <div class="modal-overlay" id="timerModal" role="dialog" aria-modal="true">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 class="modal-title">مؤقت النوم</h3>
-        <button class="modal-close-btn" id="closeTimerBtn">
+        <h3 class="modal-title" data-i18n="sleepTimerTitle">مؤقت النوم</h3>
+        <button class="modal-close-btn" id="closeTimerBtn" type="button" data-i18n-label="close" aria-label="إغلاق">
           <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
         </button>
       </div>
 
-      <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 14px;">
-        اختر المدة أو أدخل دقائق مخصصة لإيقاف البث تلقائياً أثناء الاستماع:
-      </p>
+      <p class="timer-hint" data-i18n="sleepTimerDesc">اختر المدة أو أدخل دقائق مخصصة لإيقاف البث تلقائياً أثناء الاستماع:</p>
 
       <div class="timer-grid" id="timerGrid">
-        <button class="btn-timer-chip" data-mins="15">15 دقيقة</button>
-        <button class="btn-timer-chip" data-mins="30">30 دقيقة</button>
-        <button class="btn-timer-chip" data-mins="45">45 دقيقة</button>
-        <button class="btn-timer-chip" data-mins="60">60 دقيقة</button>
-        <button class="btn-timer-chip" data-mins="90">90 دقيقة</button>
-        <button class="btn-timer-chip" data-mins="120">120 دقيقة</button>
+        <button class="btn-timer-chip" type="button" data-mins="15">15 دقيقة</button>
+        <button class="btn-timer-chip" type="button" data-mins="30">30 دقيقة</button>
+        <button class="btn-timer-chip" type="button" data-mins="45">45 دقيقة</button>
+        <button class="btn-timer-chip" type="button" data-mins="60">60 دقيقة</button>
+        <button class="btn-timer-chip" type="button" data-mins="90">90 دقيقة</button>
+        <button class="btn-timer-chip" type="button" data-mins="120">120 دقيقة</button>
       </div>
 
-      <!-- Custom minute input -->
       <div class="custom-timer-row">
-        <input type="number" id="customTimerInput" class="custom-timer-input" placeholder="أدخل الدقائق (مثلاً 25)" min="1" max="600">
-        <button id="applyCustomTimerBtn" class="btn-text-pill" style="background:var(--gold); color:#121815; border:none; padding:8px 16px;">تطبيق المدة</button>
+        <input type="number" inputmode="numeric" id="customTimerInput" class="custom-timer-input" placeholder="أدخل الدقائق (مثلاً 25)" data-i18n-placeholder="customMinutesPlaceholder" min="1" max="600">
+        <button id="applyCustomTimerBtn" class="btn-text-pill btn-apply-timer" type="button" data-i18n="setCustomTimer">تطبيق المدة</button>
       </div>
 
-      <div id="timerRemainingText" style="color: var(--gold); font-weight: 700; font-size: 0.95rem; margin-bottom: 12px;"></div>
+      <div id="timerRemainingText" class="timer-remaining"></div>
 
-      <button class="btn-cancel-timer" id="cancelTimerBtn">إلغاء المؤقت</button>
+      <button class="btn-cancel-timer" id="cancelTimerBtn" type="button" data-i18n="turnOffTimer">إلغاء المؤقت</button>
     </div>
   </div>
 
-  <!-- 10 GB Audio Cache Manager Modal -->
-  <div class="modal-overlay" id="cacheModal">
+  <!-- Offline Audio Cache Manager Modal -->
+  <div class="modal-overlay" id="cacheModal" role="dialog" aria-modal="true">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 class="modal-title">ذاكرة الصوتيات والاستماع دون انترنت (10 GB)</h3>
-        <button class="modal-close-btn" id="closeCacheBtn">
+        <h3 class="modal-title" data-i18n-html="cacheTitle">ذاكرة الصوتيات والاستماع دون انترنت (<bdi dir="ltr">10 GB</bdi>)</h3>
+        <button class="modal-close-btn" id="closeCacheBtn" type="button" data-i18n-label="close" aria-label="إغلاق">
           <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
         </button>
       </div>
 
-      <!-- Cache Quota & Storage Bar -->
       <div class="cache-storage-box">
         <div class="cache-storage-header">
-          <span class="cache-storage-label">المساحة المستهلكة في المتصفح / الجهاز:</span>
+          <span class="cache-storage-label" data-i18n="cacheUsageLabel">المساحة المستهلكة في المتصفح / الجهاز:</span>
           <span id="cacheUsageText" class="cache-storage-val">0.0 MB / 10.0 GB</span>
         </div>
         <div class="cache-progress-track">
           <div id="cacheProgressBar" class="cache-progress-fill" style="width: 0%;"></div>
         </div>
         <div class="cache-storage-footer">
-          <span id="cacheStationsCountText">0 إذاعات محفوظة للاستماع دون انترنت</span>
-          <span class="cache-badge-ok">⚡ 10 GB مخصص للتخزين السريع</span>
+          <span id="cacheStationsCountText">0</span>
+          <span class="cache-badge-ok" data-i18n-html="cacheBadge">حتى <bdi dir="ltr">10 GB</bdi> للتخزين</span>
         </div>
       </div>
 
-      <!-- Explanation Callout -->
       <div class="cache-info-callout">
-        <div class="cache-info-icon">💡</div>
-        <div class="cache-info-text">
-          يقوم التطبيق بحفظ تدفقات الصوت تلقائياً وبشكل مكثف (Aggressive Caching) حتى <strong>10 جيجابايت</strong> في ذاكرة جهازك أو متصفحك ليتيح لك الاستماع المستمر حتى عند انقطاع الإنترنت أو أثناء السفر.
-        </div>
+        <svg class="svg-icon cache-info-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+        </svg>
+        <div class="cache-info-text" data-i18n="cacheCallout">عند الضغط على زر التحميل في بطاقة الإذاعة يحفظ التطبيق مقطعاً قصيراً من البث.</div>
       </div>
 
-      <!-- Cache Actions: Refresh Unused Audio & Clear -->
       <div class="cache-actions-grid">
-        <button id="refreshUnusedCacheBtn" class="btn-cache-action btn-refresh-cache">
+        <button id="refreshUnusedCacheBtn" class="btn-cache-action btn-refresh-cache" type="button">
           <svg class="svg-icon svg-gold-glow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
           </svg>
-          <span>تحديث وتنظيف الإذاعات غير المستخدمة</span>
+          <span data-i18n="cacheRefreshBtn">تنظيف الإذاعات غير المفضلة</span>
         </button>
 
-        <button id="clearAllCacheBtn" class="btn-cache-action btn-clear-cache">
+        <button id="clearAllCacheBtn" class="btn-cache-action btn-clear-cache" type="button">
           <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
           </svg>
-          <span>مسح كل الذاكرة المؤقتة</span>
+          <span data-i18n="cacheClearBtn">مسح كل الذاكرة المؤقتة</span>
         </button>
       </div>
 
-      <!-- Cached Stations List -->
       <div class="cached-stations-section">
-        <div class="cached-section-title">الإذاعات المحفوظة في الذاكرة (Offline Ready):</div>
+        <div class="cached-section-title" data-i18n="cachedListTitle">الإذاعات المحفوظة في الذاكرة:</div>
         <div id="cachedStationsList" class="cached-stations-list">
           <!-- Populated dynamically -->
         </div>
       </div>
 
-      <button class="btn-text-pill" id="closeCacheDoneBtn" style="width:100%; justify-content:center; background:var(--gold); color:#121815; border:none; padding:12px; font-weight:700;">
-        إغلاق
-      </button>
+      <button class="btn-text-pill btn-modal-done" id="closeCacheDoneBtn" type="button" data-i18n="close">إغلاق</button>
     </div>
   </div>
 
   <!-- Scripts -->
+  <script src="js/core/utils.js"></script>
+  <script src="js/core/sw-client.js"></script>
   <script src="js/icons.js"></script>
   <script src="js/devices.js"></script>
-  <script src="js/reciters.js"></script>
   <script src="js/fallback.js"></script>
-  <script src="js/player.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/i18n/ar.js"></script>
+  <script src="js/i18n/eng.js"></script>
+  <script src="js/player/core.js"></script>
+  <script src="js/player/events.js"></script>
+  <script src="js/player/recovery.js"></script>
+  <script src="js/player/session.js"></script>
+  <script src="js/player/offline.js"></script>
+  <script src="js/app/dom.js"></script>
+  <script src="js/app/core.js"></script>
+  <script src="js/app/pwa.js"></script>
+  <script src="js/app/language.js"></script>
+  <script src="js/app/stations.js"></script>
+  <script src="js/app/render-card.js"></script>
+  <script src="js/app/render.js"></script>
+  <script src="js/app/events.js"></script>
+  <script src="js/app/player-ui.js"></script>
+  <script src="js/app/cache-ui.js"></script>
+  <script src="js/app/modals.js"></script>
+  <script src="js/app/boot.js"></script>
 </body>
 </html>

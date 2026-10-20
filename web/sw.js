@@ -1,329 +1,91 @@
 /**
- * Service Worker for MP3Quran Live Radio
- * Featuring Aggressive 10 GB Audio Caching, Offline Range Request Slicing,
- * and LRU Cache Eviction / Refresh for Unused Audio.
- * 
+ * Service Worker for MP3Quran Live Radio.
+ * - App shell: network-first with a cache fallback, so a deploy reaches users on their next visit.
+ * - Live streams are never touched; the browser's media decoder talks to the stream directly.
+ * - Offline samples of stations live in CacheStorage and are served at /offline-audio/<id>.
+ *
  * صدقة جارية لـ (عبدالرحيم معبد) • Mabed
  */
+importScripts(
+  './sw/config.js',
+  './sw/range.js',
+  './sw/db.js',
+  './sw/audio-cache.js',
+  './sw/static-cache.js'
+);
 
-const CACHE_STATIC = 'quran-radio-static-v1.4.0';
-const CACHE_AUDIO = 'quran-radio-audio-10gb-v4';
-const MAX_AUDIO_CACHE_BYTES = 10 * 1024 * 1024 * 1024; // 10 GB Max limit
-
-const STATIC_ASSETS = [
-  './',
-  './index.html',
-  './css/styles.css',
-  './js/icons.js',
-  './js/reciters.js',
-  './js/devices.js',
-  './js/fallback.js',
-  './js/player.js',
-  './js/app.js',
-  './manifest.json',
-  './icons/icon.png',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/apple-touch-icon.png'
-];
-
-// Open or initialize IndexedDB for tracking audio cache metadata & LRU timestamps
-function openDb() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open('quran_radio_cache_db', 2);
-    request.onupgradeneeded = (e) => {
-      const db = e.target.result;
-      if (!db.objectStoreNames.contains('audio_cache')) {
-        const store = db.createObjectStore('audio_cache', { keyPath: 'url' });
-        store.createIndex('lastAccessed', 'lastAccessed', { unique: false });
-        store.createIndex('isFavorite', 'isFavorite', { unique: false });
-        store.createIndex('stationId', 'stationId', { unique: false });
-      }
-    };
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
-}
-
-async function recordAudioAccess(url, stationId, stationName, sizeBytes, isFavorite) {
-  try {
-    const db = await openDb();
-    const tx = db.transaction('audio_cache', 'readwrite');
-    const store = tx.objectStore('audio_cache');
-    const existingReq = store.get(url);
-    existingReq.onsuccess = () => {
-      const existing = existingReq.result || {};
-      store.put({
-        url: url,
-        stationId: stationId || existing.stationId || 0,
-        stationName: stationName || existing.stationName || 'Holy Quran Radio',
-        sizeBytes: sizeBytes || existing.sizeBytes || 0,
-        addedAt: existing.addedAt || Date.now(),
-        lastAccessed: Date.now(),
-        isFavorite: isFavorite !== undefined ? isFavorite : (existing.isFavorite || false)
-      });
-    };
-  } catch (e) {
-    console.warn('[SW] recordAudioAccess error:', e);
-  }
-}
-
-async function getAudioCacheMetrics() {
-  try {
-    const db = await openDb();
-    return new Promise((resolve) => {
-      const tx = db.transaction('audio_cache', 'readonly');
-      const store = tx.objectStore('audio_cache');
-      const req = store.getAll();
-      req.onsuccess = () => {
-        const items = req.result || [];
-        let totalBytes = 0;
-        items.forEach(it => {
-          totalBytes += (it.sizeBytes || 0);
-        });
-        resolve({
-          totalBytes: totalBytes,
-          maxBytes: MAX_AUDIO_CACHE_BYTES,
-          count: items.length,
-          items: items
-        });
-      };
-      req.onerror = () => resolve({ totalBytes: 0, maxBytes: MAX_AUDIO_CACHE_BYTES, count: 0, items: [] });
-    });
-  } catch (e) {
-    return { totalBytes: 0, maxBytes: MAX_AUDIO_CACHE_BYTES, count: 0, items: [] };
-  }
-}
-
-// Refresh / Prune Unused Audio (LRU: Remove non-favorites or oldest unused)
-async function refreshUnusedAudioCache(forceAggressive = false) {
-  try {
-    const metrics = await getAudioCacheMetrics();
-    const cache = await caches.open(CACHE_AUDIO);
-    const db = await openDb();
-
-    // Sort items by lastAccessed ascending (oldest first)
-    const items = metrics.items.sort((a, b) => a.lastAccessed - b.lastAccessed);
-
-    let bytesFreed = 0;
-    let itemsRemoved = 0;
-
-    // Condition: if total exceeds 9GB (approaching 10GB limit) or forceAggressive is requested by user
-    const targetBytes = MAX_AUDIO_CACHE_BYTES * 0.85; // Prune down to 85% of 10GB
-    const shouldPrune = forceAggressive || metrics.totalBytes > targetBytes;
-
-    if (shouldPrune) {
-      for (const item of items) {
-        // Keep favorites unless total is strictly over 10GB and we have no other choice
-        if (!item.isFavorite || metrics.totalBytes - bytesFreed > MAX_AUDIO_CACHE_BYTES) {
-          await cache.delete(item.url);
-          const delTx = db.transaction('audio_cache', 'readwrite');
-          delTx.objectStore('audio_cache').delete(item.url);
-
-          bytesFreed += (item.sizeBytes || 0);
-          itemsRemoved++;
-
-          if (!forceAggressive && (metrics.totalBytes - bytesFreed) <= targetBytes) {
-            break;
-          }
-        }
-      }
-    }
-
-    console.log(`[SW] Refreshed unused audio cache: removed ${itemsRemoved} items, freed ${(bytesFreed / (1024 * 1024)).toFixed(2)} MB`);
-    return { bytesFreed, itemsRemoved };
-  } catch (err) {
-    console.warn('[SW] refreshUnusedAudioCache error:', err);
-    return { bytesFreed: 0, itemsRemoved: 0 };
-  }
-}
-
-// Service Worker Lifecycle
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_STATIC).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
-    }).then(() => self.skipWaiting())
+    caches.open(CACHE_STATIC)
+      .then((cache) => cache.addAll(STATIC_ASSETS))
+      .then(() => self.skipWaiting())
   );
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
+    caches.keys()
+      .then((keys) => Promise.all(
         keys.filter((key) => key !== CACHE_STATIC && key !== CACHE_AUDIO).map((key) => caches.delete(key))
-      );
-    }).then(() => self.clients.claim())
+      ))
+      .then(() => self.clients.claim())
   );
 });
 
-// Message Listener for Cache Management
-self.addEventListener('message', async (event) => {
-  if (!event.data) return;
-
-  if (event.data.type === 'GET_CACHE_METRICS') {
-    const metrics = await getAudioCacheMetrics();
-    if (event.ports && event.ports[0]) {
-      event.ports[0].postMessage(metrics);
-    }
-  } else if (event.data.type === 'REFRESH_UNUSED_CACHE') {
+const MESSAGE_HANDLERS = {
+  GET_CACHE_METRICS: () => getAudioCacheMetrics(),
+  CACHE_STATION_AUDIO: (data) => precacheStation(data),
+  CLEAR_ALL_AUDIO_CACHE: async () => { await clearAudioCache(); return { success: true }; },
+  REFRESH_UNUSED_CACHE: async () => {
     const result = await refreshUnusedAudioCache(true);
-    const updated = await getAudioCacheMetrics();
-    if (event.ports && event.ports[0]) {
-      event.ports[0].postMessage({ success: true, freed: result.bytesFreed, metrics: updated });
-    }
-  } else if (event.data.type === 'CLEAR_ALL_AUDIO_CACHE') {
-    await caches.delete(CACHE_AUDIO);
-    try {
-      const db = await openDb();
-      const tx = db.transaction('audio_cache', 'readwrite');
-      tx.objectStore('audio_cache').clear();
-    } catch (e) {}
-    if (event.ports && event.ports[0]) {
-      event.ports[0].postMessage({ success: true });
-    }
-  } else if (event.data.type === 'SET_FAVORITE_STATION') {
-    try {
-      const db = await openDb();
-      const tx = db.transaction('audio_cache', 'readwrite');
-      const store = tx.objectStore('audio_cache');
-      const req = store.get(event.data.url);
-      req.onsuccess = () => {
-        if (req.result) {
-          req.result.isFavorite = event.data.isFavorite;
-          store.put(req.result);
-        }
-      };
-    } catch (e) {}
-  } else if (event.data.type === 'CACHE_STATION_AUDIO') {
-    // Aggressive pre-cache station audio
-    const { url, stationId, stationName } = event.data;
-    try {
-      const cache = await caches.open(CACHE_AUDIO);
-      const res = await fetch(url, { headers: { 'Range': 'bytes=0-5242880' } }); // Fetch initial 5MB chunk
-      if (res.ok || res.status === 206) {
-        const cloned = res.clone();
-        await cache.put(url, cloned);
-        const blob = await res.blob();
-        await recordAudioAccess(url, stationId, stationName, blob.size, true);
-        if (event.ports && event.ports[0]) {
-          event.ports[0].postMessage({ success: true, url, size: blob.size });
-        }
-      }
-    } catch (err) {
-      if (event.ports && event.ports[0]) {
-        event.ports[0].postMessage({ success: false, error: err.message });
-      }
-    }
+    return { success: true, freed: result.bytesFreed, metrics: await getAudioCacheMetrics() };
+  },
+  SET_FAVORITE_STATION: async (data) => {
+    await dbUpdateByStation(data.stationId, { isFavorite: !!data.isFavorite });
+    return { success: true };
+  },
+  TOUCH_AUDIO: async (data) => {
+    await dbUpdateByStation(data.stationId, { lastAccessed: Date.now() });
+    return { success: true };
   }
+};
+
+self.addEventListener('message', (event) => {
+  const data = event.data;
+  const handler = data && MESSAGE_HANDLERS[data.type];
+  if (!handler) return;
+  const port = event.ports && event.ports[0];
+  event.waitUntil(
+    Promise.resolve()
+      .then(() => handler(data))
+      .then((result) => { if (port) port.postMessage(result); })
+      .catch((err) => { if (port) port.postMessage({ success: false, error: String(err && err.message || err) }); })
+  );
 });
 
-// Helper to synthesize Range 206 response from cached 200 response
-function createPartialResponse(cachedResponse, rangeHeader) {
-  return cachedResponse.arrayBuffer().then((buffer) => {
-    const total = buffer.byteLength;
-    const parts = rangeHeader.replace(/bytes=/, '').split('-');
-    const start = parseInt(parts[0], 10);
-    const end = parts[1] ? parseInt(parts[1], 10) : total - 1;
-
-    if (start >= total || end >= total) {
-      return new Response('', {
-        status: 416,
-        statusText: 'Range Not Satisfiable',
-        headers: { 'Content-Range': `bytes */${total}` }
-      });
-    }
-
-    const chunk = buffer.slice(start, end + 1);
-    return new Response(chunk, {
-      status: 206,
-      statusText: 'Partial Content',
-      headers: {
-        'Content-Type': cachedResponse.headers.get('Content-Type') || 'audio/mpeg',
-        'Content-Range': `bytes ${start}-${end}/${total}`,
-        'Content-Length': chunk.byteLength.toString(),
-        'Accept-Ranges': 'bytes',
-        'Cache-Control': 'public, max-age=31536000'
-      }
-    });
-  });
+function isApiRequest(url) {
+  return /(^|\.)mp3quran\.net$/.test(url.hostname) && url.pathname.startsWith('/api/');
 }
 
-// Fetch Interception
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
+  const request = event.request;
+  if (request.method !== 'GET') return;
+  const url = new URL(request.url);
 
-  // 1. Audio streams handling:
-  const isAudio = url.pathname.includes('/radio/') || 
-                  url.pathname.endsWith('.mp3') || 
-                  url.pathname.endsWith('.aac') || 
-                  url.port === '8000' || 
-                  url.port === '8002' ||
-                  event.request.destination === 'audio' ||
-                  url.hostname.includes('qurango.net') ||
-                  url.hostname.includes('mp3quran.net/radio');
-
-  if (isAudio) {
-    // When ONLINE: Never block or clone infinite live radio streams through Service Worker!
-    // Mobile browsers (Honor Browser, Chrome on Android, Safari) stall if an infinite Icecast
-    // live stream is passed through Service Worker fetch cloning. Let browser media decoder stream directly!
-    if (navigator.onLine) {
-      // Record access asynchronously for LRU without touching response stream
-      recordAudioAccess(event.request.url, null, null, null, undefined);
-      // Native browser media stream passthrough
-      return;
+  if (url.origin === self.location.origin) {
+    const offline = OFFLINE_AUDIO_PATH.exec(url.pathname);
+    if (offline) {
+      event.respondWith(serveOfflineAudio(request, offline[1]));
+    } else if (url.pathname.includes('/icons/')) {
+      event.respondWith(cacheFirst(request));
+    } else {
+      event.respondWith(networkFirst(request));
     }
-
-    // When OFFLINE: Serve from 10 GB audio cache if available
-    event.respondWith(
-      (async () => {
-        const cache = await caches.open(CACHE_AUDIO);
-        const cachedResponse = await cache.match(event.request.url);
-
-        if (cachedResponse) {
-          recordAudioAccess(event.request.url, null, null, null, undefined);
-          const rangeHeader = event.request.headers.get('range');
-          if (rangeHeader) {
-            return createPartialResponse(cachedResponse, rangeHeader);
-          }
-          return cachedResponse;
-        }
-
-        return new Response('Offline audio stream unavailable in cache', {
-          status: 503,
-          statusText: 'Offline Cache Miss'
-        });
-      })()
-    );
     return;
   }
 
-  // 2. MP3Quran API: Cache first with network refresh
-  if (url.hostname.includes('mp3quran.net')) {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(CACHE_STATIC).then((cache) => cache.put(event.request, clone));
-          }
-          return response;
-        })
-        .catch(() => caches.match(event.request))
-    );
-    return;
+  if (isApiRequest(url)) {
+    event.respondWith(networkFirst(request, API_TIMEOUT_MS));
   }
-
-  // 3. Static Assets: Cache first with network fallback
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return cached || fetch(event.request).then((response) => {
-        if (response.ok && event.request.method === 'GET') {
-          const clone = response.clone();
-          caches.open(CACHE_STATIC).then((cache) => cache.put(event.request, clone));
-        }
-        return response;
-      });
-    })
-  );
+  // Anything else (live audio streams, third parties) is left to the browser.
 });

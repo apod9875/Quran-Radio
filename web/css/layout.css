@@ -1,0 +1,28 @@
+/* Page layout: the header, main content and mini player all share --gutter */
+.main-wrapper {
+  max-width: 1400px;
+  margin-inline: auto;
+  width: 100%;
+  flex: 1;
+  padding: var(--gutter)
+           max(var(--gutter), env(safe-area-inset-right, 0px))
+           var(--gutter)
+           max(var(--gutter), env(safe-area-inset-left, 0px));
+}
+
+.layout-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+}
+
+.catalog-column,
+.hero-player-column {
+  min-width: 0;
+}
+
+@media (min-width: 960px) {
+  .layout-grid {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.95fr);
+  }
+}

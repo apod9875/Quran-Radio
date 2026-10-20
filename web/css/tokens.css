@@ -1,0 +1,87 @@
+/* Design tokens. Spacing tokens at the bottom are the only values that change per breakpoint. */
+:root {
+  --bg-main: #091612;
+  --surface: #0F241E;
+  --surface-variant: #16342B;
+  --border: #1E4438;
+  --border-active: #E2BA55;
+  --gold: #E2BA55;
+  --gold-hover: #F4D47C;
+  --gold-dark: #C49A2D;
+  --mint: #52B788;
+  --mint-light: #74C69D;
+  --text-main: #F2F7F5;
+  --text-muted: #A1BCB1;
+  --red-live: #EF5350;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Cairo", "Amiri", "Noto Sans Arabic", sans-serif;
+
+  /* Responsive spacing (desktop defaults) */
+  --gutter: 16px;
+  --header-pad-y: 10px;
+  --header-btn: 38px;
+  --brand-icon: 42px;
+  --card-pad: 12px 14px;
+  --card-gap: 10px;
+  --thumb-size: 42px;
+  --badge-min: 34px;
+  --action-size: 36px;
+  --action-gap: 5px;
+  --mini-btn: 40px;
+  --player-clearance: calc(92px + env(safe-area-inset-bottom, 0px));
+}
+
+@media (max-width: 768px) {
+  :root {
+    --gutter: 12px;
+    --header-pad-y: 8px;
+    --header-btn: 36px;
+    --brand-icon: 38px;
+    --card-pad: 10px 12px;
+    --card-gap: 8px;
+    --thumb-size: 40px;
+    --action-size: 34px;
+    --action-gap: 4px;
+  }
+}
+
+@media (max-width: 600px) {
+  :root {
+    --gutter: 10px;
+    --card-pad: 10px;
+    --thumb-size: 38px;
+    --badge-min: 28px;
+  }
+}
+
+@media (max-width: 420px) {
+  :root {
+    --gutter: 8px;
+    --header-pad-y: 6px;
+    --header-btn: 32px;
+    --brand-icon: 34px;
+    --card-pad: 8px;
+    --card-gap: 6px;
+    --thumb-size: 34px;
+    --badge-min: 24px;
+    --action-size: 32px;
+    --action-gap: 3px;
+    --mini-btn: 36px;
+  }
+}
+
+@media (max-width: 360px) {
+  :root {
+    --header-btn: 30px;
+    --brand-icon: 30px;
+    --card-pad: 6px;
+    --card-gap: 4px;
+    --thumb-size: 30px;
+    --badge-min: 22px;
+    --action-size: 30px;
+  }
+}
