@@ -66,7 +66,9 @@ describe('reciters and surahs in English', () => {
     const page = await open({ hash: '#/reciters' });
     await page.locator('.reciter-card').first().waitFor();
     await page.click('#langToggleBtn');
-    await page.waitForFunction(() => document.querySelector('#recitersCount').textContent.includes('reciters'));
+    // Not the count text: while loading it already reads "Loading reciters..." in English
+    await page.waitForFunction(() => [...document.querySelectorAll('#recitersList .station-name')]
+      .some((el) => el.textContent === 'Ibrahim Al-Akdar'));
     const names = await page.locator('#recitersList .station-name').allInnerTexts();
     assert.ok(names.includes('Ibrahim Al-Akdar'));
     assert.ok(/^[A-Z]$/.test(await page.locator('.letter-chip').first().innerText()), 'Latin letters in the index');
