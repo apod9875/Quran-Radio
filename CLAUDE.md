@@ -6,6 +6,7 @@ Live Quran radio and a surah library per reciter (Arabic, with an English switch
 - Work and commit directly on `main`.
 - **Frontend files stay small.** Every `.js`/`.css` file under `web/` aims for 100-150 lines; 200 is the hard ceiling. When a file would pass 200, split it into a folder instead of growing it. `npm run check` enforces this.
 - **All tests live under `testing/`**, mirroring the source layout (`testing/web/unit`, `layout`, `flows`; fixtures in `testing/web/testdata`; helpers in `testing/web/helpers`). Never put a test next to the code it tests. `npm run check` fails when a test file sits outside `testing/`.
+- **Every update users can notice gets release notes.** Add an entry at the top of `web/js/app/releases.js` (`version`, `date`, `ar` and `eng` lines about what the user gets, same number of lines in both) and set `CACHE_STATIC` in `web/sw/config.js` to the same version (`quran-radio-static-v<version>`). After the update users see it once in the "what's new" window (`js/app/whats-new.js`); `testing/web/unit/releases_test.mjs` fails if the shipped version has no notes.
 - Before finishing web work run `npm run check && npm test` (needs `npm ci` and `npx playwright install chromium` once).
 
 ## Web layout

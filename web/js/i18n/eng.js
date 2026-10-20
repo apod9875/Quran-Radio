@@ -35,7 +35,7 @@ window.QR_I18N.eng = {
   sadaqahTitle: "Sadaqah Jariyah for (Abdulrahim Mabed)",
   sadaqahDua: "May Allah grant him mercy, forgiveness, and the highest ranks in Jannah.",
   developedBy: "Developed by",
-  aboutNote: "Save any surah or station for offline listening, with no limit other than your device's space.",
+  aboutNote: "Download any surah for offline listening, with no limit other than your device's space.",
   githubRepo: "GitHub Repository",
   webApp: "Official Web App",
   sleepTimerTitle: "Sleep Timer",
@@ -146,5 +146,9 @@ window.QR_I18N.eng = {
   iconNoticeAndroid: "We changed the app icon. Chrome will ask you to approve the icon update within a day of opening the app; please accept it.\nTo see the new icon right away: remove the app from your home screen and install it again from the website.",
   iconNoticeDesktop: "We changed the app icon. To update it: open the three-dot menu (⋮) at the top of the app window, choose \"Review app update\" and accept.\nIf that option is not there: uninstall the app and install it again from the website.",
   iconNoticeIos: "We changed the app icon. On iPhone the icon does not update by itself: remove the app from your home screen and add it again from Safari (Share → Add to Home Screen).",
-  iconNoticeOk: "OK"
+  iconNoticeOk: "OK",
+  whatsNewTitle: "What's new in the app",
+  whatsNewBtn: "What's new in the app",
+  whatsNewOk: "Great, thanks",
+  versionLabel: "Version {version}"
 };

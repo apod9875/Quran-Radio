@@ -17,7 +17,9 @@ Object.assign(App.prototype, {
       navigator.serviceWorker.addEventListener('controllerchange', () => this.refreshCacheState());
     }
 
-    setTimeout(() => this.showIconNotice(), 2500); // after the page has settled
+    this._bindWhatsNew();
+    // After the page has settled: first what is new in this version, then (installed apps) the icon note
+    setTimeout(() => this.showWhatsNewIfUpdated().then(() => this.showIconNotice()), 1500);
 
     window.addEventListener('beforeinstallprompt', (event) => {
       event.preventDefault();

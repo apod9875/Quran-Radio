@@ -14,14 +14,14 @@ Object.assign(App.prototype, {
     bind(d.cacheBtn, () => { window.location.hash = '#/saved'; });
     bind(d.clearAllCacheBtn, () => this.clearAllCache());
 
-    document.querySelectorAll('.modal-overlay:not(#confirmModal)').forEach((overlay) => {
+    document.querySelectorAll('.modal-overlay:not(#confirmModal):not(#whatsNewModal)').forEach((overlay) => {
       overlay.addEventListener('click', (e) => {
         if (e.target === overlay) overlay.classList.remove('active');
       });
     });
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Escape') return;
-      document.querySelectorAll('.modal-overlay.active:not(#confirmModal)').forEach((m) => m.classList.remove('active'));
+      document.querySelectorAll('.modal-overlay.active:not(#confirmModal):not(#whatsNewModal)').forEach((m) => m.classList.remove('active'));
       this.closeMobileFullPlayer();
     });
   },

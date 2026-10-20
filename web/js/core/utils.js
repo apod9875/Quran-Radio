@@ -126,6 +126,17 @@
     return urls.map((url, i) => ({ url, i })).sort((a, b) => time(a.url) - time(b.url) || a.i - b.i).map((m) => m.url);
   }
 
+  // "3.10.0" vs "3.9.1": -1 / 0 / 1, number by number
+  function compareVersions(a, b) {
+    const pa = String(a).split('.').map(Number);
+    const pb = String(b).split('.').map(Number);
+    for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+      const diff = (pa[i] || 0) - (pb[i] || 0);
+      if (diff) return diff > 0 ? 1 : -1;
+    }
+    return 0;
+  }
+
   // Smoothed start time per mirror, so one slow or lucky sample does not decide alone
   function updateMirrorStat(stats, url, ms) {
     const previous = stats[url];
@@ -151,6 +162,7 @@
     sortStations,
     orderMirrors,
     updateMirrorStat,
+    compareVersions,
     normalizeArabic,
     escapeHtml,
     safeJson,

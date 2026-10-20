@@ -27,6 +27,7 @@ const json = (route, status, body) => route.fulfill({
  * options.quranStatus: answer the reciters / suwar requests with this HTTP status instead
  * options.surahSeconds: length of every surah file served for cdn.mp3quran.net (default 3)
  * options.hash: open the app on this route (e.g. '#/reciters')
+ * options.whatsNew: let the "what's new" window behave as for a real user (off by default)
  */
 export async function openApp(browser, baseUrl, options = {}) {
   const { width = 390, height = 800, streams = 'wav', serviceWorkers = 'block', surahSeconds = 3 } = options;
@@ -37,6 +38,14 @@ export async function openApp(browser, baseUrl, options = {}) {
     hasTouch: width < 800,
     serviceWorkers
   });
+
+  // The "what's new" window would cover other tests: count the latest notes as seen, unless a test
+  // asks for it (options.whatsNew) or set an older version itself
+  if (!options.whatsNew) {
+    await context.addInitScript(() => {
+      try { if (!localStorage.getItem('qr_seen_version')) localStorage.setItem('qr_seen_version', '999.0.0'); } catch (e) { /* blocked */ }
+    });
+  }
 
   // Start in English when asked (the app remembers the language in localStorage)
   if (options.lang === 'eng') {

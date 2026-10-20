@@ -1,0 +1,57 @@
+/* "What's new" window: the release notes after an update */
+.whats-new-card {
+  max-width: 460px;
+}
+
+.whats-new-list {
+  text-align: start;
+  max-height: min(60vh, 460px);
+  overflow-y: auto;
+  margin: 6px 0 16px;
+}
+
+.whats-new-release + .whats-new-release {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.whats-new-version {
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
+.whats-new-release ul {
+  margin: 0;
+  padding-inline-start: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.whats-new-release li {
+  color: var(--text-main);
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.whats-new-release li::marker {
+  color: var(--gold);
+}
+
+.whats-new-ok {
+  width: 100%;
+  font-size: 0.98rem;
+  justify-content: center;
+  padding: 11px 14px;
+  font-weight: 700;
+}
+
+.whats-new-link {
+  width: 100%;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font: inherit;
+}
