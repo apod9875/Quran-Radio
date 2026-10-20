@@ -6,6 +6,16 @@
  */
 window.QR_RELEASES = [
   {
+    version: '3.7.2',
+    date: '2026-10-20',
+    ar: [
+      'رسالة الإصدار الجديد تظهر من جديد عند فتح التطبيق إلى أن تحدّثه'
+    ],
+    eng: [
+      'The new version message shows again each time you open the app until you update'
+    ]
+  },
+  {
     version: '3.7.1',
     date: '2026-10-20',
     ar: [

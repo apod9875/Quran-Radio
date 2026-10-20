@@ -53,6 +53,31 @@ describe('new version banner', () => {
     assert.equal(await page.locator('#updateBanner').isVisible(), false);
   });
 
+  it('the worker reports the version the page runs', async () => {
+    ctx = await openApp(browser, server.url, { serviceWorkers: 'allow' });
+    const page = ctx.page;
+    await page.waitForFunction(() => navigator.serviceWorker.controller, null, { timeout: 30000 });
+    const reply = await page.evaluate(() => window.QR_SW.request({ type: 'GET_VERSION' }));
+    assert.equal(reply.version, await page.evaluate(() => window.QR_RELEASES[0].version));
+  });
+
+  it('comes back on every start while the worker holds a newer version', async () => {
+    ctx = await openApp(browser, server.url);
+    const page = ctx.page;
+    const check = (version) => page.evaluate((v) => {
+      window.QR_SW.request = async () => ({ version: v });
+      return window.app.checkWorkerVersion();
+    }, version);
+
+    await check(await page.evaluate(() => window.QR_RELEASES[0].version));
+    assert.equal(await page.locator('#updateBanner').isVisible(), false, 'nothing when the page is current');
+    await check('99.0.0');
+    assert.equal(await page.locator('#updateBanner').isVisible(), true);
+    await check('1.0.0');
+    await page.click('#updateLaterBtn');
+    assert.equal(await page.locator('#updateBanner').isVisible(), false);
+  });
+
   it('can be closed for now', async () => {
     ctx = await openApp(browser, server.url);
     const page = ctx.page;

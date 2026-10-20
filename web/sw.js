@@ -36,6 +36,7 @@ self.addEventListener('activate', (event) => {
 });
 
 const MESSAGE_HANDLERS = {
+  GET_VERSION: () => ({ version: CACHE_STATIC.replace('quran-radio-static-v', '') }),
   GET_CACHE_METRICS: () => getAudioCacheMetrics(),
   CLEAR_ALL_AUDIO_CACHE: async () => { await clearAudioCache(); return { success: true }; },
   RECORD_DOWNLOAD: (data) => recordDownload(data),
