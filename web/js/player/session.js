@@ -9,8 +9,8 @@ Object.assign(AudioStreamPlayer.prototype, {
         artist: track.reciterName || 'صدقة جارية لـ (عبدالرحيم معبد) • Mabed',
         album: track.riwaya || 'Quran Radio',
         artwork: [
-          { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' }
+          { src: 'icons/quran-radio-512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'icons/quran-radio-192.png', sizes: '192x192', type: 'image/png' }
         ]
       });
       const session = navigator.mediaSession;

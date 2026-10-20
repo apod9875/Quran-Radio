@@ -68,9 +68,8 @@ self.addEventListener('fetch', (event) => {
     const surah = OFFLINE_SURAH_PATH.exec(url.pathname);
     if (surah) {
       event.respondWith(serveOfflineSurah(request, surah[1], Number(surah[2])));
-    } else if (url.pathname.includes('/icons/')) {
-      event.respondWith(cacheFirst(request));
     } else {
+      // Icons too: a changed icon must reach installed apps, so the network wins when it answers
       event.respondWith(networkFirst(request));
     }
     return;

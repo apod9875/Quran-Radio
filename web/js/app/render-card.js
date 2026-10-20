@@ -38,7 +38,7 @@ Object.assign(App.prototype, {
         <div class="station-left">
           <span class="station-index-badge">#${String(index + 1).padStart(2, '0')}</span>
           <div class="station-thumb">
-            <img src="icons/icon-192.png" alt="" width="42" height="42" loading="lazy" decoding="async">
+            <img src="icons/quran-radio-192.png" alt="" width="42" height="42" loading="lazy" decoding="async">
           </div>
           <div class="station-details">
             <div class="station-name">${escapeHtml(station.name)}</div>

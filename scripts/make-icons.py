@@ -41,10 +41,12 @@ def save(img, path, opaque=False):
 
 
 # Web: transparent icons, a maskable one inside the 80% safe circle, and an opaque one for iOS
-for size, name in [(512, 'icon-512.png'), (512, 'icon.png'), (192, 'icon-192.png'), (32, 'favicon-32.png')]:
+# New file names whenever the artwork changes: installed apps (Android, Windows) only notice a new icon
+# reliably when its URL changes, and the old URLs may sit in device caches
+for size, name in [(512, 'quran-radio-512.png'), (192, 'quran-radio-192.png'), (32, 'quran-radio-32.png')]:
     save(on_canvas(size, 0.96), os.path.join(WEB, name))
-save(on_canvas(512, 0.68, GREEN), os.path.join(WEB, 'icon-maskable-512.png'), opaque=True)
-save(on_canvas(180, 0.92, GREEN), os.path.join(WEB, 'apple-touch-icon.png'), opaque=True)
+save(on_canvas(512, 0.68, GREEN), os.path.join(WEB, 'quran-radio-maskable-512.png'), opaque=True)
+save(on_canvas(180, 0.92, GREEN), os.path.join(WEB, 'quran-radio-apple-180.png'), opaque=True)
 
 # Android: adaptive foreground (108 dp layer; the tile fits inside the 72 dp visible area even under a
 # circle mask) and legacy 48 dp launcher icons for Android 7.x

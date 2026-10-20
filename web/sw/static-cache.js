@@ -39,12 +39,3 @@ async function networkFirst(request, timeoutMs = NETWORK_TIMEOUT_MS) {
     throw err;
   }
 }
-
-// Icons never change under the same name, so serving them from the cache is safe and fast.
-async function cacheFirst(request) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-  const response = await fetch(request);
-  storeCopy(request, response);
-  return response;
-}

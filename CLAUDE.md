@@ -28,7 +28,7 @@ Live Quran radio and a surah library per reciter (Arabic, with an English switch
 - Surah downloads are written by the page itself (`js/quran/downloads.js`, so a long download is not cut by service-worker time limits) into the cache named in `js/core/storage-names.js`; the worker records them (`RECORD_DOWNLOAD`) and serves `/offline-surah/<mushafId>/<nnn>` with Range support (`sw/surah-cache.js`). Automatic clean-up never removes downloaded surahs.
 
 ## Icons
-- Every icon (web `web/icons/*.png` and the Android launcher mipmaps) is generated from `web/icons/icon-source.jpg` by `python scripts/make-icons.py` (needs Pillow). Do not edit the PNGs by hand; change the source or the script and run it again.
+- Every icon (web `web/icons/*.png` and the Android launcher mipmaps) is generated from `web/icons/icon-source.jpg` by `python scripts/make-icons.py` (needs Pillow). Do not edit the PNGs by hand; change the source or the script and run it again. When the artwork changes, also give the web icons new file names (in the script, `manifest.json`, `index.html`, `sw/config.js` and the code that shows them): installed apps on Android and Windows only pick up a new icon reliably when its URL changes.
 
 ## Android (`app/`)
 - Not buildable on the author's machine (no SDK, no Gradle wrapper). Layout padding comes from `ui/theme/Dimens.kt`. The launcher icon is an adaptive icon: `mipmap-*/ic_launcher_foreground.png` on the `#08281C` background color, plus legacy `ic_launcher*.png` for Android 7.x.
