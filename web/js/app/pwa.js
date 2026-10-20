@@ -1,10 +1,14 @@
 /** Service worker registration, install prompt and the categories drag-to-scroll. */
 Object.assign(App.prototype, {
   _setupPwa() {
+    this._bindUpdateBanner();
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js')
         .then((registration) => {
-          if (registration) registration.update().catch(() => {});
+          if (registration) {
+            registration.update().catch(() => {});
+            this._setupUpdates(registration);
+          }
           this.refreshCacheState();
         })
         .catch((err) => console.warn('[SW] registration failed:', err));
@@ -12,6 +16,8 @@ Object.assign(App.prototype, {
       // First visit: the worker only takes control after install, so sync once it does
       navigator.serviceWorker.addEventListener('controllerchange', () => this.refreshCacheState());
     }
+
+    setTimeout(() => this.showIconNotice(), 2500); // after the page has settled
 
     window.addEventListener('beforeinstallprompt', (event) => {
       event.preventDefault();

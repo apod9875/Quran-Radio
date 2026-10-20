@@ -138,5 +138,13 @@ window.QR_I18N.eng = {
   downloadSizeUnknown: "Size: …",
   storageFull: "Your device storage is full. Delete some saved items.",
   hlsBadge: "Video broadcast · uses more data",
-  resumeTapHint: "Tap anywhere to continue listening"
+  resumeTapHint: "Tap anywhere to continue listening",
+  updateAvailable: "A new version of the app is available",
+  updateNow: "Update now",
+  later: "Later",
+  iconNoticeTitle: "New app icon",
+  iconNoticeAndroid: "We changed the app icon. Chrome will ask you to approve the icon update within a day of opening the app; please accept it.\nTo see the new icon right away: remove the app from your home screen and install it again from the website.",
+  iconNoticeDesktop: "We changed the app icon. To update it: open the three-dot menu (⋮) at the top of the app window, choose \"Review app update\" and accept.\nIf that option is not there: uninstall the app and install it again from the website.",
+  iconNoticeIos: "We changed the app icon. On iPhone the icon does not update by itself: remove the app from your home screen and add it again from Safari (Share → Add to Home Screen).",
+  iconNoticeOk: "OK"
 };

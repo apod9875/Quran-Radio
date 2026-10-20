@@ -1,0 +1,67 @@
+/* "A new version is available" bar, under the header, on the same gutter as the content */
+.update-banner {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 74px);
+  inset-inline: var(--gutter);
+  max-width: 560px;
+  margin-inline: auto;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface-variant);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  animation: update-in 0.25s ease-out;
+}
+
+.update-banner[hidden] {
+  display: none;
+}
+
+.update-banner-icon {
+  color: var(--gold);
+  flex-shrink: 0;
+  display: flex;
+}
+
+.update-banner-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--text-main);
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.update-banner .btn-update-now {
+  flex-shrink: 0;
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #121815;
+  font-weight: 700;
+  padding: 7px 14px;
+}
+
+.update-banner .btn-update-later {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+}
+
+@keyframes update-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .update-banner {
+    animation: none;
+  }
+}

@@ -18,6 +18,7 @@ window.QR_cacheDom = function () {
     'timerGrid', 'timerRemainingText',
     'cacheUsageText', 'cacheStationsCountText', 'clearAllCacheBtn',
     'confirmModal', 'confirmTitle', 'confirmMessage', 'confirmDetails', 'confirmOkBtn', 'confirmCancelBtn',
+    'updateBanner', 'updateNowBtn', 'updateLaterBtn',
     'bottomNav', 'miniProgressFill', 'fullPlayerHeading',
     'recitersView', 'continueCard', 'reciterSearch', 'recitersCount', 'reciterFilterBar', 'letterBar', 'recitersList',
     'reciterView', 'reciterTitle', 'reciterSubtitle', 'reciterFavBtn', 'moshafBar', 'playAllBtn', 'downloadAllBtn',
