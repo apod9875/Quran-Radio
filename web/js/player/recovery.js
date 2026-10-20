@@ -44,9 +44,13 @@ Object.assign(AudioStreamPlayer.prototype, {
   _loadStream(url, offline) {
     const token = ++this.loadToken;
     this.usingOffline = !!offline;
-    this.audio.loop = !!offline;
+    // Only a short live-radio sample loops; a surah plays once and then moves on
+    this.audio.loop = !!offline && !this._isFile();
+    this.pendingSeek = this._isFile() ? this.resumeAt : 0;
+    this.resumeAt = 0;
     try { this.audio.pause(); } catch (e) { /* ignore */ }
     this.audio.src = url;
+    this._applyRate();
     this._setState('buffering');
     this._startWatchdog();
 
@@ -94,6 +98,8 @@ Object.assign(AudioStreamPlayer.prototype, {
   // A cache-busting query resets the mobile TCP socket without changing the stream
   _retryStream() {
     if (!this.currentStation) return;
+    // A surah continues from where it stopped
+    if (this._isFile()) this.resumeAt = this.audio.currentTime || this.pendingSeek || 0;
     const base = this.currentStation.url;
     this._loadStream(`${base}${base.includes('?') ? '&' : '?'}t=${Date.now()}`, false);
   },
@@ -109,11 +115,14 @@ Object.assign(AudioStreamPlayer.prototype, {
   // Resume after pause/stop/error; reload when the old connection is likely dead
   _resumeCurrent() {
     const audio = this.audio;
-    const stale = !audio.currentSrc || audio.readyState === 0 || !!audio.error
-      || this.state === 'idle' || this.state === 'error' || this.usingOffline
-      || Date.now() - this.pausedAt > AudioStreamPlayer.TUNING.stalePauseMs;
+    const broken = !audio.currentSrc || audio.readyState === 0 || !!audio.error
+      || this.state === 'idle' || this.state === 'error';
+    // A paused live stream goes stale quickly; a paused file does not
+    const stale = broken || (!this._isFile()
+      && (this.usingOffline || Date.now() - this.pausedAt > AudioStreamPlayer.TUNING.stalePauseMs));
     this.retryCount = 0;
     if (stale) {
+      if (this._isFile()) this.resumeAt = audio.currentTime || this.savedPosition(this.currentStation.id);
       this._startStation();
       return;
     }

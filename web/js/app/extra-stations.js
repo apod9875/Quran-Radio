@@ -8,6 +8,6 @@ window.QR_EXTRA_STATIONS = [
     id: 900001,
     url: 'https://stream.radiojar.com/8s5u5tpdtwzuv',
     pinned: true,
-    names: { ar: 'إذاعة القرآن الكريم من القاهرة', eng: 'Holy Quran Radio from Cairo' }
+    name: 'إذاعة القرآن الكريم من القاهرة'
   }
 ];

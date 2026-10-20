@@ -1,7 +1,7 @@
 /** Collects every element the app touches, once, by id. */
 window.QR_cacheDom = function () {
   const ids = [
-    'appTitle', 'appDedication', 'langBtnText', 'langBtnShort', 'langToggleBtn', 'infoBtn', 'installBtn',
+    'appTitle', 'appDedication', 'infoBtn', 'installBtn',
     'devicesBtn', 'cacheBtn', 'offlineBanner', 'offlineBannerText',
     'searchInput', 'clearSearchBtn', 'stationsCountBadge', 'categoriesBar', 'riwayaBar', 'stationsContainer',
     'heroTitle', 'heroCategory', 'heroIndicatorText', 'heroPlayBtn', 'heroPrevBtn', 'heroNextBtn',
@@ -16,8 +16,13 @@ window.QR_cacheDom = function () {
     'diagResolution', 'diagCategory', 'diagOrientation', 'diagTouch',
     'timerModal', 'closeTimerBtn', 'cancelTimerBtn', 'customTimerInput', 'applyCustomTimerBtn',
     'timerGrid', 'timerRemainingText',
-    'cacheModal', 'closeCacheBtn', 'closeCacheDoneBtn', 'cacheUsageText', 'cacheProgressBar',
-    'cacheStationsCountText', 'refreshUnusedCacheBtn', 'clearAllCacheBtn', 'cachedStationsList'
+    'cacheUsageText', 'cacheProgressBar', 'cacheStationsCountText',
+    'refreshUnusedCacheBtn', 'clearAllCacheBtn', 'cachedStationsList',
+    'bottomNav', 'miniProgressFill', 'fullPlayerHeading',
+    'recitersView', 'continueCard', 'reciterSearch', 'recitersCount', 'reciterFilterBar', 'letterBar', 'recitersList',
+    'reciterView', 'reciterTitle', 'reciterSubtitle', 'reciterFavBtn', 'moshafBar', 'playAllBtn', 'downloadAllBtn',
+    'surahSearch', 'surahList',
+    'savedView', 'downloadQueue', 'savedSurahsList'
   ];
 
   const dom = { html: document.documentElement };

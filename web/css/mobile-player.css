@@ -2,7 +2,7 @@
 .mobile-player-bar {
   display: none;
   position: fixed;
-  bottom: max(12px, calc(8px + env(safe-area-inset-bottom, 0px)));
+  bottom: calc(var(--nav-offset) + 8px);
   left: max(var(--gutter), env(safe-area-inset-left, 0px));
   right: max(var(--gutter), env(safe-area-inset-right, 0px));
   max-width: 600px;
@@ -85,9 +85,13 @@
     display: flex;
   }
 
-  /* Only reserve room for the bar while it is on screen */
+  /* Room for the tab bar, plus the mini player while it is on screen */
+  .main-wrapper {
+    padding-bottom: calc(var(--nav-offset) + var(--gutter));
+  }
+
   body.has-mini-player .main-wrapper {
-    padding-bottom: var(--player-clearance);
+    padding-bottom: calc(var(--nav-offset) + var(--player-clearance));
   }
 }
 

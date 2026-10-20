@@ -3,14 +3,17 @@
  * - App shell: network-first with a cache fallback, so a deploy reaches users on their next visit.
  * - Live streams are never touched; the browser's media decoder talks to the stream directly.
  * - Offline samples of stations live in CacheStorage and are served at /offline-audio/<id>.
+ * - Downloaded surahs are served at /offline-surah/<moshafId>/<nnn> with Range support.
  *
  * صدقة جارية لـ (عبدالرحيم معبد) • Mabed
  */
 importScripts(
+  './js/core/storage-names.js',
   './sw/config.js',
   './sw/range.js',
   './sw/db.js',
   './sw/audio-cache.js',
+  './sw/surah-cache.js',
   './sw/static-cache.js'
 );
 
@@ -44,6 +47,8 @@ const MESSAGE_HANDLERS = {
     await dbUpdateByStation(data.stationId, { isFavorite: !!data.isFavorite });
     return { success: true };
   },
+  RECORD_DOWNLOAD: (data) => recordDownload(data),
+  DELETE_DOWNLOAD: (data) => deleteDownload(data),
   TOUCH_AUDIO: async (data) => {
     await dbUpdateByStation(data.stationId, { lastAccessed: Date.now() });
     return { success: true };
@@ -74,8 +79,11 @@ self.addEventListener('fetch', (event) => {
 
   if (url.origin === self.location.origin) {
     const offline = OFFLINE_AUDIO_PATH.exec(url.pathname);
+    const surah = OFFLINE_SURAH_PATH.exec(url.pathname);
     if (offline) {
       event.respondWith(serveOfflineAudio(request, offline[1]));
+    } else if (surah) {
+      event.respondWith(serveOfflineSurah(request, surah[1], Number(surah[2])));
     } else if (url.pathname.includes('/icons/')) {
       event.respondWith(cacheFirst(request));
     } else {

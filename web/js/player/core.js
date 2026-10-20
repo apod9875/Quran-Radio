@@ -1,8 +1,9 @@
 /**
- * AudioStreamPlayer: HTML5 audio engine for live Quran radio streams.
+ * AudioStreamPlayer: HTML5 audio engine for live Quran radio streams and surah files.
  * This file holds the state machine and the public API; the behaviour lives in
  *   events.js (audio + network events), recovery.js (loading, stalls, retries, offline copy),
- *   session.js (Media Session + sleep timer) and offline.js (saving a station sample).
+ *   session.js (Media Session + sleep timer), offline.js (saving a station sample) and
+ *   seek.js (surah files: seeking, speed, saved position, end of track).
  *
  * States: idle | buffering | playing | paused | error
  *
@@ -26,6 +27,12 @@ class AudioStreamPlayer {
     this.pausedAt = 0;
     this.usingOffline = false;
     this.errorReason = null;
+    this.resumeAt = 0; // seconds to start the next surah at (set by the app before play())
+    this.pendingSeek = 0;
+    this.lastPositionSave = 0;
+    this.stopAfterTrack = false;
+    const savedRate = parseFloat(window.QRUtils.readStorage('qr_rate'));
+    this.rate = [1, 1.25, 1.5, 0.75].includes(savedRate) ? savedRate : 1;
     this.getOfflineUrl = null; // set by the app: station => same-origin URL of a saved sample, or null
 
     this.sleepTimerRemaining = null;
@@ -33,7 +40,7 @@ class AudioStreamPlayer {
     this.sleepTimerInterval = null;
     this.isOffline = !navigator.onLine;
 
-    this.listeners = { state: [], timer: [], offline: [], skip: [], volume: [] };
+    this.listeners = { state: [], timer: [], offline: [], skip: [], volume: [], progress: [], ended: [] };
 
     const savedVolume = parseFloat(window.QRUtils.readStorage('mp3quran_volume'));
     this.volume = Number.isFinite(savedVolume) ? Math.max(0, Math.min(1, savedVolume)) : 1;
@@ -44,6 +51,7 @@ class AudioStreamPlayer {
     this.supportsVolume = this._detectVolumeSupport();
 
     this._bindAudioEvents();
+    this._bindSeekEvents();
     this._bindNetworkEvents();
   }
 
@@ -52,6 +60,8 @@ class AudioStreamPlayer {
   onOfflineChange(callback) { this.listeners.offline.push(callback); }
   onSkip(callback) { this.listeners.skip.push(callback); }
   onVolumeChange(callback) { this.listeners.volume.push(callback); }
+  onProgress(callback) { this.listeners.progress.push(callback); }
+  onEnded(callback) { this.listeners.ended.push(callback); }
 
   _setState(state) {
     this.state = state;
@@ -80,6 +90,7 @@ class AudioStreamPlayer {
   pause() {
     if (!this.currentStation) return;
     this._cancelPending();
+    if (this._isFile()) this._savePosition();
     this.pausedAt = Date.now();
     try { this.audio.pause(); } catch (e) { /* element already torn down */ }
     this._setState('paused');

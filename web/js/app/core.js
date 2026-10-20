@@ -1,12 +1,11 @@
 /**
- * App: ties the station catalog, the player and the UI together.
- * The class is assembled from small mixins (pwa, language, stations, render, events,
- * player-ui, cache-ui, modals); boot.js creates the instance.
+ * App: ties the radio stations, the Quran reciters, the player and the UI together.
+ * The class is assembled from small mixins (js/app/*, js/quran/*); boot.js creates the instance.
  */
 class App {
   constructor() {
     const { readStorage, safeJson } = window.QRUtils;
-    this.lang = readStorage('mp3quran_lang') === 'eng' ? 'eng' : 'ar';
+    this.lang = 'ar'; // the app is Arabic only
     this.activeCategory = 'ALL';
     this.activeRiwaya = 'ALL';
     this.searchQuery = '';
@@ -23,26 +22,36 @@ class App {
 
     const savedFavorites = safeJson(readStorage('mp3quran_favs'), []);
     this.favorites = new Set(Array.isArray(savedFavorites) ? savedFavorites.map(Number) : []);
+    const favoriteReciters = safeJson(readStorage('qr_fav_reciters'), []);
+    this.favoriteReciters = new Set(Array.isArray(favoriteReciters) ? favoriteReciters.map(Number) : []);
+    this.quran = null;
+    this.queue = null;
+    this.currentView = null;
 
     this.dom = window.QR_cacheDom();
     this.player = new window.AudioStreamPlayer();
     this.player.getOfflineUrl = (station) => this.getOfflineUrl(station);
+    this._initDownloads();
 
     this._bindEvents();
     this._setupPwa();
     this._setupCategoryDrag();
-    this.applyLanguage(this.lang);
+    this.applyText();
     this.fetchStations();
     this.checkOfflineStatus(!navigator.onLine);
+    this._setupRouter();
   }
 
   get t() {
     return window.QR_I18N[this.lang];
   }
 
-  // Same-origin URL where the service worker serves a saved sample of this station
-  getOfflineUrl(station) {
-    return this.cachedIds.has(station.id) ? `offline-audio/${station.id}` : null;
+  // Same-origin URL where the service worker serves the saved copy (radio sample or downloaded surah)
+  getOfflineUrl(track) {
+    if (track.kind === 'surah') {
+      return this.isSurahSaved(track.moshafId, track.surah) ? this.offlineSurahUrl(track.moshafId, track.surah) : null;
+    }
+    return this.cachedIds.has(track.id) ? `offline-audio/${track.id}` : null;
   }
 
   showToast(message) {

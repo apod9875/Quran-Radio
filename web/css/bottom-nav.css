@@ -1,0 +1,108 @@
+/* Section tabs: a fixed bottom bar on phones, a row of tabs under the header on desktop */
+.bottom-nav {
+  display: flex;
+  z-index: 96;
+}
+
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s, background 0.2s;
+}
+
+.nav-item:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: -4px;
+  border-radius: var(--radius-md);
+}
+
+.nav-item.active {
+  color: var(--gold);
+}
+
+/* While offline, a dot on "Saved" shows where the playable content is */
+.is-offline .nav-item[data-nav="saved"]::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  inset-inline-end: calc(50% - 18px);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red-live);
+  box-shadow: 0 0 6px var(--red-live);
+}
+
+@media (max-width: 959px) {
+  .bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--nav-offset);
+    padding: 0 max(var(--gutter), env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(var(--gutter), env(safe-area-inset-left, 0px));
+    background: rgba(15, 36, 30, 0.97);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid var(--border);
+    justify-content: space-around;
+  }
+
+  .nav-item {
+    flex: 1;
+    flex-direction: column;
+    gap: 3px;
+    height: var(--nav-height);
+    font-size: 0.72rem;
+  }
+
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 32px;
+    height: 3px;
+    border-radius: 0 0 3px 3px;
+    background: var(--gold);
+  }
+}
+
+@media (min-width: 960px) {
+  .bottom-nav {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    gap: 8px;
+    padding: 14px var(--gutter) 0;
+  }
+
+  .nav-item {
+    padding: 8px 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    background: var(--surface-variant);
+    font-size: 0.88rem;
+  }
+
+  .nav-item:hover {
+    border-color: rgba(226, 186, 85, 0.5);
+    color: var(--text-main);
+  }
+
+  .nav-item.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #111e19;
+  }
+
+  .is-offline .nav-item[data-nav="saved"]::after {
+    top: 4px;
+    inset-inline-end: 6px;
+  }
+}

@@ -83,7 +83,8 @@ async function refreshUnusedAudioCache(forceAggressive) {
   if (!forceAggressive && metrics.totalBytes <= target) return { bytesFreed: 0, itemsRemoved: 0 };
 
   const cache = await caches.open(CACHE_AUDIO);
-  const items = metrics.items.sort((a, b) => a.lastAccessed - b.lastAccessed);
+  // Downloaded surahs are the user's own library: only radio samples are cleaned automatically
+  const items = metrics.items.filter((item) => item.kind !== 'surah').sort((a, b) => a.lastAccessed - b.lastAccessed);
   let bytesFreed = 0;
   let itemsRemoved = 0;
 

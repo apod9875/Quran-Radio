@@ -1,18 +1,22 @@
 /** Event wiring. Lists use one delegated listener each, so re-rendering never re-binds anything. */
 Object.assign(App.prototype, {
   _bindEvents() {
-    this.dom.langToggleBtn.addEventListener('click', () => this.toggleLanguage());
     this._bindSearchEvents();
     this._bindListEvents();
     this._bindPlayerControls();
     this._bindTimerEvents();
     this._bindModalEvents();
     this._bindVolumeControls();
+    this._bindProgressUi();
+    this._bindRecitersView();
+    this._bindReciterView();
+    this._bindSavedView();
 
     this.player.onStateChange((state, station) => this._updatePlayerUi(state, station));
     this.player.onTimerTick((seconds) => this._updateTimerUi(seconds));
     this.player.onOfflineChange((isOffline) => this.checkOfflineStatus(isOffline));
     this.player.onSkip((step) => this.playNeighbor(step));
+    this.player.onEnded(() => this._onTrackEnded());
   },
 
   _bindSearchEvents() {
@@ -74,7 +78,14 @@ Object.assign(App.prototype, {
     const player = this.player;
     const onAll = (elements, handler) => elements.forEach((el) => el.addEventListener('click', handler));
     const favoriteCurrent = () => {
-      if (player.currentStation) this.toggleFavorite(player.currentStation.id);
+      const track = player.currentStation;
+      if (!track) return;
+      if (track.kind === 'surah') {
+        this.toggleFavoriteReciter(track.reciterId);
+        this._updateFavButtons();
+      } else {
+        this.toggleFavorite(track.id);
+      }
     };
 
     onAll([d.heroPlayBtn, d.fullPlayerPlayBtn], () => player.togglePlayPause());
@@ -106,7 +117,7 @@ Object.assign(App.prototype, {
     d.timerGrid.addEventListener('click', (e) => {
       const chip = e.target.closest('.btn-timer-chip');
       if (!chip) return;
-      this.player.setSleepTimer(parseInt(chip.dataset.mins, 10));
+      this.player.setSleepTimer(chip.dataset.mins === 'end' ? 'end' : parseInt(chip.dataset.mins, 10));
       this.closeTimerModal();
     });
     d.applyCustomTimerBtn.addEventListener('click', () => {

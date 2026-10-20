@@ -127,7 +127,7 @@ describe('finding stations', () => {
     const total = await cardCount(page);
 
     await search(page, 'عبد الباسط');
-    const names = await page.locator('.station-name').allInnerTexts();
+    const names = await page.locator('.station-card .station-name').allInnerTexts();
     assert.ok(names.length >= 3 && names.length < total);
     assert.ok(names.every((n) => n.replace(/\s/g, '').includes('عبدالباسط')));
 
@@ -141,16 +141,10 @@ describe('finding stations', () => {
     assert.equal(await cardCount(page), total);
   });
 
-  it('shows a filled Riwayat tab and keeps its stations in both languages', async () => {
+  it('shows a filled Riwayat tab', async () => {
     const page = await open();
     await page.click('.cat-chip[data-id="RIWAYAT"]');
-    const arabic = await cardCount(page);
-    assert.ok(arabic >= 8);
-
-    await page.click('#langToggleBtn');
-    await page.waitForFunction(() => document.querySelector('.station-name')?.textContent.startsWith('Radio'));
-    assert.equal(await page.locator('.cat-chip.active').getAttribute('data-id'), 'RIWAYAT');
-    assert.equal(await cardCount(page), arabic);
+    assert.ok((await cardCount(page)) >= 8);
   });
 
   it('keeps favorites across a reload and lists them in the Favorites tab', async () => {
@@ -176,17 +170,16 @@ describe('finding stations', () => {
 });
 
 describe('language, modals and content', () => {
-  it('switches direction and refreshes the texts, including the player', async () => {
+  it('is Arabic only: right-to-left, Arabic texts and no language switch', async () => {
     const page = await open();
+    assert.equal(await page.locator('#langToggleBtn').count(), 0);
+    assert.equal(await page.evaluate(() => document.documentElement.dir), 'rtl');
+    assert.equal(await page.evaluate(() => document.documentElement.lang), 'ar');
+    assert.equal(await page.locator('#appTitle').innerText(), 'إذاعة القرآن الكريم');
     await card(page, 0).locator('.station-name').click();
     await waitState(page, 'playing');
-    await page.click('#langToggleBtn');
-    await page.waitForFunction(() => document.querySelector('.station-name')?.textContent.startsWith('Holy Quran'));
-    assert.equal(await page.evaluate(() => document.documentElement.dir), 'ltr');
-    assert.equal(await page.locator('#appTitle').innerText(), 'Quran Radio');
-    assert.equal(await page.locator('#mobileBarStatus').innerText(), 'LIVE 24/7');
-    assert.match(await page.locator('#mobileBarTitle').innerText(), /^Holy Quran Radio/);
-    assert.equal(await page.locator('#closeCacheBtn').getAttribute('aria-label'), 'Close');
+    assert.equal(await page.locator('#mobileBarStatus').innerText(), 'بث مباشر الآن');
+    assert.equal(await page.evaluate(() => typeof window.QR_I18N.eng), 'undefined');
   });
 
   it('opens the supported devices modal and closes it with Escape', async () => {
@@ -252,21 +245,15 @@ describe('Egyptian radio, alphabetical order and riwayat', () => {
     await page.waitForFunction(() => window.app.player.currentStation.id === 900001);
   });
 
-  it('lists the other stations alphabetically in Arabic and English', async () => {
+  it('lists the other stations alphabetically', async () => {
     const page = await open();
-    for (const lang of ['ar', 'eng']) {
-      if (lang === 'eng') {
-        await page.click('#langToggleBtn');
-        await page.waitForFunction(() => document.querySelector('.station-name')?.textContent.startsWith('Holy Quran'));
-      }
-      const ok = await page.evaluate((l) => {
-        const { nameSortKey } = window.QRUtils;
-        const collator = new Intl.Collator(l === 'ar' ? 'ar' : 'en', { sensitivity: 'base', numeric: true });
-        const names = [...document.querySelectorAll('.station-name')].map((e) => e.textContent).slice(1);
-        return names.every((n, i) => i === 0 || collator.compare(nameSortKey(names[i - 1], l), nameSortKey(n, l)) <= 0);
-      }, lang);
-      assert.ok(ok, `${lang} list is not in alphabetical order`);
-    }
+    const ok = await page.evaluate(() => {
+      const { nameSortKey } = window.QRUtils;
+      const collator = new Intl.Collator('ar', { sensitivity: 'base', numeric: true });
+      const names = [...document.querySelectorAll('.station-card .station-name')].map((e) => e.textContent).slice(1);
+      return names.every((n, i) => i === 0 || collator.compare(nameSortKey(names[i - 1], 'ar'), nameSortKey(n, 'ar')) <= 0);
+    });
+    assert.ok(ok, 'the list is not in alphabetical order');
   });
 
   it('shows the riwaya name on every station of the Riwayat tab', async () => {
@@ -275,13 +262,11 @@ describe('Egyptian radio, alphabetical order and riwayat', () => {
     const badges = await page.locator('.station-card .station-riwaya').allInnerTexts();
     assert.equal(badges.length, await cardCount(page));
     assert.ok(badges.includes('ورش عن نافع') && badges.includes('قالون عن نافع'));
-    await page.click('#langToggleBtn');
-    await page.waitForFunction(() => document.querySelector('.station-riwaya')?.textContent.includes(' from '));
   });
 });
 
 describe('riwaya filter', () => {
-  const chips = (page) => page.locator('.riwaya-chip');
+  const chips = (page) => page.locator('#riwayaBar .riwaya-chip');
 
   it('shows a chip per riwaya with counts only on the Riwayat tab', async () => {
     const page = await open();
@@ -313,14 +298,6 @@ describe('riwaya filter', () => {
     assert.equal(await cardCount(page), 10, 'leaving the tab resets the riwaya filter');
   });
 
-  it('uses the English names after a language switch', async () => {
-    const page = await open();
-    await page.click('.cat-chip[data-id="RIWAYAT"]');
-    await page.click('#langToggleBtn');
-    await page.waitForFunction(() => document.querySelector('.riwaya-chip')?.textContent.includes('All riwayat'));
-    await chips(page).filter({ hasText: 'Warsh from Nafi' }).click();
-    assert.equal(await cardCount(page), 2);
-  });
 });
 
 describe('volume control', () => {

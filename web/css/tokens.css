@@ -32,7 +32,16 @@
   --action-size: 36px;
   --action-gap: 5px;
   --mini-btn: 40px;
-  --player-clearance: calc(92px + env(safe-area-inset-bottom, 0px));
+  --player-clearance: 84px;
+  --nav-height: 0px;
+  --nav-offset: 0px; /* space taken by the bottom tab bar (phones only) */
+}
+
+@media (max-width: 959px) {
+  :root {
+    --nav-height: 60px;
+    --nav-offset: calc(60px + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 @media (max-width: 768px) {

@@ -32,7 +32,12 @@
   <link rel="stylesheet" href="css/toast-banner.css">
   <link rel="stylesheet" href="css/modals.css">
   <link rel="stylesheet" href="css/modal-about-timer.css">
-  <link rel="stylesheet" href="css/modal-cache.css">
+  <link rel="stylesheet" href="css/storage.css">
+  <link rel="stylesheet" href="css/bottom-nav.css">
+  <link rel="stylesheet" href="css/progress.css">
+  <link rel="stylesheet" href="css/reciters.css">
+  <link rel="stylesheet" href="css/reciter.css">
+  <link rel="stylesheet" href="css/saved.css">
   <link rel="stylesheet" href="css/responsive-tablet.css">
   <link rel="stylesheet" href="css/responsive-phone.css">
 </head>
@@ -96,25 +101,24 @@
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
           </svg>
         </button>
-
-        <!-- Language toggle button -->
-        <button id="langToggleBtn" class="btn-text-pill btn-lang-pill" data-i18n-label="langSwitchLabel" title="تغيير اللغة" aria-label="تغيير اللغة">
-          <svg class="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-          </svg>
-          <span id="langBtnText" class="lang-label-full">English</span>
-          <span id="langBtnShort" class="lang-label-short">EN</span>
-        </button>
       </div>
     </div>
   </header>
+
+  <!-- Sections: a bottom tab bar on phones, tabs under the header on desktop -->
+  <nav class="bottom-nav" id="bottomNav" data-i18n-label="sectionsLabel" aria-label="الأقسام">
+    <a class="nav-item" href="#/radio" data-nav="radio"><svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M3.24 6.15C2.51 6.43 2 7.17 2 8v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8c0-.83-.51-1.57-1.24-1.85L16.2 4.47l.8-1.74a1 1 0 1 0-1.81-.84l-1.33 2.92L4.76 5.37a2 2 0 0 0-1.52.78zM20 20H4V8h16v12zm-6-6a4 4 0 1 1-8 0 4 4 0 0 1 8 0zm4-3a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/></svg><span data-i18n="navRadio">الإذاعات</span></a>
+    <a class="nav-item" href="#/reciters" data-nav="reciters"><svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg><span data-i18n="navReciters">القراء والسور</span></a>
+    <a class="nav-item" href="#/saved" data-nav="saved"><svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span data-i18n="navSaved">المحفوظات</span></a>
+  </nav>
 
   <!-- Main Content Layout -->
   <main class="main-wrapper">
     <div class="layout-grid">
       
       <!-- Catalog & Filtering Column -->
-      <section class="catalog-column">
+      <div class="views-column">
+      <section class="catalog-column view" data-view="radio">
         <!-- Search bar with Live Counter -->
         <div class="search-row">
           <div class="search-box">
@@ -150,6 +154,73 @@
           <!-- Populated by JavaScript -->
         </div>
       </section>
+
+      <!-- Reciters: search, riwaya filter, letter index -->
+      <section class="view" data-view="reciters" id="recitersView" hidden>
+        <button type="button" class="continue-card" id="continueCard" hidden></button>
+        <div class="search-row">
+          <div class="search-box">
+            <span class="search-icon"><svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+            <input type="search" id="reciterSearch" class="search-input" placeholder="ابحث عن قارئ..." data-i18n-placeholder="reciterSearchPlaceholder" enterkeyhint="search" autocomplete="off">
+          </div>
+          <div class="search-meta-bar"><div id="recitersCount" class="stations-count-chip" data-i18n="loadingReciters">جاري تحميل القراء...</div></div>
+        </div>
+        <div class="riwaya-filter" id="reciterFilterBar" role="group" data-i18n-label="riwayaFilterLabel" aria-label="تصفية حسب الرواية"></div>
+        <div class="letter-bar" id="letterBar" role="navigation" data-i18n-label="lettersLabel" aria-label="الحروف"></div>
+        <div class="reciters-list" id="recitersList"></div>
+      </section>
+
+      <!-- One reciter: mushaf (riwaya) chips and the surah list -->
+      <section class="view" data-view="reciter" id="reciterView" hidden>
+        <div class="reciter-header">
+          <a class="btn-icon reciter-back" id="reciterBackBtn" href="#/reciters" data-i18n-label="back" aria-label="رجوع"><svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+          <div class="reciter-heading">
+            <h2 class="reciter-title" id="reciterTitle"></h2>
+            <div class="reciter-subtitle" id="reciterSubtitle"></div>
+          </div>
+          <button type="button" class="btn-card-action fav" id="reciterFavBtn" data-i18n-label="favoriteLabel" aria-label="إضافة إلى المفضلة"></button>
+        </div>
+        <div class="riwaya-filter moshaf-bar" id="moshafBar" role="group" data-i18n-label="moshafLabel" aria-label="المصحف"></div>
+        <div class="reciter-actions">
+          <button type="button" class="btn-text-pill btn-play-all" id="playAllBtn"><span data-i18n="playAll">تشغيل الكل</span></button>
+          <button type="button" class="btn-text-pill" id="downloadAllBtn"><span data-i18n="downloadAll">تحميل الكل</span></button>
+        </div>
+        <div class="search-box surah-search">
+          <span class="search-icon"><svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          <input type="search" id="surahSearch" class="search-input" placeholder="ابحث عن سورة..." data-i18n-placeholder="surahSearchPlaceholder" enterkeyhint="search" autocomplete="off">
+        </div>
+        <div class="surah-list" id="surahList"></div>
+      </section>
+
+      <!-- Saved: storage, downloaded surahs, saved radio samples -->
+      <section class="view" data-view="saved" id="savedView" hidden>
+        <h2 class="view-title" data-i18n="navSaved">المحفوظات</h2>
+        <div class="cache-storage-box">
+          <div class="cache-storage-header">
+            <span class="cache-storage-label" data-i18n="cacheUsageLabel">المساحة المستهلكة في المتصفح / الجهاز:</span>
+            <span id="cacheUsageText" class="cache-storage-val">0.0 MB / 10.0 GB</span>
+          </div>
+          <div class="cache-progress-track"><div id="cacheProgressBar" class="cache-progress-fill" style="width: 0%;"></div></div>
+          <div class="cache-storage-footer">
+            <span id="cacheStationsCountText"></span>
+            <span class="cache-badge-ok" data-i18n-html="cacheBadge">حتى <bdi dir="ltr">10 GB</bdi> للتخزين</span>
+          </div>
+        </div>
+        <div class="download-queue" id="downloadQueue" hidden></div>
+        <h3 class="saved-section-title" data-i18n="savedSurahsTitle">السور المحفوظة</h3>
+        <div class="saved-list" id="savedSurahsList"></div>
+        <h3 class="saved-section-title" data-i18n="savedStationsTitle">الإذاعات المحفوظة</h3>
+        <div id="cachedStationsList" class="cached-stations-list"></div>
+        <div class="cache-info-callout">
+          <svg class="svg-icon cache-info-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          <div class="cache-info-text" data-i18n="savedCallout">السور المحمّلة تعمل كاملة دون انترنت. الإذاعات المباشرة تُحفظ منها مقاطع قصيرة فقط.</div>
+        </div>
+        <div class="cache-actions-grid">
+          <button id="refreshUnusedCacheBtn" class="btn-cache-action btn-refresh-cache" type="button"><span data-i18n="cacheRefreshBtn">تنظيف الإذاعات غير المفضلة</span></button>
+          <button id="clearAllCacheBtn" class="btn-cache-action btn-clear-cache" type="button"><span data-i18n="cacheClearBtn">مسح كل الذاكرة المؤقتة</span></button>
+        </div>
+      </section>
+      </div>
 
       <!-- Hero Audio Player Column (Desktop persistent pane) -->
       <aside class="hero-player-column">
@@ -196,6 +267,17 @@
             </button>
           </div>
 
+          <!-- Seek bar and surah extras (surahs only) -->
+          <div class="seek-control" data-seek-control hidden>
+            <span class="seek-time" data-seek-current>0:00</span>
+            <input type="range" class="seek-slider" data-seek-slider min="0" max="0" step="1" value="0" data-i18n-label="seekLabel" aria-label="موضع التشغيل">
+            <span class="seek-time" data-seek-duration>0:00</span>
+          </div>
+          <div class="surah-extras" data-surah-extras hidden>
+            <button type="button" class="btn-ctrl btn-skip" data-seek-by="-10" data-i18n-label="back10" aria-label="رجوع 10 ثوانٍ"><bdi dir="ltr">−10</bdi></button>
+            <button type="button" class="btn-rate" data-rate-chip data-i18n-label="speedLabel" aria-label="سرعة التشغيل"><bdi dir="ltr">1×</bdi></button>
+            <button type="button" class="btn-ctrl btn-skip" data-seek-by="10" data-i18n-label="forward10" aria-label="تقديم 10 ثوانٍ"><bdi dir="ltr">+10</bdi></button>
+          </div>
           <!-- Volume Slider -->
           <div class="volume-control" data-volume-control>
             <button type="button" class="volume-mute-btn" data-volume-mute aria-label="كتم الصوت"></button>
@@ -236,6 +318,7 @@
 
   <!-- Mobile Floating Player Bar (tap to expand the full player) -->
   <div class="mobile-player-bar" id="mobilePlayerBar">
+    <div class="mini-progress" aria-hidden="true"><span id="miniProgressFill"></span></div>
     <div class="mini-bar-left">
       <svg class="svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
         <path d="M3.24 6.15C2.51 6.43 2 7.17 2 8v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8c0-.83-.51-1.57-1.24-1.85L16.2 4.47l.8-1.74a1 1 0 1 0-1.81-.84l-1.33 2.92L4.76 5.37a2 2 0 0 0-1.52.78zM20 20H4V8h16v12zm-6-6a4 4 0 1 1-8 0 4 4 0 0 1 8 0zm4-3a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
@@ -267,7 +350,7 @@
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
       </button>
-      <div class="full-player-heading" data-i18n="fullPlayerHeading">مشغل البث المباشر</div>
+      <div class="full-player-heading" id="fullPlayerHeading">مشغل البث المباشر</div>
       <div class="full-player-spacer"></div>
     </div>
 
@@ -304,6 +387,16 @@
         </button>
       </div>
 
+      <div class="seek-control seek-control--full" data-seek-control hidden>
+        <span class="seek-time" data-seek-current>0:00</span>
+        <input type="range" class="seek-slider" data-seek-slider min="0" max="0" step="1" value="0" data-i18n-label="seekLabel" aria-label="موضع التشغيل">
+        <span class="seek-time" data-seek-duration>0:00</span>
+      </div>
+      <div class="surah-extras" data-surah-extras hidden>
+        <button type="button" class="btn-ctrl btn-skip" data-seek-by="-10" data-i18n-label="back10" aria-label="رجوع 10 ثوانٍ"><bdi dir="ltr">−10</bdi></button>
+        <button type="button" class="btn-rate" data-rate-chip data-i18n-label="speedLabel" aria-label="سرعة التشغيل"><bdi dir="ltr">1×</bdi></button>
+        <button type="button" class="btn-ctrl btn-skip" data-seek-by="10" data-i18n-label="forward10" aria-label="تقديم 10 ثوانٍ"><bdi dir="ltr">+10</bdi></button>
+      </div>
       <div class="volume-control volume-control--full" data-volume-control>
             <button type="button" class="volume-mute-btn" data-volume-mute aria-label="كتم الصوت"></button>
             <input type="range" class="volume-slider" data-volume-slider min="0" max="1" step="0.05" value="1" data-i18n-label="volumeLabel" aria-label="مستوى الصوت">
@@ -434,6 +527,7 @@
         <button class="btn-timer-chip" type="button" data-mins="60">60 دقيقة</button>
         <button class="btn-timer-chip" type="button" data-mins="90">90 دقيقة</button>
         <button class="btn-timer-chip" type="button" data-mins="120">120 دقيقة</button>
+        <button class="btn-timer-chip timer-chip-end" type="button" data-mins="end" data-i18n="sleepEndOfSurah" hidden>نهاية السورة</button>
       </div>
 
       <div class="custom-timer-row">
@@ -447,79 +541,20 @@
     </div>
   </div>
 
-  <!-- Offline Audio Cache Manager Modal -->
-  <div class="modal-overlay" id="cacheModal" role="dialog" aria-modal="true">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 class="modal-title" data-i18n-html="cacheTitle">ذاكرة الصوتيات والاستماع دون انترنت (<bdi dir="ltr">10 GB</bdi>)</h3>
-        <button class="modal-close-btn" id="closeCacheBtn" type="button" data-i18n-label="close" aria-label="إغلاق">
-          <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-      </div>
-
-      <div class="cache-storage-box">
-        <div class="cache-storage-header">
-          <span class="cache-storage-label" data-i18n="cacheUsageLabel">المساحة المستهلكة في المتصفح / الجهاز:</span>
-          <span id="cacheUsageText" class="cache-storage-val">0.0 MB / 10.0 GB</span>
-        </div>
-        <div class="cache-progress-track">
-          <div id="cacheProgressBar" class="cache-progress-fill" style="width: 0%;"></div>
-        </div>
-        <div class="cache-storage-footer">
-          <span id="cacheStationsCountText">0</span>
-          <span class="cache-badge-ok" data-i18n-html="cacheBadge">حتى <bdi dir="ltr">10 GB</bdi> للتخزين</span>
-        </div>
-      </div>
-
-      <div class="cache-info-callout">
-        <svg class="svg-icon cache-info-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-        </svg>
-        <div class="cache-info-text" data-i18n="cacheCallout">عند الضغط على زر التحميل في بطاقة الإذاعة يحفظ التطبيق مقطعاً قصيراً من البث.</div>
-      </div>
-
-      <div class="cache-actions-grid">
-        <button id="refreshUnusedCacheBtn" class="btn-cache-action btn-refresh-cache" type="button">
-          <svg class="svg-icon svg-gold-glow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-          </svg>
-          <span data-i18n="cacheRefreshBtn">تنظيف الإذاعات غير المفضلة</span>
-        </button>
-
-        <button id="clearAllCacheBtn" class="btn-cache-action btn-clear-cache" type="button">
-          <svg class="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-          </svg>
-          <span data-i18n="cacheClearBtn">مسح كل الذاكرة المؤقتة</span>
-        </button>
-      </div>
-
-      <div class="cached-stations-section">
-        <div class="cached-section-title" data-i18n="cachedListTitle">الإذاعات المحفوظة في الذاكرة:</div>
-        <div id="cachedStationsList" class="cached-stations-list">
-          <!-- Populated dynamically -->
-        </div>
-      </div>
-
-      <button class="btn-text-pill btn-modal-done" id="closeCacheDoneBtn" type="button" data-i18n="close">إغلاق</button>
-    </div>
-  </div>
-
   <!-- Scripts -->
+  <script src="js/core/storage-names.js"></script>
   <script src="js/core/utils.js"></script>
   <script src="js/core/sw-client.js"></script>
   <script src="js/icons.js"></script>
   <script src="js/devices.js"></script>
   <script src="js/fallback.js"></script>
   <script src="js/i18n/ar.js"></script>
-  <script src="js/i18n/eng.js"></script>
   <script src="js/player/core.js"></script>
   <script src="js/player/events.js"></script>
   <script src="js/player/recovery.js"></script>
   <script src="js/player/session.js"></script>
   <script src="js/player/offline.js"></script>
+  <script src="js/player/seek.js"></script>
   <script src="js/app/dom.js"></script>
   <script src="js/app/core.js"></script>
   <script src="js/app/pwa.js"></script>
@@ -534,6 +569,15 @@
   <script src="js/app/volume-ui.js"></script>
   <script src="js/app/cache-ui.js"></script>
   <script src="js/app/modals.js"></script>
+  <script src="js/app/progress-ui.js"></script>
+  <script src="js/app/saved-view.js"></script>
+  <script src="js/app/router.js"></script>
+  <script src="js/quran/model.js"></script>
+  <script src="js/quran/catalog.js"></script>
+  <script src="js/quran/reciters-view.js"></script>
+  <script src="js/quran/reciter-view.js"></script>
+  <script src="js/quran/surah-player.js"></script>
+  <script src="js/quran/downloads.js"></script>
   <script src="js/app/boot.js"></script>
 </body>
 </html>

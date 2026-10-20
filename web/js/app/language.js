@@ -1,18 +1,10 @@
-/** Language switching: static text comes from data-i18n attributes, dynamic text from this.t. */
+/** Interface text: static text comes from data-i18n attributes, dynamic text from this.t (Arabic). */
 Object.assign(App.prototype, {
-  applyLanguage(lang) {
-    this.lang = lang;
-    window.QRUtils.writeStorage('mp3quran_lang', lang);
+  applyText() {
     const t = this.t;
-
-    this.dom.html.lang = lang === 'ar' ? 'ar' : 'en';
-    this.dom.html.dir = lang === 'ar' ? 'rtl' : 'ltr';
-    this.dom.langBtnText.textContent = lang === 'ar' ? 'English' : 'عربي';
-    this.dom.langBtnShort.textContent = lang === 'ar' ? 'EN' : 'ع';
-
     this._applyStaticText(t);
-    this.dom.timerGrid.querySelectorAll('.btn-timer-chip').forEach((chip) => {
-      chip.textContent = `${chip.dataset.mins} ${t.minutes}`;
+    this.dom.timerGrid.querySelectorAll('.btn-timer-chip[data-mins]').forEach((chip) => {
+      if (chip.dataset.mins !== 'end') chip.textContent = `${chip.dataset.mins} ${t.minutes}`;
     });
     this.checkOfflineStatus(!navigator.onLine);
 
@@ -21,7 +13,6 @@ Object.assign(App.prototype, {
     this._updatePlayerUi(this.player.state, this.player.currentStation);
     this._updateTimerUi(this.player.sleepTimerRemaining);
     if (this.player.supportsVolume) this._renderVolume();
-    if (this.dom.cacheModal.classList.contains('active')) this.updateCacheModalMetrics();
   },
 
   _applyStaticText(t) {
@@ -40,10 +31,5 @@ Object.assign(App.prototype, {
       el.title = text;
       el.setAttribute('aria-label', text);
     });
-  },
-
-  toggleLanguage() {
-    this.applyLanguage(this.lang === 'ar' ? 'eng' : 'ar');
-    this.fetchStations();
   }
 });

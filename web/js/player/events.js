@@ -39,6 +39,10 @@ Object.assign(AudioStreamPlayer.prototype, {
 
     // A live stream "ending" means the server dropped the connection
     audio.addEventListener('ended', () => {
+      if (this._isFile()) {
+        this._onFileEnded();
+        return;
+      }
       if (this._isStreaming() && !this.usingOffline) this._handleStreamFailure('ended');
     });
 

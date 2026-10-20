@@ -16,9 +16,21 @@
   gap: 20px;
 }
 
+.views-column,
 .catalog-column,
 .hero-player-column {
   min-width: 0;
+}
+
+.view[hidden] {
+  display: none;
+}
+
+.view-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 12px;
 }
 
 @media (min-width: 960px) {

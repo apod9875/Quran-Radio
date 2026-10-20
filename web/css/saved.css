@@ -1,0 +1,134 @@
+/* Saved page: downloaded surahs grouped by reciter, the download queue, saved radio samples */
+.saved-section-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin: 18px 0 10px;
+}
+
+.saved-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.saved-group {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.saved-group-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--surface-variant);
+  border-bottom: 1px solid var(--border);
+}
+
+.saved-group-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.saved-group-title {
+  font-weight: 700;
+  color: var(--gold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.saved-group-sub {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.saved-surah-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid rgba(30, 68, 56, 0.6);
+}
+
+.saved-surah-row:first-of-type {
+  border-top: none;
+}
+
+.saved-surah-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.saved-surah-size {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* On the page the saved radio list can grow with its content */
+.view .cached-stations-list {
+  max-height: none;
+  margin-bottom: 14px;
+}
+
+.download-queue {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.download-queue[hidden] {
+  display: none;
+}
+
+.download-job {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(226, 186, 85, 0.35);
+  background: rgba(226, 186, 85, 0.06);
+}
+
+.download-job-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.download-job-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.download-job-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--surface-variant);
+  overflow: hidden;
+  direction: ltr;
+}
+
+.download-job-bar span {
+  --p: 0%;
+  display: block;
+  width: var(--p);
+  height: 100%;
+  background: var(--gold);
+  transition: width 0.2s linear;
+}

@@ -1,0 +1,126 @@
+/* Surah progress: seek bar with times, ±10 s / speed buttons, and the mini-player progress line.
+   Like the volume control it always runs left-to-right. */
+.seek-control {
+  direction: ltr;
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.seek-control[hidden],
+.surah-extras[hidden] {
+  display: none;
+}
+
+/* A recorded surah is not live: no red "live" pill */
+.track-surah .live-indicator {
+  display: none;
+}
+
+.seek-time {
+  flex: 0 0 auto;
+  min-width: 3.2em;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.seek-slider {
+  --seek: 0%;
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.seek-slider:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.seek-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--mint) var(--seek), var(--surface-variant) var(--seek));
+}
+
+.seek-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--mint) var(--seek), var(--surface-variant) var(--seek));
+}
+
+.seek-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -6px;
+  border-radius: 50%;
+  background: var(--mint-light);
+  border: 2px solid var(--bg-main);
+}
+
+.seek-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--mint-light);
+  border: 2px solid var(--bg-main);
+}
+
+.surah-extras {
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.btn-skip {
+  width: 44px;
+  height: 44px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.btn-rate {
+  min-width: 56px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--gold);
+  background: rgba(226, 186, 85, 0.12);
+  color: var(--gold);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Thin progress line along the top of the mini player */
+.mini-progress {
+  position: absolute;
+  top: 0;
+  left: 16px;
+  right: 16px;
+  height: 2px;
+  direction: ltr;
+  pointer-events: none;
+}
+
+.mini-progress span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--gold);
+  transition: width 0.3s linear;
+}

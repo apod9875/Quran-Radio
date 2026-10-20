@@ -2,14 +2,19 @@
 Object.assign(App.prototype, {
   _statusText(state) {
     const t = this.t;
+    const track = this.player.currentStation;
     if (state === 'buffering') return t.connecting;
+    // A surah shows who recites it; a live station shows that it is live
+    if (state === 'playing' && track && track.kind === 'surah') return this._categoryLine(track);
     if (state === 'playing') return this.player.usingOffline ? t.offlinePlaying : t.live;
     if (state === 'error') return this._errorText();
     return t.paused;
   },
 
   _errorText() {
-    return this.player.errorReason === 'offline-unsaved' ? this.t.offlineUnsaved : this.t.streamError;
+    if (this.player.errorReason !== 'offline-unsaved') return this.t.streamError;
+    const track = this.player.currentStation;
+    return track && track.kind === 'surah' ? this.t.surahOfflineUnsaved : this.t.offlineUnsaved;
   },
 
   _favIcon(isFav, size) {
@@ -19,7 +24,8 @@ Object.assign(App.prototype, {
   _updateFavButtons() {
     const station = this.player.currentStation;
     if (!station) return;
-    const icon = this._favIcon(this.favorites.has(station.id), 20);
+    const isFav = station.kind === 'surah' ? this.favoriteReciters.has(station.reciterId) : this.favorites.has(station.id);
+    const icon = this._favIcon(isFav, 20);
     this.dom.heroFavBtn.innerHTML = icon;
     this.dom.mobileBarFavBtn.innerHTML = icon;
     this.dom.fullPlayerFavBtn.innerHTML = icon;
@@ -39,8 +45,10 @@ Object.assign(App.prototype, {
       d.mobileBar.classList.remove('visible');
       document.body.classList.remove('has-mini-player');
       this.shownStationId = null;
+      this._renderTrackKind(null);
       return;
     }
+    this._renderTrackKind(station);
 
     const category = this._categoryLine(station);
     d.heroTitle.textContent = station.name;
@@ -65,14 +73,18 @@ Object.assign(App.prototype, {
     d.mobileBar.classList.add('visible');
     document.body.classList.add('has-mini-player');
 
-    // Only the previous and the current card change when the player state changes
+    // Only the previous and the current card / surah row change when the player state changes
     [this.shownStationId, station.id].forEach((id, i, ids) => {
-      if (id != null && ids.indexOf(id) === i) this.refreshCard(id);
+      if (id == null || ids.indexOf(id) !== i) return;
+      const surah = /^surah:(\d+):(\d+)$/.exec(String(id));
+      if (surah) this.refreshSurahRow(Number(surah[1]), Number(surah[2]));
+      else this.refreshCard(id);
     });
     this.shownStationId = station.id;
+    if (playing) this._rememberSurah(station);
 
     if (state === 'error' && this.lastPlayerState !== 'error') this.showToast(this._errorText());
-    if (busy && this.lastPlayerState !== 'buffering' && this.cachedIds.has(station.id)) {
+    if (busy && this.lastPlayerState !== 'buffering' && station.kind !== 'surah' && this.cachedIds.has(station.id)) {
       window.QR_SW.post({ type: 'TOUCH_AUDIO', stationId: station.id });
     }
     this.lastPlayerState = state;
@@ -80,6 +92,14 @@ Object.assign(App.prototype, {
 
   _updateTimerUi(seconds) {
     const badges = [this.dom.heroTimerBadge, this.dom.fullTimerBadge];
+    if (seconds === 'end') {
+      badges.forEach((badge) => {
+        badge.style.display = 'inline-block';
+        badge.innerHTML = `${window.SvgIcons.moon(14)} ${window.QRUtils.escapeHtml(this.t.sleepUntilEnd)}`;
+      });
+      this.dom.timerRemainingText.textContent = this.t.sleepUntilEnd;
+      return;
+    }
     if (!seconds || seconds <= 0) {
       badges.forEach((badge) => { badge.style.display = 'none'; });
       this.dom.timerRemainingText.textContent = '';
@@ -104,6 +124,11 @@ Object.assign(App.prototype, {
   },
 
   playNeighbor(step) {
+    const current = this.player.currentStation;
+    if (current && current.kind === 'surah') {
+      this.stepQueue(step);
+      return;
+    }
     const station = this.neighborStation(step);
     if (station) this.player.play(station);
   },

@@ -19,15 +19,16 @@ function parseRange(header, total) {
   return { start, end };
 }
 
-// Turn a cached 200 response into the 206 the media element asked for.
+// Turn a cached 200 response into the 206 the media element asked for. Slicing a Blob keeps
+// seeking in a 50 MB surah cheap: nothing is copied into a new buffer.
 async function createPartialResponse(cachedResponse, rangeHeader) {
-  const buffer = await cachedResponse.arrayBuffer();
-  const total = buffer.byteLength;
+  const blob = await cachedResponse.blob();
+  const total = blob.size;
   const type = cachedResponse.headers.get('Content-Type') || 'audio/mpeg';
   const range = parseRange(rangeHeader, total);
 
   if (range === undefined) {
-    return new Response(buffer, {
+    return new Response(blob, {
       status: 200,
       headers: { 'Content-Type': type, 'Content-Length': String(total), 'Accept-Ranges': 'bytes' }
     });
@@ -40,14 +41,14 @@ async function createPartialResponse(cachedResponse, rangeHeader) {
     });
   }
 
-  const chunk = buffer.slice(range.start, range.end + 1);
+  const chunk = blob.slice(range.start, range.end + 1, type);
   return new Response(chunk, {
     status: 206,
     statusText: 'Partial Content',
     headers: {
       'Content-Type': type,
       'Content-Range': `bytes ${range.start}-${range.end}/${total}`,
-      'Content-Length': String(chunk.byteLength),
+      'Content-Length': String(chunk.size),
       'Accept-Ranges': 'bytes'
     }
   });

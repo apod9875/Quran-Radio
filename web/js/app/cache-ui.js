@@ -5,7 +5,9 @@ Object.assign(App.prototype, {
     if (!window.QR_SW.ready()) return;
     try {
       const data = await window.QR_SW.request({ type: 'GET_CACHE_METRICS' });
-      const items = data.items || [];
+      this.storageBytes = data.totalBytes || 0;
+      this._syncSavedSurahs(data.items || []);
+      const items = (data.items || []).filter((item) => item.kind !== 'surah');
       const ids = new Set(items.map((item) => item.stationId));
       const changed = ids.size !== this.cachedIds.size || [...ids].some((id) => !this.cachedIds.has(id));
       this.cachedIds = ids;
@@ -61,7 +63,8 @@ Object.assign(App.prototype, {
     }
   },
 
-  async updateCacheModalMetrics() {
+  // The saved page: storage bar, saved radio samples and downloaded surahs
+  async renderStorage() {
     let data;
     try {
       data = await window.QR_SW.request({ type: 'GET_CACHE_METRICS' });
@@ -71,15 +74,18 @@ Object.assign(App.prototype, {
     const { escapeHtml } = window.QRUtils;
     const t = this.t;
     const totalBytes = data.totalBytes || 0;
+    this.storageBytes = totalBytes;
+    this._syncSavedSurahs(data.items || []);
+    this.renderSavedSurahs();
     const mb = (totalBytes / (1024 * 1024)).toFixed(1);
     const gb = (totalBytes / (1024 * 1024 * 1024)).toFixed(2);
     const pct = Math.min(100, (totalBytes / data.maxBytes) * 100).toFixed(1);
 
     this.dom.cacheUsageText.textContent = `${mb} MB (${gb} GB) / 10.0 GB (${pct}%)`;
     this.dom.cacheProgressBar.style.width = `${pct}%`;
-    this.dom.cacheStationsCountText.textContent = t.cacheStationsCount.replace('{count}', data.count);
+    const items = (data.items || []).filter((item) => item.kind !== 'surah');
+    this.dom.cacheStationsCountText.textContent = `${t.savedSurahsCount.replace('{count}', this.savedSurahs.size)} · ${t.cacheStationsCount.replace('{count}', items.length)}`;
 
-    const items = data.items || [];
     if (items.length === 0) {
       this.dom.cachedStationsList.innerHTML = `<div class="cached-empty">${escapeHtml(t.cacheEmpty)}</div>`;
       return;
@@ -102,7 +108,7 @@ Object.assign(App.prototype, {
       if (!result || !result.success) return;
       const freed = (result.freed / (1024 * 1024)).toFixed(1);
       this.showToast(`${this.t.cacheRefreshedToast} (${freed} MB)`);
-      this.updateCacheModalMetrics();
+      this.renderStorage();
       this.refreshCacheState();
     } catch (err) {
       console.warn('[Cache] refresh failed:', err.message);
@@ -114,8 +120,11 @@ Object.assign(App.prototype, {
     try {
       await window.QR_SW.request({ type: 'CLEAR_ALL_AUDIO_CACHE' });
       this.cachedIds.clear();
+      this.savedSurahs.clear();
+      this.storageBytes = 0;
+      if (this.currentView === 'reciter') this.renderSurahs();
       this.showToast(this.t.cacheClearedToast);
-      this.updateCacheModalMetrics();
+      this.renderStorage();
       this.renderStations();
     } catch (err) {
       console.warn('[Cache] clear failed:', err.message);

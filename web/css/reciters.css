@@ -1,0 +1,153 @@
+/* Reciters page: "continue listening", letter index and reciter cards */
+.continue-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--gold);
+  background: linear-gradient(135deg, rgba(226, 186, 85, 0.16), rgba(82, 183, 136, 0.08));
+  color: var(--text-main);
+  text-align: start;
+  cursor: pointer;
+}
+
+.continue-card[hidden] {
+  display: none;
+}
+
+.continue-icon {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gold);
+  color: #111e19;
+}
+
+.continue-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.continue-label {
+  font-size: 0.72rem;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.continue-title,
+.continue-sub {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.continue-title {
+  font-weight: 700;
+}
+
+.continue-sub {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+/* Letter index: jump to the first reciter of a letter */
+.letter-bar {
+  display: flex;
+  gap: 4px;
+  margin: -4px 0 12px;
+  padding-bottom: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.letter-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.letter-chip {
+  flex: 0 0 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-main);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.letter-chip:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.reciters-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reciter-card {
+  display: flex;
+  align-items: center;
+  gap: var(--card-gap);
+  padding: var(--card-pad);
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  min-width: 0;
+  /* Room under the sticky header when the letter index jumps here */
+  scroll-margin-top: 90px;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.reciter-card:hover {
+  background: var(--surface-variant);
+  border-color: rgba(226, 186, 85, 0.4);
+}
+
+.reciter-card:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.reciter-avatar {
+  flex: 0 0 var(--thumb-size);
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(226, 186, 85, 0.14);
+  border: 1px solid rgba(226, 186, 85, 0.35);
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.reciter-info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.reciter-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+}
+
+.reciter-count {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  align-self: center;
+}

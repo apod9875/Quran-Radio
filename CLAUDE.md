@@ -1,6 +1,6 @@
 # Quran Radio
 
-Live Quran radio: a PWA in `web/` (vanilla JS, no build step, deployed from `./web` by Cloudflare, see `wrangler.toml`) and an Android Jetpack Compose app in `app/`.
+Live Quran radio and a surah library per reciter (Arabic only): a PWA in `web/` (vanilla JS, no build step, deployed from `./web` by Cloudflare, see `wrangler.toml`) and an Android Jetpack Compose app in `app/`.
 
 ## Rules
 - Work and commit directly on `main`.
@@ -13,11 +13,15 @@ Live Quran radio: a PWA in `web/` (vanilla JS, no build step, deployed from `./w
 - `web/js/core`: `utils.js` (Arabic search normalisation, escaping, station categories), `sw-client.js`.
 - `web/js/player/*`: `AudioStreamPlayer` split into core, events, recovery, session, offline. Retry timings are on `AudioStreamPlayer.TUNING` so tests can shorten them.
 - `web/js/app/*`: `App` is assembled from mixins (`Object.assign(App.prototype, ...)`); `boot.js` creates it.
-- Static text is translated with `data-i18n`, `data-i18n-html`, `data-i18n-placeholder` and `data-i18n-label` attributes; dictionaries are `web/js/i18n/ar.js` and `eng.js`. Escape every API string with `QRUtils.escapeHtml` before putting it in `innerHTML`.
+- Sections are hash routes (`js/app/router.js`): `#/radio`, `#/reciters`, `#/reciter/<id>[/<mushafId>]`, `#/saved`, switched by the bottom tab bar (`css/bottom-nav.css`).
+- `web/js/quran/*`: the reciters and surahs from the mp3quran API v3 (`reciters`, `suwar`). `model.js` is pure (unit tested); `catalog.js` loads once; `reciters-view.js` / `reciter-view.js` render the pages; `surah-player.js` builds the mushaf queue; `downloads.js` saves whole surahs.
+- A surah track has `kind: 'surah'` and an id `surah:<mushafId>:<n>`; the player (`js/player/seek.js`) seeks it, saves its position and plays the next one on `ended`. Live radio stays `kind` undefined.
+- Static text comes from `data-i18n`, `data-i18n-html`, `data-i18n-placeholder` and `data-i18n-label` attributes and `web/js/i18n/ar.js` (the app is Arabic only). Escape every API string with `QRUtils.escapeHtml` before putting it in `innerHTML`.
 
 ## Service worker
 - `web/sw.js` plus `web/sw/*.js` (imported with `importScripts`). **Bump `CACHE_STATIC` in `web/sw/config.js` and update `STATIC_ASSETS` whenever a web file is added, renamed or removed**; `testing/web/unit/sw_assets_test.mjs` checks the list against `index.html`.
 - Live streams are never intercepted. A station's offline copy is a short sample (up to 5 MB or 60 s) read from the stream start and served from `/offline-audio/<stationId>`.
+- Surah downloads are written by the page itself (`js/quran/downloads.js`, so a long download is not cut by service-worker time limits) into the cache named in `js/core/storage-names.js`; the worker records them (`RECORD_DOWNLOAD`) and serves `/offline-surah/<mushafId>/<nnn>` with Range support (`sw/surah-cache.js`). Automatic clean-up never removes downloaded surahs.
 
 ## Android (`app/`)
 - Not buildable on the author's machine (no SDK, no Gradle wrapper). Layout padding comes from `ui/theme/Dimens.kt`.

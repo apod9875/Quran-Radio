@@ -5,7 +5,7 @@ import { launchBrowser, openApp } from '../helpers/browser.mjs';
 import { startStaticServer } from '../helpers/static-server.mjs';
 
 const WIDTHS = [320, 360, 375, 393, 412, 430, 768, 1280];
-const LANGS = ['ar', 'eng'];
+const LANGS = ['ar'];
 const TOLERANCE = 1.5;
 
 let server;
@@ -136,13 +136,52 @@ for (const width of WIDTHS) {
         await ctx.page.evaluate(() => window.app.player.stop());
       });
 
+      it('fits the Quran pages to the gutter and keeps them clear of the tab bar', async () => {
+        const page = ctx.page;
+        const header = await box(page, '.header-container');
+        const pages = [['#/reciters', '.reciter-card'], ['#/reciter/118', '.surah-row'], ['#/saved', '.cache-storage-box']];
+        for (const [hash, selector] of pages) {
+          await page.evaluate((h) => { window.location.hash = h; }, hash);
+          await page.locator(selector).first().waitFor();
+          const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+          assert.equal(overflow, 0, `${hash} scrolls sideways`);
+          if (width < 960) {
+            const item = await box(page, selector);
+            near(item.left, header.left, `${hash} left edge`);
+            near(item.right, header.right, `${hash} right edge`);
+          }
+        }
+        if (width >= 960) {
+          await page.evaluate(() => { window.location.hash = '#/radio'; });
+          return;
+        }
+
+        // Tab bar at the bottom, mini player just above it, last surah above both
+        const nav = await box(page, '#bottomNav');
+        near(nav.bottom, 800, 'tab bar sits at the bottom');
+        assert.ok(nav.left >= 0 && nav.right <= width, 'tab bar inside the viewport');
+        await page.evaluate(() => { window.location.hash = '#/reciter/118'; });
+        await page.locator('.surah-row[data-surah="1"] [data-action="play"]').click();
+        await page.waitForSelector('.mobile-player-bar.visible');
+        const bar = await box(page, '.mobile-player-bar');
+        assert.ok(bar.bottom <= nav.top, `mini player (${bar.bottom}) overlaps the tab bar (${nav.top})`);
+        await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+        const last = await page.evaluate(() => {
+          const r = [...document.querySelectorAll('.surah-row')].pop().getBoundingClientRect();
+          return r.bottom;
+        });
+        const barNow = await box(page, '.mobile-player-bar');
+        assert.ok(last <= barNow.top, `last surah (${last}) hides behind the mini player (${barNow.top})`);
+        await page.evaluate(() => { window.app.player.stop(); window.location.hash = '#/radio'; });
+      });
+
       it('keeps the toast and the modals inside the viewport', async () => {
         await ctx.page.evaluate(() => window.app.showToast('رسالة طويلة جداً '.repeat(12)));
         await ctx.page.waitForSelector('.toast-notification.show');
         const toast = await box(ctx.page, '.toast-notification');
         assert.ok(toast.left >= 0 && toast.right <= width, `toast spans ${toast.left}..${toast.right}`);
 
-        for (const trigger of ['#cacheBtn', '#infoBtn', '#devicesBtn']) {
+        for (const trigger of ['#infoBtn', '#devicesBtn']) {
           await ctx.page.click(trigger);
           const card = await box(ctx.page, '.modal-overlay.active .modal-card');
           assert.ok(card.left >= 0 && card.right <= width, `${trigger} modal spans ${card.left}..${card.right}`);

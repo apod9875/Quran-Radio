@@ -1,0 +1,147 @@
+/* One reciter: header, mushaf chips, actions and the surah rows */
+.reciter-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  min-width: 0;
+}
+
+.reciter-back {
+  text-decoration: none;
+}
+
+/* The back arrow points right in Arabic (towards where we came from) */
+[dir="ltr"] .reciter-back .svg-icon {
+  transform: scaleX(-1);
+}
+
+.reciter-heading {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.reciter-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--gold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reciter-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.moshaf-bar {
+  margin: 0 0 12px;
+}
+
+.reciter-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.reciter-actions .btn-text-pill {
+  flex: 1;
+  justify-content: center;
+  padding: 9px 12px;
+}
+
+.btn-play-all {
+  background: var(--gold);
+  color: #111e19;
+  border-color: var(--gold);
+}
+
+.btn-play-all:hover {
+  background: var(--gold-hover);
+}
+
+.surah-search {
+  margin-bottom: 12px;
+}
+
+.surah-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.surah-row {
+  display: flex;
+  align-items: center;
+  gap: var(--card-gap);
+  padding: var(--card-pad);
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  min-width: 0;
+}
+
+.surah-row:hover {
+  background: var(--surface-variant);
+}
+
+.surah-row.active {
+  border-color: var(--gold);
+  background: rgba(22, 52, 43, 0.85);
+}
+
+.surah-row.active .surah-name {
+  color: var(--gold);
+}
+
+.surah-number {
+  flex: 0 0 var(--badge-min);
+  min-width: var(--badge-min);
+  padding: 4px 2px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(226, 186, 85, 0.3);
+  background: rgba(226, 186, 85, 0.12);
+  color: var(--gold);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.surah-info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.surah-name {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.surah-meta {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.surah-row.is-saved .surah-meta {
+  color: var(--mint-light);
+}
+
+/* Download button: a progress ring while downloading, mint when the surah is saved */
+.surah-download.is-downloading {
+  --p: 0%;
+  border: none;
+  background: conic-gradient(var(--gold) var(--p), var(--surface-variant) 0);
+  color: var(--text-main);
+}
+
+.surah-download.is-saved {
+  color: var(--mint-light);
+  border-color: rgba(82, 183, 136, 0.5);
+}

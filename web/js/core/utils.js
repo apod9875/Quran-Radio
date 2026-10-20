@@ -118,7 +118,19 @@
     return [...pinned, ...rest];
   }
 
+  // "#/reciter/12/34" -> { view: 'reciter', reciterId: 12, moshafId: 34 }; anything unknown is the radio page
+  function parseRoute(hash) {
+    const parts = String(hash || '').replace(/^#\/?/, '').split('/').filter(Boolean);
+    const isId = (value) => /^\d+$/.test(value || '');
+    if (parts[0] === 'reciters' || parts[0] === 'saved') return { view: parts[0] };
+    if (parts[0] === 'reciter' && isId(parts[1])) {
+      return { view: 'reciter', reciterId: Number(parts[1]), moshafId: isId(parts[2]) ? Number(parts[2]) : null };
+    }
+    return { view: 'radio' };
+  }
+
   const api = {
+    parseRoute,
     riwayaName,
     riwayaId,
     nameSortKey,

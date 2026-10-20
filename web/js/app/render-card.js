@@ -6,6 +6,7 @@ Object.assign(App.prototype, {
 
   // "Hafs from Asim"-style label when known, otherwise the tab name
   _categoryLine(station) {
+    if (station.kind === 'surah') return `${station.reciterName} · ${station.riwaya}`;
     return station.riwaya || this._categoryLabel(station);
   },
 

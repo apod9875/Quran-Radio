@@ -71,12 +71,13 @@ describe('service worker', () => {
     assert.equal(partial.range, `bytes 0-99/${full.size}`);
   });
 
-  it('lists the saved station in the cache modal', async () => {
+  it('lists the saved station on the saved page', async () => {
     await ctx.page.click('#cacheBtn');
+    assert.equal(await ctx.page.evaluate(() => location.hash), '#/saved');
     await ctx.page.locator('#cachedStationsList .cached-item-row').first().waitFor();
     assert.equal(await ctx.page.locator('#cachedStationsList .cached-item-row').count(), 1);
     assert.match(await ctx.page.locator('#cacheUsageText').innerText(), /MB/);
-    await ctx.page.keyboard.press('Escape');
+    await ctx.page.click('.nav-item[data-nav="radio"]');
   });
 
   it('keeps the favorite flag of a saved station in sync', async () => {
@@ -92,12 +93,12 @@ describe('service worker', () => {
     assert.equal(await flag(), false);
   });
 
-  it('plays a saved station from the cache modal', async () => {
-    await ctx.page.click('#cacheBtn');
+  it('plays a saved station from the saved page', async () => {
+    await ctx.page.click('.nav-item[data-nav="saved"]');
     await ctx.page.locator('#cachedStationsList .cached-item-row').first().click();
     await ctx.page.waitForFunction((id) => window.app.player.currentStation?.id === id, stationId);
-    assert.equal(await ctx.page.locator('#cacheModal.active').count(), 0, 'the modal closes');
     await ctx.page.evaluate(() => window.app.player.stop());
+    await ctx.page.click('.nav-item[data-nav="radio"]');
   });
 
   it('reloads without a connection and opens the Saved offline tab', async () => {
@@ -139,7 +140,7 @@ describe('service worker', () => {
 
   it('clears the saved stations and their badges', async () => {
     ctx.page.once('dialog', (dialog) => dialog.accept());
-    await ctx.page.click('#cacheBtn');
+    await ctx.page.click('.nav-item[data-nav="saved"]');
     await ctx.page.click('#clearAllCacheBtn');
     await ctx.page.waitForFunction(() => document.querySelectorAll('.offline-ready-badge').length === 0);
     assert.equal((await fetchOffline()).status, 404);
