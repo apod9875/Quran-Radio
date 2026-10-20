@@ -44,7 +44,7 @@ describe("what's new", () => {
     await modal(page).waitFor({ timeout: 6000 });
     const latest = await page.evaluate(() => window.QR_RELEASES[0]);
     assert.match(await page.locator('.whats-new-version').first().innerText(), new RegExp(`الإصدار ${latest.version}`));
-    assert.equal(await page.locator('#whatsNewList li').count(), latest.ar.length);
+    assert.equal(await page.locator('.whats-new-release').first().locator('li').count(), latest.ar.length);
     assert.match(await page.locator('#whatsNewList').innerText(), /مكة المكرمة/);
 
     await page.click('#whatsNewOkBtn');

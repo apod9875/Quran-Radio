@@ -6,6 +6,16 @@
  */
 window.QR_RELEASES = [
   {
+    version: '3.7.1',
+    date: '2026-10-20',
+    ar: [
+      'هذا التحديث من م. أسامة الحلفاوي'
+    ],
+    eng: [
+      'This update is from Eng. Osama Alhalafawi'
+    ]
+  },
+  {
     version: '3.7.0',
     date: '2026-10-20',
     ar: [
