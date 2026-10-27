@@ -74,8 +74,8 @@ describe('refreshing the page', () => {
     try {
       ctx = await openApp(strict, server.url);
       const page = ctx.page;
-      const id = Number(await page.locator('.station-card').nth(4).getAttribute('data-id'));
-      await page.locator('.station-card').nth(4).locator('.station-name').click();
+      const id = Number(await page.locator('.station-card').nth(5).getAttribute('data-id'));
+      await page.locator('.station-card').nth(5).locator('.station-name').click();
       await waitPlaying(page, id);
       await reload(page);
       await page.waitForFunction(() => window.app.player.state === 'paused', null, { timeout: 10000 });

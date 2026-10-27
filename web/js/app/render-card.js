@@ -28,7 +28,7 @@ Object.assign(App.prototype, {
     const playLabel = isCurrent && (state === 'playing' || state === 'buffering') ? t.pauseLabel : t.playLabel;
 
     // A live video broadcast heard as sound still downloads the video, so say it uses more data
-    const noteBadge = station.format === 'hls' ? `<span class="station-note-badge">${escapeHtml(t.hlsBadge)}</span>` : '';
+    const noteBadge = station.format === 'hls' && !station.audioOnly ? `<span class="station-note-badge">${escapeHtml(t.hlsBadge)}</span>` : '';
     const wave = isCurrent && state === 'playing'
       ? '<div class="mini-wave"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>'
       : '';

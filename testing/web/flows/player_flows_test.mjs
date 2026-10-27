@@ -221,7 +221,7 @@ describe('language, modals and content', () => {
   it('falls back to the built-in stations when the API is down', async () => {
     const page = await open({ apiStatus: 500 });
     const expected = await page.evaluate(() => window.FALLBACK_STATIONS.ar.length);
-    assert.equal(await cardCount(page), expected + 4, 'fallback stations plus the four pinned live stations');
+    assert.equal(await cardCount(page), expected + 5, 'fallback stations plus the five pinned live stations');
   });
 
   it('shows the last station list at once on the next start, before the API answers', async () => {
@@ -271,7 +271,7 @@ describe('Egyptian radio, alphabetical order and riwayat', () => {
     const ok = await page.evaluate(() => {
       const { nameSortKey } = window.QRUtils;
       const collator = new Intl.Collator('ar', { sensitivity: 'base', numeric: true });
-      const names = [...document.querySelectorAll('.station-card .station-name')].map((e) => e.textContent).slice(4);
+      const names = [...document.querySelectorAll('.station-card .station-name')].map((e) => e.textContent).slice(5);
       return names.every((n, i) => i === 0 || collator.compare(nameSortKey(names[i - 1], 'ar'), nameSortKey(n, 'ar')) <= 0);
     });
     assert.ok(ok, 'the list is not in alphabetical order');

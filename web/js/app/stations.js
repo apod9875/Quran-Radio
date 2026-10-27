@@ -76,7 +76,7 @@ Object.assign(App.prototype, {
     const seen = new Set();
     this.stations = [];
     const extras = (window.QR_EXTRA_STATIONS || []).map((extra) => ({
-      id: extra.id, name: extra.names[this.lang], url: extra.mirrors[0], mirrors: extra.mirrors, format: extra.format, pinned: true
+      id: extra.id, name: extra.names[this.lang], url: extra.mirrors[0], mirrors: extra.mirrors, format: extra.format, audioOnly: extra.audioOnly, pinned: true
     }));
     [...extras, ...list].forEach((item) => {
       const id = Number(item.id);
@@ -88,12 +88,13 @@ Object.assign(App.prototype, {
         id,
         name,
         url,
-        category: categorizeStation(url, name),
+        category: item.pinned ? 'CHANNELS' : categorizeStation(url, name),
         riwaya: window.QRUtils.riwayaName(url, this.lang),
         riwayaId: window.QRUtils.riwayaId(url),
         pinned: !!item.pinned,
         mirrors: item.mirrors && item.mirrors.length > 1 ? item.mirrors.slice() : null,
         format: item.format || null,
+        audioOnly: !!item.audioOnly,
         searchKey: normalizeArabic(name)
       });
     });

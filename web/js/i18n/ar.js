@@ -10,6 +10,7 @@ window.QR_I18N.ar = {
   riwayaFilterLabel: "تصفية حسب الرواية",
   muteLabel: "كتم الصوت",
   unmuteLabel: "إلغاء الكتم",
+  channels: "الإذاعات",
   popular: "مشاهير القراء",
   riwayat: "الروايات",
   tafseer: "تفسير وفتاوى",

@@ -10,6 +10,7 @@ window.QR_I18N.eng = {
   riwayaFilterLabel: "Filter by riwaya",
   muteLabel: "Mute",
   unmuteLabel: "Unmute",
+  channels: "Radio Channels",
   popular: "Top Reciters",
   riwayat: "Recitations",
   tafseer: "Tafseer & Fatwa",

@@ -99,6 +99,38 @@ describe('HLS live broadcasts', () => {
   });
 });
 
+describe('radio channels tab', () => {
+  it('sits right after All and lists only the five channels, in order', async () => {
+    const page = await open();
+    const chips = await page.locator('.cat-chip').evaluateAll((els) => els.map((e) => e.dataset.id));
+    assert.deepEqual(chips.slice(0, 3), ['ALL', 'CHANNELS', 'POPULAR']);
+    assert.equal((await page.locator('.cat-chip').nth(1).innerText()).trim(), 'الإذاعات');
+
+    await page.click('.cat-chip[data-id="CHANNELS"]');
+    assert.deepEqual(await ids(page), [900001, 900002, 900003, 900004, 900005]);
+    const names = await page.locator('.station-card .station-name').allInnerTexts();
+    assert.equal(names[4], 'إذاعة القرآن الكريم من البحرين');
+
+    await page.click('.cat-chip[data-id="POPULAR"]');
+    assert.ok((await ids(page)).every((id) => id < 900001), 'reciters tab holds no channel');
+  });
+
+  it('names the tab and the Bahrain station in English', async () => {
+    const page = await open({ lang: 'eng' });
+    assert.equal((await page.locator('.cat-chip').nth(1).innerText()).trim(), 'Radio Channels');
+    await page.click('.cat-chip[data-id="CHANNELS"]');
+    const names = await page.locator('.station-card .station-name').allInnerTexts();
+    assert.equal(names[4], 'Holy Quran Radio from Bahrain');
+  });
+
+  it('plays Bahrain as sound with no video-data note', async () => {
+    const page = await open();
+    assert.equal(await page.locator('.station-card[data-id="900005"] .station-note-badge').count(), 0);
+    await playCard(page, 900005);
+    await waitPlaying(page, 900005);
+  });
+});
+
 describe('favorites first', () => {
   it('moves a hearted station above the pinned ones, back again when removed, and keeps it after a reload', async () => {
     const page = await open();

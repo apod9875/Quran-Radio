@@ -32,7 +32,8 @@ function globalHeaders() {
 }
 
 // allowOrigins: extra origins (e.g. a local stream server) the CSP should let the app reach
-export async function startStaticServer({ allowOrigins = [] } = {}) {
+// port: 0 (default) picks a free port
+export async function startStaticServer({ allowOrigins = [], port: listenPort = 0 } = {}) {
   const headers = globalHeaders();
   if (headers['Content-Security-Policy'] && allowOrigins.length) {
     headers['Content-Security-Policy'] = headers['Content-Security-Policy']
@@ -55,7 +56,7 @@ export async function startStaticServer({ allowOrigins = [] } = {}) {
     fs.createReadStream(file).pipe(res);
   });
 
-  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  await new Promise((resolve) => server.listen(listenPort, '127.0.0.1', resolve));
   const { port } = server.address();
   return {
     url: `http://127.0.0.1:${port}`,

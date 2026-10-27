@@ -1,6 +1,7 @@
 /** Rendering of the category chips and the station list. */
 const CATEGORIES = [
   { id: 'ALL', key: 'all' },
+  { id: 'CHANNELS', key: 'channels' },
   { id: 'POPULAR', key: 'popular' },
   { id: 'RIWAYAT', key: 'riwayat' },
   { id: 'TAFSEER', key: 'tafseer' },

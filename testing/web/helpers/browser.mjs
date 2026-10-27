@@ -8,7 +8,7 @@ export function launchBrowser() {
 }
 
 const STREAM_HOST = /^https:\/\/(backup\.qurango\.net|stream\.radiojar\.com|radio\.xecod\.com|edge\.mixlr\.com)\//;
-const HLS_HOST = /^https:\/\/(win\.holol\.com|cdn-globecast\.akamaized\.net)\//;
+const HLS_HOST = /^https:\/\/(win\.holol\.com|cdn-globecast\.akamaized\.net|5c7b683162943\.streamlock\.net)\//;
 const SURAH_HOST = /^https:\/\/(cdn|server\d+)\.mp3quran\.net\//;
 const json = (route, status, body) => route.fulfill({
   status,

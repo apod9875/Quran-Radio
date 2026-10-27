@@ -6,6 +6,18 @@
  */
 window.QR_RELEASES = [
   {
+    version: '3.7.4',
+    date: '2026-10-27',
+    ar: [
+      'تبويب جديد «الإذاعات» يجمع القنوات: القاهرة ومكة والمسجد الحرام والمسجد النبوي',
+      'إضافة إذاعة القرآن الكريم من البحرين'
+    ],
+    eng: [
+      'New "Radio Channels" tab: Cairo, Makkah, Masjid al-Haram and Masjid an-Nabawi',
+      'Added Holy Quran Radio from Bahrain'
+    ]
+  },
+  {
     version: '3.7.3',
     date: '2026-10-20',
     ar: [

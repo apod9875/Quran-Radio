@@ -7,9 +7,12 @@
     "test": "node --test --test-concurrency=1 \"testing/**/*_test.mjs\"",
     "test:unit": "node --test \"testing/web/unit/*_test.mjs\"",
     "test:layout": "node --test --test-concurrency=1 \"testing/web/layout/*_test.mjs\"",
-    "test:flows": "node --test --test-concurrency=1 \"testing/web/flows/*_test.mjs\""
+    "test:flows": "node --test --test-concurrency=1 \"testing/web/flows/*_test.mjs\"",
+    "test:e2e": "e2e run"
   },
   "devDependencies": {
+    "@e2e-dev/web": "^0.15.3",
+    "e2e": "^0.21.3",
     "hls.js": "1.7.3",
     "playwright": "1.64.0"
   },
